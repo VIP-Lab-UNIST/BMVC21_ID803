@@ -1,4 +1,5 @@
 import torch
+import numpy as np
 from torch import nn
 
 class MMCL(nn.Module):
@@ -7,7 +8,7 @@ class MMCL(nn.Module):
         self.delta = delta # coefficient for mmcl
         self.r = r         # hard negative mining ratio
 
-    def forward(self, inputs, targets, GT_MC, is_vec=False):
+    def forward(self, inputs, targets_, targets ,GT_MC, is_vec=False):
         m, n = inputs.size()
 
         if is_vec:
@@ -18,9 +19,14 @@ class MMCL(nn.Module):
             multilabel.scatter_(1, targets, float(1))
 
         # multi-label filtering with PS uniqueness
-        # print(inputs.shape)
-        # print(targets.nonzero())
-        # raise ValueError
+        # GT_cnt=torch.tensor(GT_MC[0]).cuda()
+        # GT_label=torch.tensor(GT_MC[1]).cuda()
+        # GT_imname=np.array(GT_MC[2])
+
+        # for i, l_cnt in enumerate(targets_):
+        #     imname=GT_imname[(GT_cnt==l_cnt).cpu().detach().numpy()]
+        #     multilabel[i, GT_imname==imname]=0
+        #     multilabel[i, GT_cnt==l_cnt]=1
 
         loss = []
         for i in range(m):

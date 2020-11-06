@@ -47,14 +47,14 @@ class MCLoss(nn.Module):
         # MC
         if epoch > 5:
             multilabel = self.labelpred.predict(self.memory.mem.detach().clone(), label.detach().clone())
-            loss = self.criterion(logits, multilabel, self.GT_MC, True)
+            loss = self.criterion(logits, label, multilabel, self.GT_MC, True)
         else:
-            loss = self.criterion(logits, label, self.GT_MC)
+            loss = self.criterion(logits, label, label, self.GT_MC)
 
         # No MC
         # multilabel=torch.zeros(len(label) ,18048).cuda()
         # for i, l_cnt in enumerate(label): multilabel[i, l_cnt]=1
-        # loss = self.criterion(logits, multilabel, self.GT_MC, True)
+        # loss = self.criterion(logits, label, multilabel, self.GT_MC, True)
 
         # GT
         # multilabel=torch.zeros(len(label) ,18048).cuda()
@@ -68,7 +68,7 @@ class MCLoss(nn.Module):
         #     if l != -2: multilabel[i, GT_cnt[GT_label==l]]=1
         #     else: multilabel[i, l_cnt]=1
 
-        # loss = self.criterion(logits, multilabel, self.GT_MC, True)
+        # loss = self.criterion(logits, label, multilabel, self.GT_MC, True)
 
         
         return loss
