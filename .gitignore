@@ -1,0 +1,11 @@
+# Ignore training results
+logs/
+**/__pycache__
+**/@eaDir
+**/@SynoResource
+# lib/__pycache__
+# lib/datasets/__pycache__
+# lib/loss/__pycache__
+# lib/model/__pycache__
+# lib/utils/__pycache__
+# configs/__pycache__

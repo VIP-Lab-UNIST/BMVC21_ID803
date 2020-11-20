@@ -67,7 +67,7 @@
 CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
                         --reid_loss oim \
                         --dataset PRW \
-                        --batch_size 2 \
+                        --batch_size 4 \
                         --lr_decay_step 8 \
                         --lr 0.003 \
                         --lr_decay_gamma 0.1 \
@@ -80,7 +80,7 @@ CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
                         --w_OIM_loss_oim 1.0 \
                         --part_num 4 \
                         --part_cls_scalar 10.0 \
-                        --path ./logs/prw/test \
+                        --path ./logs/prw/bs4/GT/f256 \
                         --num_features 256 \
                         --num_pids 482 \
                         --oim_momentum 0.5 \
