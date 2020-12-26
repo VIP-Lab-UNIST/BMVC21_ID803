@@ -9,21 +9,9 @@ os.chdir(dname)
 
 search_dirs = [ 
 
-                ### bs 2
-                # './logs/prw/bs2/baseline/f2048/Nov05_18-33-50',
-                
-                # './logs/prw/bs2/GT/f256/Nov05_18-35-33',
-                # './logs/prw/bs2/GT/f256_nr1/Nov05_11-02-21',
-                # './logs/prw/bs2/GT/f2048/Nov05_10-57-03',
-
-                # './logs/prw/bs2/no_mc/f256/Nov05_10-59-23',
-                # './logs/prw/bs2/no_mc/f2048/Nov06_16-46-13',
-
+               
                 ### bs 4
-                # './logs/prw/bs4/base/f2048/Nov05_10-16-46',
-                # './logs/prw/bs4/base_oi/Nov02_21-16-56',
-                './logs/prw/bs4/GT/f256/Nov19_20-40-02',
-                './logs/prw/bs4/base/f256/Nov19_20-38-28',
+                './logs/prw/bs4/base/f256/Dec26_16-14-46',
 
 
 ]

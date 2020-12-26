@@ -218,8 +218,8 @@ class OrthogonalRoiHeads(RoIHeads):
 
         gt_boxes = [t["boxes"].to(dtype) for t in targets]
         if self.training: 
-            # gt_labels = [t["cnt"].to(device) for t in targets]
-            gt_labels = [t["labels"].to(device) for t in targets]
+            gt_labels = [t["cnt"].to(device) for t in targets]
+            # gt_labels = [t["labels"].to(device) for t in targets]
         else: gt_labels = [t["labels"] for t in targets]
 
         # append ground-truth bboxes to propos
@@ -262,7 +262,6 @@ class OrthogonalRoiHeads(RoIHeads):
         #             if(targets[k]['labels'][i] == 5555):
         #                 targets[k]['labels'][i] = cnt
         #                 cnt += 1
-
         if self.training:
             proposals, matched_idxs, labels, regression_targets = \
                 self.select_training_samples(proposals, targets)
@@ -301,7 +300,7 @@ class OrthogonalRoiHeads(RoIHeads):
             
             cls_scores = cls_scores.squeeze(3).squeeze(2)
             embeddings_ = embeddings_.squeeze(3).squeeze(2)
-            
+
             # loss_reid = self.reid_regressor(embeddings_, labels, cls_scores) 
             loss_reid = self.reid_regressor(epoch, embeddings_, labels, cls_scores, images, proposals, targets) 
             losses = dict(loss_detection=loss_detection,

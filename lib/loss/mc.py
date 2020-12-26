@@ -28,7 +28,7 @@ class MCLoss(nn.Module):
         self.labelpred = MPLP(0.6)
         self.criterion = MMCL(5, 0.01)
 
-        self.GT_MC=GT_MC
+        self.GT_MC = GT_MC
 
     def forward(self, epoch, inputs, roi_label, cls_scores, images, proposals, GT_info):
 
@@ -45,11 +45,11 @@ class MCLoss(nn.Module):
         logits = self.memory(inputs, label, epoch)
 
         # MC
-        # if epoch > 5:
-        #     multilabel = self.labelpred.predict(self.memory.mem.detach().clone(), label.detach().clone())
-        #     loss = self.criterion(logits, label, multilabel, self.GT_MC, True)
-        # else:
-        #     loss = self.criterion(logits, label, label, self.GT_MC)
+        if epoch > 5:
+            multilabel = self.labelpred.predict(self.memory.mem.detach().clone(), label.detach().clone())
+            loss = self.criterion(logits, label, multilabel, self.GT_MC, True)
+        else:
+            loss = self.criterion(logits, label, label, self.GT_MC)
 
         # No MC
         # multilabel=torch.zeros(len(label) ,18048).cuda()
@@ -57,18 +57,18 @@ class MCLoss(nn.Module):
         # loss = self.criterion(logits, label, multilabel, self.GT_MC, True)
 
         # GT
-        multilabel=torch.zeros(len(label) ,18048).cuda()
-        GT_cnt=torch.tensor(self.GT_MC[0]).cuda()
-        GT_label=torch.tensor(self.GT_MC[1]).cuda()
+        # multilabel=torch.zeros(len(label) ,18048).cuda()
+        # GT_cnt=torch.tensor(self.GT_MC[0]).cuda()
+        # GT_label=torch.tensor(self.GT_MC[1]).cuda()
 
-        for i, l_cnt in enumerate(label):
+        # for i, l_cnt in enumerate(label):
 
-            l=GT_label[l_cnt==GT_cnt]
-            # only label
-            if l != -2: multilabel[i, GT_cnt[GT_label==l]]=1
-            else: multilabel[i, l_cnt]=1
+        #     l=GT_label[l_cnt==GT_cnt]
+        #     # only label
+        #     if l != -2: multilabel[i, GT_cnt[GT_label==l]]=1
+        #     else: multilabel[i, l_cnt]=1
 
-        loss = self.criterion(logits, label, multilabel, self.GT_MC, True)
+        # loss = self.criterion(logits, label, multilabel, self.GT_MC, True)
 
         
         return loss

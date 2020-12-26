@@ -61,8 +61,8 @@
 #                         --lr_warm_up \
 #                         --w_OIM_loss_oim 1.0
 
-                        # --path ./logs/prw/base/fsize2048 \
-                        # --resume ./logs/prw/base/fsize256/Nov03_20-18-21/checkpoint_epoch14.pth \
+                        # --path ./logs/prw/bs4/base/f256 \
+                        # --path ./logs/prw/tmp \
 
 CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
                         --reid_loss oim \
@@ -80,7 +80,7 @@ CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
                         --w_OIM_loss_oim 1.0 \
                         --part_num 4 \
                         --part_cls_scalar 10.0 \
-                        --path ./logs/prw/bs4/GT/f256 \
+                        --path ./logs/prw/bs4/base/f256 \
                         --num_features 256 \
                         --num_pids 482 \
                         --oim_momentum 0.5 \

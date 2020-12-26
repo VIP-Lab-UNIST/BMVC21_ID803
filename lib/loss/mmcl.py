@@ -18,7 +18,7 @@ class MMCL(nn.Module):
             multilabel = torch.zeros(inputs.size()).cuda()
             multilabel.scatter_(1, targets, float(1))
 
-        # multi-label filtering with PS uniqueness
+        # multi-label filtering with PS uniqueness, you should -1 for each label
         # GT_cnt=torch.tensor(GT_MC[0]).cuda()
         # GT_label=torch.tensor(GT_MC[1]).cuda()
         # GT_imname=np.array(GT_MC[2])
