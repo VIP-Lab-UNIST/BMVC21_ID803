@@ -48,7 +48,6 @@ class MCLoss(nn.Module):
         scene_names=scene_names[(label>0).clone().detach().cpu().numpy()]
         label=label[label>0]
 
-        # draw_proposal(scene_names, proposals, label)
         logits = self.memory(inputs, label, epoch)
 
         # MC
@@ -57,6 +56,8 @@ class MCLoss(nn.Module):
             loss = self.criterion(logits, multilabel, True)
         else:
             loss = self.criterion(logits, label)
+        
+        # draw_proposal(scene_names, proposals, label)
         
         return loss
 
