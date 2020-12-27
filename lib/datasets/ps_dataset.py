@@ -46,7 +46,6 @@ class PersonSearchDataset(object):
         # label_pids.min() = 1 if mode = 'train', else label_pids unchanged.
         sample = self.record[idx]
         im_name = sample['im_name']
-        imcnt = torch.as_tensor(sample['imcnt'], dtype=torch.int64)
         img_path = osp.join(self.data_path, im_name)
         img = Image.open(img_path).convert('RGB')
 
@@ -54,6 +53,7 @@ class PersonSearchDataset(object):
         labels = torch.as_tensor(sample['gt_pids'], dtype=torch.int64)
         if self.mode == 'train': 
             cnt = torch.as_tensor(sample['cnt'], dtype=torch.int64)
+            imcnt = torch.as_tensor(sample['imcnt'], dtype=torch.int64)
             target = dict(boxes=boxes,
                       labels=labels,
                       flipped='False',

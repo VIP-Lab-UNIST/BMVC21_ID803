@@ -40,6 +40,7 @@ class MCLoss(nn.Module):
 
         scene_names= np.concatenate(scene_names)
         label = targets - 1  # background label = -1
+        scene_nums = scene_nums -1
         inputs = inputs * cls_scores
 
         inputs=inputs[label>0]
@@ -58,7 +59,7 @@ class MCLoss(nn.Module):
             loss = self.criterion(logits, label)
         
         # draw_proposal(scene_names, proposals, label)
-        
+
         return loss
 
 class MemoryLayer(Function):
