@@ -4,6 +4,7 @@ import torch
 import torch.nn as nn
 from torch.nn import init
 import torch.nn.functional as F
+import numpy as np 
 
 from torchvision.ops import MultiScaleRoIAlign
 from torchvision.ops import boxes as box_ops
@@ -218,22 +219,26 @@ class OrthogonalRoiHeads(RoIHeads):
 
         gt_boxes = [t["boxes"].to(dtype) for t in targets]
         if self.training: 
-            gt_labels = [t["cnt"].to(device) for t in targets]
-            # gt_labels = [t["labels"].to(device) for t in targets]
+            gt_cnts = [t["cnt"].to(device) for t in targets]
+            gt_labels = [t["labels"].to(device) for t in targets]
         else: gt_labels = [t["labels"] for t in targets]
 
         # append ground-truth bboxes to propos
         proposals = self.add_gt_proposals(proposals, gt_boxes)
 
         # get matching gt indices for each proposal
-        matched_idxs, labels = self.assign_targets_to_proposals(proposals, gt_boxes, gt_labels)
+        matched_idxs, cnts = self.assign_targets_to_proposals(proposals, gt_boxes, gt_cnts)
+        _, labels = self.assign_targets_to_proposals(proposals, gt_boxes, gt_labels)
+
         # sample a fixed proportion of positive-negative proposals
-        sampled_inds = self.subsample(labels)
+        # sampled_inds1 = self.subsample(labels)
+        sampled_inds = self.subsample(cnts)
         matched_gt_boxes = []
         num_images = len(proposals)
         for img_id in range(num_images):
             img_sampled_inds = sampled_inds[img_id]
             proposals[img_id] = proposals[img_id][img_sampled_inds]
+            cnts[img_id] = cnts[img_id][img_sampled_inds]
             labels[img_id] = labels[img_id][img_sampled_inds]
             matched_idxs[img_id] = matched_idxs[img_id][img_sampled_inds]
 
@@ -243,7 +248,7 @@ class OrthogonalRoiHeads(RoIHeads):
             matched_gt_boxes.append(gt_boxes_in_image[matched_idxs[img_id]])
 
         regression_targets = self.box_coder.encode(matched_gt_boxes, proposals)
-        return proposals, matched_idxs, labels, regression_targets
+        return proposals, matched_idxs, cnts, labels, regression_targets
 
     def forward(self, epoch, features, proposals, images, targets=None):
         """
@@ -263,15 +268,16 @@ class OrthogonalRoiHeads(RoIHeads):
         #                 targets[k]['labels'][i] = cnt
         #                 cnt += 1
         if self.training:
-            proposals, matched_idxs, labels, regression_targets = \
+            proposals, matched_idxs, cnts, labels, regression_targets = \
                 self.select_training_samples(proposals, targets)
-
+            
         rcnn_features = self.feat_head(
                 self.box_roi_pool(features, proposals, image_shapes))
 
         if self.training:
             result, losses = [], {}
-            det_labels = [(y != 0).long() for y in labels]
+            # det_labels = [(y != 0).long() for y in labels]
+            det_labels = [(y != 0).long() for y in cnts]
             box_regression = self.box_predictor(rcnn_features['feat_res5'])
             embeddings_, class_logits = self.embedding_head(rcnn_features, det_labels)
             cls_scores = F.softmax(class_logits, dim=1)[:,[1]]
@@ -300,9 +306,11 @@ class OrthogonalRoiHeads(RoIHeads):
             
             cls_scores = cls_scores.squeeze(3).squeeze(2)
             embeddings_ = embeddings_.squeeze(3).squeeze(2)
+            scene_name=[ [str(target['im_name'])]*128 for target in targets]
+            scene_num=[ target['imcnt'].repeat(128) for target in targets]
+            scene_name=np.array(scene_name)
 
-            # loss_reid = self.reid_regressor(embeddings_, labels, cls_scores) 
-            loss_reid = self.reid_regressor(epoch, embeddings_, labels, cls_scores, images, proposals, targets) 
+            loss_reid = self.reid_regressor(epoch, embeddings_, cls_scores, cnts, scene_num, labels, scene_name, images, proposals) 
             losses = dict(loss_detection=loss_detection,
                           loss_box_reg=loss_box_reg,
                           loss_reid=loss_reid)
@@ -552,7 +560,7 @@ def rcnn_loss(class_logits, box_regression, labels, regression_targets):
 
     return classification_loss, box_loss
 
-def get_model(args, GT_MC=None, training=True, pretrained_backbone=True):
+def get_model(args, training=True, pretrained_backbone=True):
     phase_args = args.train if training else args.test
     
     # Resnet50
@@ -595,10 +603,7 @@ def get_model(args, GT_MC=None, training=True, pretrained_backbone=True):
     # reid_regressor = OIMLoss(
     #                     args.num_features, args.num_pids, args.num_cq_size, 
     #                     args.train.oim_momentum, args.oim_scalar)
-    reid_regressor = MCLoss(
-                        args.num_features, args.num_pids, args.num_cq_size, 
-                        args.train.oim_momentum, args.oim_scalar,
-                        0, 0, GT_MC)
+    reid_regressor = MCLoss(args.num_features)
                         
     model = FasterRCNN( 
                         # Region proposal network

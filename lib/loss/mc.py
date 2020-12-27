@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 import warnings
 warnings.filterwarnings("ignore")
+from PIL import Image
 
 import torch
 import torch.nn.functional as F
@@ -17,59 +18,45 @@ from .mplp import MPLP
 class MCLoss(nn.Module):
     """docstring for MCLoss"""
 
-    def __init__(self, num_features, num_pids, num_cq_size,
-                 oim_momentum, oim_scalar,
-                 oim_alpha, oim_beta, GT_MC=None):
+    def __init__(self, num_features):
         super(MCLoss, self).__init__()
         self.num_features = num_features
 
-        self.memory=Memory(self.num_features, 18048)
-        # self.memory=Memory(self.num_features, 17473)
+    def set_scene_vector(self, train_info):
+        num_person=len(train_info[3])
+        num_scene=list(train_info[3])
+        self.num_scene=list(map(lambda x: x-1, num_scene))
+        self.memory=Memory(self.num_features, num_person).cuda()
         self.labelpred = MPLP(0.6)
         self.criterion = MMCL(5, 0.01)
 
-        self.GT_MC = GT_MC
-
-    def forward(self, epoch, inputs, roi_label, cls_scores, images, proposals, GT_info):
+    def forward(self, epoch, inputs, cls_scores, roi_labels, scene_nums, GT_roi_labels, scene_names, images, proposals):
 
         image_tensors=images.tensors
-
         # merge into one batch, background label = 0
-        targets = torch.cat(roi_label)
+        targets = torch.cat(roi_labels)
+        proposals = torch.cat(proposals)
+        scene_nums=torch.cat(scene_nums).cuda()
+
+        scene_names= np.concatenate(scene_names)
         label = targets - 1  # background label = -1
-        inputs = inputs * cls_scores
+        # inputs = inputs * cls_scores
 
         inputs=inputs[label>0]
+        proposals=proposals[label>0]
+        scene_nums=scene_nums[label>0]
+        scene_names=scene_names[(label>0).clone().detach().cpu().numpy()]
         label=label[label>0]
-
+        
+        # draw_proposal(scene_names, proposals, label)
         logits = self.memory(inputs, label, epoch)
 
         # MC
         if epoch > 5:
             multilabel = self.labelpred.predict(self.memory.mem.detach().clone(), label.detach().clone())
-            loss = self.criterion(logits, label, multilabel, self.GT_MC, True)
+            loss = self.criterion(logits, multilabel, True)
         else:
-            loss = self.criterion(logits, label, label, self.GT_MC)
-
-        # No MC
-        # multilabel=torch.zeros(len(label) ,18048).cuda()
-        # for i, l_cnt in enumerate(label): multilabel[i, l_cnt]=1
-        # loss = self.criterion(logits, label, multilabel, self.GT_MC, True)
-
-        # GT
-        # multilabel=torch.zeros(len(label) ,18048).cuda()
-        # GT_cnt=torch.tensor(self.GT_MC[0]).cuda()
-        # GT_label=torch.tensor(self.GT_MC[1]).cuda()
-
-        # for i, l_cnt in enumerate(label):
-
-        #     l=GT_label[l_cnt==GT_cnt]
-        #     # only label
-        #     if l != -2: multilabel[i, GT_cnt[GT_label==l]]=1
-        #     else: multilabel[i, l_cnt]=1
-
-        # loss = self.criterion(logits, label, multilabel, self.GT_MC, True)
-
+            loss = self.criterion(logits, label)
         
         return loss
 
@@ -109,30 +96,10 @@ class Memory(nn.Module):
 
         return logits
 
-# def imageTensor2Numpy(image_batch):
 
-#     image_numpy = image_batch.detach().cpu().numpy().transpose(1,2,0).copy()
-#     image_numpy[:,:,0] = image_numpy[:,:,0]*0.229+0.485
-#     image_numpy[:,:,1] = image_numpy[:,:,1]*0.224+0.456
-#     image_numpy[:,:,2] = image_numpy[:,:,2]*0.225+0.406
-#     image_numpy = image_numpy[:,:,[2,1,0]]
-#     image_numpy = (image_numpy*255).astype(np.uint8)
-
-#     return image_numpy
-
-# def draw_bbox(images, proposals, labels, GT_info):
-#     image_tensors=images.tensors.detach()
-#     labels=labels.reshape(len(proposals), -1).detach()
-#     for i, (image_tensors_, proposals_, labels_, GT_info_)  in enumerate(zip(image_tensors, proposals, labels, GT_info)):
-#         img_array=imageTensor2Numpy(image_tensors_)
-#         img_array=np.ascontiguousarray(img_array, dtype=np.uint8)
-#         for proposal, label in zip(proposals_, labels_):
-#             if label > 482:
-#                 folder_path='./logs/prw/bjhan/draw_05_area12070/'+str(label.item())+'/'
-#                 # folder_path='./logs/prw/bjhan/draw_04_cls07_area12070/'+str(label.item())+'/'
-#                 if not os.path.isdir(folder_path): os.makedirs(folder_path)
-#                 person = img_array[int(proposal[1]):int(proposal[3]), int(proposal[0]):int(proposal[2]), :]
-#                 cv2.imwrite(folder_path+'out_%s'%str(GT_info_['im_name']), person)
-#                 # print(proposal[3]-proposal[1])
-#                 # print(proposal[2]-proposal[0])
-#                 # print(str(label.item()))
+def draw_proposal(scene_names, proposals, labels):
+    for i, (scene_name, proposal, label) in enumerate(zip(scene_names, proposals, labels)):
+        scene=Image.open('/root/workspace/Personsearch/datasets/PRW-v16.04.20/frames/'+scene_name)
+        x,y,x2,y2 =proposal
+        roi=scene.crop((x, y, x2, y2))
+        roi.save('./roi_%d.jpg'%i)

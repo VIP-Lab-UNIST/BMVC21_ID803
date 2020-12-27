@@ -30,10 +30,12 @@ class PRW(PersonSearchDataset):
     def gt_roidb(self):
         gt_roidb = []
         
-        cnt=0
+        cnt=1
+        im_cnt=1
         total_cnt=[]
         total_pid=[]
         total_imid=[]
+        total_imcnt=[]
         for im_name in self.imgs:
             anno_path = osp.join(self.root, 'annotations', im_name)
             anno = loadmat(anno_path)
@@ -56,6 +58,7 @@ class PRW(PersonSearchDataset):
             # overlaps = csr_matrix(overlaps)
             gt_roidb.append({
                 'im_name': im_name,
+                'imcnt': list([im_cnt]),
                 'boxes': rois.astype(np.int32),
                 'gt_pids': ids.astype(np.int32),
                 'cnt': list(range(cnt,cnt+num_objs)),
@@ -66,10 +69,12 @@ class PRW(PersonSearchDataset):
             total_cnt.extend(range(cnt,cnt+num_objs))
             total_pid.extend(ids.astype(np.int32))
             total_imid.extend([str(im_name) for i in range(num_objs)])
+            total_imcnt.extend(list(im_cnt for _ in range(num_objs)))
             
             cnt += num_objs
+            im_cnt += 1
 
-        return gt_roidb, [tuple(total_cnt),tuple(total_pid), tuple(total_imid)]
+        return gt_roidb, [tuple(total_cnt),tuple(total_pid), tuple(total_imid), tuple(total_imcnt)]
         
     # def _num_people_(self):
     #     num_bbox=17473

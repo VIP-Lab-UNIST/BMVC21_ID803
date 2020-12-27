@@ -39,12 +39,13 @@ def main(args, get_model_fn):
         'Working directory: {}'.format(args.path)))))
     
     args.export_to_json(os.path.join(args.path, 'args.json'))
-    train_loader, GT_MC = get_data_loader(args, train=True)
+    train_loader, train_info = get_data_loader(args, train=True)
 
     ## Load model
-    model = get_model_fn(args, GT_MC, training=True,
+    model = get_model_fn(args, training=True,
                          pretrained_backbone=True)
     model.to(device)
+    model.roi_heads.reid_regressor.set_scene_vector(train_info)
 
     ## Set optimizer and scheduler
     optimizer = get_optimizer(args, model)

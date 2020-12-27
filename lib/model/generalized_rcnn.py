@@ -30,6 +30,7 @@ class GeneralizedRCNN(nn.Module):
         self.backbone = backbone
         self.rpn = rpn
         self.roi_heads = roi_heads
+
         # used only on torchscript mode
         self._has_warned = False
 
