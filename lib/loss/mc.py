@@ -40,14 +40,14 @@ class MCLoss(nn.Module):
 
         scene_names= np.concatenate(scene_names)
         label = targets - 1  # background label = -1
-        # inputs = inputs * cls_scores
+        inputs = inputs * cls_scores
 
         inputs=inputs[label>0]
         proposals=proposals[label>0]
         scene_nums=scene_nums[label>0]
         scene_names=scene_names[(label>0).clone().detach().cpu().numpy()]
         label=label[label>0]
-        
+
         # draw_proposal(scene_names, proposals, label)
         logits = self.memory(inputs, label, epoch)
 
