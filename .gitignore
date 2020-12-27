@@ -1,6 +1,6 @@
 # Ignore training results
 logs/
-@eaDir/
+*@eaDir
 **/__pycache__
 **/*@*
 # **/@eaDir
