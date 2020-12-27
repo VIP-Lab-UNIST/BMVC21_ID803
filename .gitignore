@@ -1,7 +1,7 @@
 # Ignore training results
 logs/
 **/__pycache__
-**/@*
+**/*@*
 # **/@eaDir
 # **/@SynoResource
 # lib/__pycache__
