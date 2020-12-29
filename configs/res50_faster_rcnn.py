@@ -217,6 +217,11 @@ def args_faster_rcnn_ortho_featuring(meta_parser=args_faster_rcnn):
     parser.add_argument('--embedding_feat_fuse', action='store_true',
                         help='Weather to fuse feat_res4 and feat_res5')
 
+    parser.add_argument('--uniq', type=int, required=True, choices=[1,0],help='Use uniqueness')
+    parser.add_argument('--num_neg',type=int, required=True, help='The number of negaitve on one scene')
+    parser.add_argument('--coap', type=int, required=True, choices=[1,0], help='Use Co-appearance')
+    parser.add_argument('--co_thrd', type=float, required=True, help='Co appearance threshold')
+
     # sizes
     parser.add_argument('--num_features', type=int, default=256,
                         help='Embedding dimension.')
