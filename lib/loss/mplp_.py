@@ -1,28 +1,18 @@
 import torch
 
 class MPLP(object):
-    def __init__(self, t=0.6, k=1):
+    def __init__(self, t=0.6, k=None):
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.t = t
-        self.k = k
 
-    def predict(self, memory, scenes, targets, targets_scenes):
-
+    def predict(self, memory, targets):
         mem_vec = memory[targets]
         mem_sim = mem_vec.mm(memory.t())
         m, n = mem_sim.size()
-        mem_simsorted, index_sorted = torch.sort(mem_sim, dim=1, descending=True)
-        scene_sorted=torch.gather(scenes.repeat(m,1), 1, index_sorted)
-        print(scene_sorted[mem_simsorted > self.t])
-        print(scene_sorted[mem_simsorted > self.t].shape)
-        scene_sorted[mem_simsorted > self.t]
-        mask=(mem_simsorted > self.t)
-        raise ValueError
-
-        mask_num = torch.sum(mem_simsorted > self.t, dim=1)
-        print('mask_num: ', mask_num)
-
+        mem_sim_sorted, index_sorted = torch.sort(mem_sim, dim=1, descending=True)
         multilabel = torch.zeros(mem_sim.size()).to(self.device)
+        mask_num = torch.sum(mem_sim_sorted > self.t, dim=1)
+
         for i in range(m):
             topk = int(mask_num[i].item())
             topk = max(topk, 10)
@@ -40,8 +30,7 @@ class MPLP(object):
             if step <= 0: continue
             multilabel[i, index_sorted[i, 0:step]] = float(1)
 
-        # (N, 18048)   
         targets = torch.unsqueeze(targets, 1)
         multilabel.scatter_(1, targets, float(1))
         
-        return multilabel, co_appearance_cnt
+        return multilabel

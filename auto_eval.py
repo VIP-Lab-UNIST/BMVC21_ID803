@@ -10,7 +10,13 @@ os.chdir(dname)
 search_dirs = [ 
 
                 ### bs 4
-                './logs/prw/bs4/base/f256/Dec27_13-18-32',
+                # './logs/prw/bs4/base/f256/Dec27_13-18-32',
+                # './logs/prw/bs4/base/f256/Dec27_14-47-00',
+                # './logs/prw/bs4/base/f256/Dec27_14-47-13',
+                # './logs/prw/bs4/base/f256/Dec27_14-47-25',
+                # './logs/prw/bs4/base/f256/Dec27_14-47-42',
+                # './logs/prw/bs4/base/f256/Dec27_14-50-53',
+                './logs/prw/bs4/base/f256/Dec27_14-51-14',
 
 ]
 
