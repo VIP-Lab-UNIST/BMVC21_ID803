@@ -22,18 +22,19 @@ class MPLP(object):
         mem_simsorted, index_sorted = torch.sort(mem_sim, dim=1, descending=True)
         mask_num = torch.sum(mem_simsorted > self.t, dim=1)
         multilabel = torch.zeros(mem_sim.size()).to(self.device)
+
         for i in range(m):
             topk = int(mask_num[i].item())
             topk = max(topk, 10)
             topk_idx = index_sorted[i, :topk]
             vec = memory[topk_idx]
-            sim_ = vec.mm(memory.t())
+            sim = vec.mm(memory.t())
 
-            # Uniqueness for cycle-consistency
-            sim=-torch.ones(sim_.shape).cuda()
-            for s_num in s_list:
-                u_topk_val, u_topk_idx=sim_[:,s_num==scenes].topk(k=min(self.k, len((s_num==scenes).nonzero())), dim=1)
-                sim[:,s_num==scenes]=sim[:,s_num==scenes].scatter_(1, u_topk_idx, u_topk_val)
+            # # Uniqueness for cycle-consistency
+            # sim=-torch.ones(sim_.shape).cuda()
+            # for s_num in s_list:
+            #     u_topk_val, u_topk_idx=sim_[:,s_num==scenes].topk(k=min(self.k, len((s_num==scenes).nonzero())), dim=1)
+            #     sim[:,s_num==scenes]=sim[:,s_num==scenes].scatter_(1, u_topk_idx, u_topk_val)
 
             _, idx_sorted = torch.sort(sim.detach().clone(), dim=1, descending=True)
             step = 1
