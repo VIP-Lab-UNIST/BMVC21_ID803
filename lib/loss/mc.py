@@ -25,9 +25,9 @@ class MCLoss(nn.Module):
     def set_scene_vector(self, train_info):
         num_person=len(train_info[3])
         num_scene=list(train_info[3])
-        self.num_scene=list(map(lambda x: x-1, num_scene))
+        self.num_scene=torch.tensor(list(map(lambda x: x-1, num_scene))).cuda()
         self.memory=Memory(self.num_features, num_person).cuda()
-        self.labelpred = MPLP(0.6)
+        self.labelpred = MPLP(0.6, k=1)
         self.criterion = MMCL(5, 0.01)
 
     def forward(self, epoch, inputs, cls_scores, roi_labels, scene_nums, GT_roi_labels, scene_names, images, proposals):
@@ -52,8 +52,9 @@ class MCLoss(nn.Module):
         logits = self.memory(inputs, label, epoch)
 
         # MC
-        if epoch > 5:
-            multilabel = self.labelpred.predict(self.memory.mem.detach().clone(), label.detach().clone())
+        if epoch > -1:
+        # if epoch > 5:
+            multilabel, co_appearance_cnt = self.labelpred.predict(self.memory.mem.detach().clone(), self.num_scene, label.detach().clone(), scene_nums.detach().clone())
             loss = self.criterion(logits, multilabel, True)
         else:
             loss = self.criterion(logits, label)

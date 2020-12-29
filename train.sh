@@ -80,7 +80,7 @@ CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
                         --w_OIM_loss_oim 1.0 \
                         --part_num 4 \
                         --part_cls_scalar 10 \
-                        --path ./logs/prw/bs4/base/f256 \
+                        --path ./logs/prw/tmp \
                         --num_features 256 \
                         --num_pids 482 \
                         --oim_momentum 0.5 \
