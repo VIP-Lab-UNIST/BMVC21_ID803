@@ -61,8 +61,10 @@
 #                         --lr_warm_up \
 #                         --w_OIM_loss_oim 1.0
 
+                        # --path ./logs/prw/bs4/uniq_v1/ \
                         # --path ./logs/prw/bs4/base/f256 \
                         # --path ./logs/prw/tmp \
+                        # --resume ./logs/prw/bs4/base/f256/Dec27_14-51-14/checkpoint_epoch22.pth \
 
 CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
                         --reid_loss oim \

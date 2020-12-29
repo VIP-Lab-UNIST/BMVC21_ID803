@@ -52,8 +52,8 @@ class MCLoss(nn.Module):
         logits = self.memory(inputs, label, epoch)
 
         # MC
-        if epoch > -1:
-        # if epoch > 5:
+        # if epoch > -1:
+        if epoch > 5:
             multilabel, co_appearance_cnt = self.labelpred.predict(self.memory.mem.detach().clone(), self.num_scene, label.detach().clone(), scene_nums.detach().clone())
             loss = self.criterion(logits, multilabel, True)
         else:

@@ -9,7 +9,7 @@ class MPLP(object):
     def predict(self, memory, scenes, targets, targets_scenes):
 
         mem_vec = memory[targets]
-        mem_sim_ = mem_vec.mm(memory.t())
+        mem_sim = mem_vec.mm(memory.t())
 
         # Uniqueness
         s_list=torch.unique(scenes)
@@ -21,8 +21,8 @@ class MPLP(object):
         m, n = mem_sim.size()
         mem_simsorted, index_sorted = torch.sort(mem_sim, dim=1, descending=True)
         mask_num = torch.sum(mem_simsorted > self.t, dim=1)
-        multilabel = torch.zeros(mem_sim.size()).to(self.device)
 
+        multilabel = torch.zeros(mem_sim.size()).to(self.device)
         for i in range(m):
             topk = int(mask_num[i].item())
             topk = max(topk, 10)
@@ -30,7 +30,7 @@ class MPLP(object):
             vec = memory[topk_idx]
             sim = vec.mm(memory.t())
 
-            # # Uniqueness for cycle-consistency
+            # Uniqueness for cycle-consistency
             # sim=-torch.ones(sim_.shape).cuda()
             # for s_num in s_list:
             #     u_topk_val, u_topk_idx=sim_[:,s_num==scenes].topk(k=min(self.k, len((s_num==scenes).nonzero())), dim=1)
@@ -51,4 +51,5 @@ class MPLP(object):
         targets = torch.unsqueeze(targets, 1)
         multilabel.scatter_(1, targets, float(1))
         
+        co_appearance_cnt=0
         return multilabel, co_appearance_cnt
