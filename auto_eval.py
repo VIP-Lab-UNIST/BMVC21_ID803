@@ -10,8 +10,8 @@ os.chdir(dname)
 search_dirs = [ 
 
                 ### bs 4
-                # './logs/prw/1229-v4/top20-decay14/Dec30_18-52-28',
-                './logs/prw/1229-v4/top20-decay14/Dec30_18-52-16',
+                './logs/prw/1229-v4/top20-decay14/Dec30_19-43-42',
+                # './logs/prw/1229-v4/top20-decay14/Dec30_18-58-15',
 
 ]
 

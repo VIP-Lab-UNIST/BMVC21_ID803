@@ -34,7 +34,7 @@ class MCLoss(nn.Module):
         self.name_scene=np.array(name_scene)
         self.num_scene=torch.tensor(list(map(lambda x: x-1, num_scene))).cuda()
         self.memory=Memory(self.num_features, num_person).cuda()
-        self.labelpred = MPLP(total_scene=self.num_scene, t=0.6, uniq=self.use_uniq, k=self.num_neg, coap=self.use_coap, t_c=self.co_thrd)
+        self.labelpred = MPLP(total_scene=self.num_scene, t=0.5, uniq=self.use_uniq, k=self.num_neg, coap=self.use_coap, t_c=self.co_thrd)
         self.criterion = MMCL(delta=5.0, r=0.01)
 
     def forward(self, epoch, inputs, cls_scores, roi_labels, scene_nums, GT_roi_labels, scene_names, images, proposals):

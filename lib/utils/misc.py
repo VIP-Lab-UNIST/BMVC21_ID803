@@ -39,6 +39,7 @@ class Nestedspace(argparse.Namespace):
             self.__dict__[name] = value
 
     def __getattr__(self, name):
+        print(name)
         if '.' in name:
             group, name = name.split('.', 1)
             try:
