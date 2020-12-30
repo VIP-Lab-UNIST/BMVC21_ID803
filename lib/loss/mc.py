@@ -26,16 +26,16 @@ class MCLoss(nn.Module):
         self.co_thrd=co_thrd
         self.num_features = num_features
         
-
     def set_scene_vector(self, train_info):
         num_person=len(train_info[3])
         num_scene=list(train_info[3])
         name_scene=train_info[2]
+
         self.name_scene=np.array(name_scene)
         self.num_scene=torch.tensor(list(map(lambda x: x-1, num_scene))).cuda()
         self.memory=Memory(self.num_features, num_person).cuda()
-        self.labelpred = MPLP(t=0.6, uniq=self.use_uniq, k=self.num_neg, coap=self.use_coap, t_c=self.co_thrd)
-        self.criterion = MMCL(5, 0.01)
+        self.labelpred = MPLP(total_scene=self.num_scene, t=0.6, uniq=self.use_uniq, k=self.num_neg, coap=self.use_coap, t_c=self.co_thrd)
+        self.criterion = MMCL(delta=5.0, r=0.01)
 
     def forward(self, epoch, inputs, cls_scores, roi_labels, scene_nums, GT_roi_labels, scene_names, images, proposals):
 
@@ -61,13 +61,13 @@ class MCLoss(nn.Module):
         
         # MC
         # if epoch > -1:
-        if epoch > 5:
-            multilabel, co_appearance_cnt = self.labelpred.predict(self.memory.mem.detach().clone(), self.num_scene, label.detach().clone(), scene_nums.detach().clone())
+        if epoch > 4:
+            multilabel, co_appearance_cnt = self.labelpred.predict(self.memory.mem.detach().clone(), label.detach().clone())
             loss = self.criterion(logits, multilabel, co_appearance_cnt, True)
         else:
             co_appearance_cnt = torch.ones(logits.shape).cuda()
             loss = self.criterion(logits, label, co_appearance_cnt)
-        
+
         # draw_proposal(scene_names, proposals, label)
 
         return loss

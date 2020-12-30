@@ -4,7 +4,7 @@ from torch import nn
 import torch.nn.functional as F
 
 class MMCL(nn.Module):
-    def __init__(self, delta=5.0, r=0.01):
+    def __init__(self, delta, r):
         super(MMCL, self).__init__()
         self.delta = delta # coefficient for mmcl
         self.r = r         # hard negative mining ratio

@@ -21,6 +21,7 @@ def main(args, get_model_fn):
 
     device = torch.device(args.device)
     # cudnn.benchmark = False
+    torch.cuda.set_device(0)
 
     ## Set random seeds
     np.random.seed(args.seed)

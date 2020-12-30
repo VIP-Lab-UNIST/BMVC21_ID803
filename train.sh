@@ -66,7 +66,7 @@
                         # --path ./logs/prw/tmp \
                         # --resume ./logs/prw/bs4/base/f256/Dec27_14-51-14/checkpoint_epoch22.pth \
 
-CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
+CUDA_LAUNCH_BLOCKING=1 CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
                         --reid_loss oim \
                         --dataset PRW \
                         --batch_size 4 \
@@ -131,8 +131,8 @@ CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
                         --coap 1 \
                         --co_thrd 0.7
                         # --resume ./logs/prw/bs4/base/f256/Dec27_14-51-14/checkpoint_epoch22.pth \
-                        # --path ./logs/prw/bs4/base/f256 \
                         # --path ./logs/prw/tmp \
+                        # --path ./logs/prw/bs4/uniq_coap \
                        
                         # --embedding_feat_fuse 
 
