@@ -9,7 +9,7 @@ class MMCL(nn.Module):
         self.delta = delta # coefficient for mmcl
         self.r = r         # hard negative mining ratio
 
-    def forward(self, inputs, targets, co_cnts, is_vec=False):
+    def forward(self, inputs, targets, is_vec=False):
         m, n = inputs.size()
 
         if is_vec:
@@ -23,10 +23,8 @@ class MMCL(nn.Module):
         for i in range(m):
             logit = inputs[i]
             label = multilabel[i]
-            co_cnt = co_cnts[i]
 
             pos_logit = logit[label > 0.5]
-            pos_cnt = co_cnt[label > 0.5]
             neg_logit = logit[label < 0.5]
 
             _, idx = torch.sort(neg_logit.detach().clone(), descending=True)
@@ -35,11 +33,7 @@ class MMCL(nn.Module):
             mask[idx[0:num]] = 1
             hard_neg_logit = torch.masked_select(neg_logit, mask)
 
-            l_pos=F.binary_cross_entropy_with_logits(pos_logit, torch.ones(pos_logit.shape).cuda(), weight=pos_cnt)
-            l_neg=F.binary_cross_entropy_with_logits(hard_neg_logit, torch.zeros(hard_neg_logit.shape).cuda())
-            l = self.delta * l_pos + l_neg            
-
-            # l = self.delta * torch.mean((1-pos_logit).pow(2)) + torch.mean((1+hard_neg_logit).pow(2))
+            l = self.delta * torch.mean((1-pos_logit).pow(2)) + torch.mean((1+hard_neg_logit).pow(2))
             loss.append(l)
 
         loss = torch.mean(torch.stack(loss))

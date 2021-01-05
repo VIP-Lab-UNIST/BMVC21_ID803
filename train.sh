@@ -70,7 +70,7 @@ CUDA_LAUNCH_BLOCKING=1 CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
                         --reid_loss oim \
                         --dataset PRW \
                         --batch_size 4 \
-                        --lr_decay_step 14 \
+                        --lr_decay_step 18 \
                         --lr 0.003 \
                         --lr_decay_gamma 0.1 \
                         --epochs 35 \
@@ -125,15 +125,14 @@ CUDA_LAUNCH_BLOCKING=1 CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
                         --anchor_ratios 0.5 1.0 2.0 \
                         --lr_warm_up \
                         --min_size_test 900 \
-                        --path ./logs/prw/bs4/uniq_coap \
-                        --uniq 1 \
-                        --num_neg 3 \
-                        --coap 1 \
-                        --co_thrd 0.7
-                        # --resume ./logs/prw/bs4/base/f256/Dec27_14-51-14/checkpoint_epoch22.pth \
-                        # --path ./logs/prw/tmp \
-                        # --path ./logs/prw/bs4/uniq_coap \
+                        --path ./logs/prw/bs4/tc06sc05num10 \
+                        --co_thrd 0.6 \
+                        --co_scale 0.5 \
+                        --num_neg 10 
                        
+                        # --path ./logs/prw/tmp \
+                        # --path ./logs/prw/bs4/uniq_v1/ \
+                        # --resume ./logs/prw/bs4/base/f256/Dec27_14-51-14/checkpoint_epoch12.pth \
                         # --embedding_feat_fuse 
 
                         

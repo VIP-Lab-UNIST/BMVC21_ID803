@@ -1,74 +1,82 @@
 import torch
 
 class MPLP(object):
-    def __init__(self, total_scene, t, uniq, k, coap, t_c):
+
+    def __init__(self, total_scene, t, t_c, s_c, k):
         self.total_scene = total_scene
         self.t = t
-        self.uniq=uniq
-        self.k = k
-        self.coap=coap
         self.t_c = t_c
+        self.s_c = s_c
+        self.k = k
 
     def predict(self, memory, targets):
 
         targets_uniq=targets.unique()
-        targets_scenes_uniq=self.total_scene[targets_uniq]
+
+        ## COAPEARANCE
+        co_cnts=torch.zeros(len(targets_uniq), len(memory)).cuda()
+        for i, target in enumerate(targets_uniq):
+            co_vec = memory[self.total_scene==self.total_scene[target]]
+            co_sim = co_vec.mm(memory.t())
+            co_cnts[i, :]=torch.max(co_sim, dim=0)[0]
+            co_cnts[i, :][co_cnts[i, :] < self.t_c] = 0
+            co_cnts[i, :] *= self.s_c
+            co_cnts[i, self.total_scene==self.total_scene[target]] = 0
+            co_cnts[i, target] = 1
+
+        for scn_num in self.total_scene.unique(): co_cnts[:, self.total_scene==scn_num]=co_cnts[:, self.total_scene==scn_num].sum(dim=1).unsqueeze(1)
 
         mem_vec = memory[targets_uniq]
         mem_sim = mem_vec.mm(memory.t())
+        mem_sim = (mem_sim + co_cnts).clamp(max=1.)
 
         m, n = mem_sim.size()
         mem_simsorted, index_sorted = torch.sort(mem_sim, dim=1, descending=True)
-
-        multilabel = torch.zeros(mem_sim.size()).cuda()
-        co_cnt = torch.zeros(mem_sim.size()).cuda()
-        for i, (target, target_scene, simsorted, idxsorted) in enumerate(zip( targets_uniq, targets_scenes_uniq, mem_simsorted, index_sorted)):
+        multilabel = torch.zeros(mem_sim.shape).cuda()
+        for i, (target, simsorted, idxsorted) in enumerate(zip( targets_uniq, mem_simsorted, index_sorted)):
             
-            ## UNIQUENESS: Select topk, topk_idx
+            ## UNIQUENESS: Select candidate(top k)
+            topk_sim=[]
             topk_idx=[]
-            scene_sorted=self.total_scene[idxsorted]
-            for j, (scn, idx, sim) in enumerate(zip(scene_sorted, idxsorted, simsorted)):
-                if scn in scene_sorted[:j]: continue
-                topk_idx.append(idx.item())
-                if (sim<self.t) & (j>=20): break
-            topk=len(topk_idx)
+            topk_scn=[]
+            for sim, idx in zip(simsorted, idxsorted):
+                if self.total_scene[idx] in topk_scn: continue
+                if (sim < self.t): break
+                topk_sim.append(sim)
+                topk_scn.append(self.total_scene[idx])
+                topk_idx.append(idx)
+                
+            topk_sim = torch.tensor(topk_sim).cuda()
+            topk_idx = torch.tensor(topk_idx).cuda()
+            num_topk = len(topk_scn)
+            assert len(self.total_scene[topk_idx]) == len(self.total_scene[topk_idx].unique())
 
-            ## Cycle consistency
-            vec = memory[topk_idx]
-            sim = vec.mm(memory.t())
-            _, idx_sorted = torch.sort(sim.detach().clone(), dim=1, descending=True)
-            step = 1
-            for j in range(topk):
-                pos = torch.nonzero(idx_sorted[j] == index_sorted[i, 0]).item()
-                if pos > topk: break
-                step = max(step, j)
-            step = step + 1
-            step = min(step, topk)
-            if step <= 0: continue
-            multilabel[i, topk_idx[:step]] = float(1)
+            ### NO UNIQUENESS: Cycle consistency
+            topk_vec = memory[topk_idx]
+            topk_sim = topk_vec.mm(memory.t())
+            topk_sim_sorted, topk_idx_sorted = torch.sort(topk_sim.detach().clone(), dim=1, descending=True)
 
-            ## CO-APPEARANCE: Count the co-appear persons
-            co_mem_vec = memory[(target_scene==self.total_scene)]
-            co_mem_sim = co_mem_vec.mm(memory.t())
-            co_vec = torch.sum( (co_mem_sim > self.t_c).type(torch.int), dim=0 ).clamp(max=1)
-            co_vec[target_scene==self.total_scene] = 0
-            co_vec[topk_idx[:step]] = 1
-            # co_vec[index_sorted[i, topk_idx[:step]]] = 1
-            for co_idx in topk_idx[:step]: co_cnt[i, co_idx]=co_vec[self.total_scene[co_idx]==self.total_scene].sum()
-            
+            cycle_idx = []
+            for j in range(num_topk):
+                pos = torch.nonzero(topk_idx_sorted[j] == target).item()
+                if pos > max(num_topk, self.k): continue
+                cycle_idx.append(topk_idx_sorted[j, 0])
+            cycle_idx = torch.tensor(cycle_idx).cuda()
 
-        # Expand multi-label and co_cnt
+            if len(cycle_idx) == 0: multilabel[i, target] = float(1)
+            else: multilabel[i, cycle_idx] = float(1)
+
+        # Expand multi-label
         multilabel_=torch.zeros((targets.shape[0], multilabel.shape[1])).cuda()
-        co_cnt_=torch.zeros((targets.shape[0], multilabel.shape[1])).cuda()
-        for t_uniq, mlabel, ccnt in zip(targets_uniq, multilabel, co_cnt):
+        for t_uniq, mlabel in zip(targets_uniq, multilabel):
             midx = (t_uniq==targets).nonzero()
             multilabel_[midx, :]=mlabel
-            co_cnt_[midx, :]=ccnt
-
+        
         targets = torch.unsqueeze(targets, 1)
         multilabel_.scatter_(1, targets, float(1))
+        assert 0 not in multilabel_.sum(dim=1)
 
-        return multilabel_, co_cnt_
+        return multilabel_
 
 
 

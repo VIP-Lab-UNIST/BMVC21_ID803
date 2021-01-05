@@ -74,7 +74,5 @@ def main(args, get_model_fn):
 if __name__ == '__main__':
     arg_parser = args_faster_rcnn_ortho_featuring()
     args = arg_parser.parse_args(namespace=Nestedspace())
-    args.uniq=bool(args.uniq)
-    args.coap=bool(args.coap)
     main(args, get_model)
     
