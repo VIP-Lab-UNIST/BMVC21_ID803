@@ -16,13 +16,13 @@ class PersonSearchDataset(object):
         assert self.mode in ('train', 'test', 'probe')
 
         self.imgs = self._load_image_set_index()
-        # self.imgs=self.imgs[:10]
+        # self.imgs=self.imgs[:50]
         if self.mode in ('train', 'test'):
             self.record, self.GT_MC = self.gt_roidb()
-            # self.record=self.record[:10]
+            # self.record=self.record[:50]
         else:
             self.record = self.load_probes()
-            # self.record=self.record[:10]
+            # self.record=self.record[:50]
 
     def _get_table(self):
         return self.GT_MC

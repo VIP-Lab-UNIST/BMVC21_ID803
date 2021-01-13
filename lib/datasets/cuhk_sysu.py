@@ -92,28 +92,45 @@ class CUHK_SYSU(PersonSearchDataset):
 
         # Construct the gt_roidb
         gt_roidb = []
+
+        cnt=1
+        im_cnt=1
+        total_cnt=[]
+        total_pid=[]
+        total_imid=[]
+        total_imcnt=[]
         for im_name in self.imgs:
             boxes = name_to_boxes[im_name]
             # is_hard = np.array([1 if h < 50.0 else 0 for h in boxes[:,3]])[:, np.newaxis]
             boxes[:, 2] += boxes[:, 0]
             boxes[:, 3] += boxes[:, 1]  # (x1, y1, x2, y2)
             pids = name_to_pids[im_name]
-            # num_objs = len(boxes)
+            num_objs = len(boxes)
             # overlaps = np.zeros((num_objs, self.num_classes), dtype=np.float32)
             # overlaps[:, 1] = 1.0
             # overlaps = csr_matrix(overlaps) # scipy.sparse.csr_matrix
             gt_roidb.append({
                 'im_name': im_name,
+                'imcnt': list([im_cnt]),
                 'boxes': boxes,
+                'gt_pids': pids,
                 # 'gt_overlaps': overlaps,
                 # 'gt_ishard': is_hard,
-                'gt_pids': pids,
+                'cnt': list(range(cnt,cnt+num_objs)),
                 'flipped': False})
+            
+            total_cnt.extend(range(cnt,cnt+num_objs))
+            total_pid.extend(pids.astype(np.int32))
+            total_imid.extend([str(im_name) for i in range(num_objs)])
+            total_imcnt.extend(list(im_cnt for _ in range(num_objs)))
+            
+            cnt += num_objs
+            im_cnt += 1
 
         # pickle(gt_roidb, cache_file)
         # print('wrote gt roidb to {}'.format(cache_file))
 
-        return gt_roidb
+        return gt_roidb, [tuple(total_cnt),tuple(total_pid), tuple(total_imid), tuple(total_imcnt)]
 
     def _load_image_set_index(self):
         """

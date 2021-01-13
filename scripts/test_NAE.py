@@ -62,6 +62,8 @@ def main(new_args, get_model_fn):
             performance = {}
             performance['mAP'] = ret['mAP']
             performance['top_k'] = ret['accs'].tolist()
+            performance['precision'] = precision
+            performance['recall'] = recall
             print(performance)
             with open(args.resume.replace('.pth', '.json'), 'w') as f:
                 json.dump(performance, f)

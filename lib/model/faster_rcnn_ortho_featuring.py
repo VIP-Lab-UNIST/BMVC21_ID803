@@ -310,6 +310,7 @@ class OrthogonalRoiHeads(RoIHeads):
             scene_num=[ target['imcnt'].repeat(128) for target in targets]
             scene_name=np.array(scene_name)
 
+            # loss_reid = 0 
             loss_reid = self.reid_regressor(epoch, embeddings_, cls_scores, cnts, scene_num, labels, scene_name, images, proposals) 
             losses = dict(loss_detection=loss_detection,
                           loss_box_reg=loss_box_reg,
