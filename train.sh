@@ -69,14 +69,12 @@
                         # --path ./logs/prw/tmp \
                         # --resume ./logs/prw/bs4/base/f256/Dec27_14-51-14/checkpoint_epoch22.pth \
 
-CUDA_LAUNCH_BLOCKING=1 CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
+CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
                         --reid_loss oim \
                         --dataset PRW \
                         --batch_size 4 \
-                        --lr_decay_step 18 \
-                        --lr 0.003 \
                         --lr_decay_gamma 0.1 \
-                        --epochs 35 \
+                        --epochs 40 \
                         --oim_scalar 30.0 \
                         --cls_scalar 1.0 \
                         --w_RCNN_loss_bbox 10.0 \
@@ -126,16 +124,17 @@ CUDA_LAUNCH_BLOCKING=1 CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
                         --rpn_post_nms_top_n_test 300 \
                         --aspect_grouping -1 \
                         --anchor_ratios 0.5 1.0 2.0 \
-                        --lr_warm_up \
                         --min_size_test 900 \
-                        --path ./logs/prw/detector \
-                        --co_thrd 0. \
-                        --co_scale 0.5 \
+                        --lr_warm_up \
+                        --path ./logs/prw/tmp \
+                        --lr 0.003 \
+                        --lr_decay_step 12 \
+                        --co_thrd 0.7 \
+                        --co_scale 0.3 \
                         --num_neg 20 
                        
-#                         # --path ./logs/prw/tmp \
-#                         # --path ./logs/prw/bs4/uniq_v1/ \
-#                         # --resume ./logs/prw/bs4/base/f256/Dec27_14-51-14/checkpoint_epoch12.pth \
-#                         # --embedding_feat_fuse 
+                        # --resume ./logs/prw/tc06sc05num20/Jan05_14-22-54/checkpoint_epoch22.pth \
+                        # --path ./logs/prw/no_mc/ \
+                        # --path ./logs/prw/loss/bce \
 
                         

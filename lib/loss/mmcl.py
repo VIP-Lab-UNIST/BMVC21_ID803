@@ -32,8 +32,12 @@ class MMCL(nn.Module):
             mask = torch.zeros(neg_logit.size(), dtype=torch.bool).cuda()
             mask[idx[0:num]] = 1
             hard_neg_logit = torch.masked_select(neg_logit, mask)
+            
+            l_pos=F.binary_cross_entropy_with_logits(pos_logit, torch.ones(pos_logit.shape).cuda())
+            l_neg=F.binary_cross_entropy_with_logits(hard_neg_logit, torch.zeros(hard_neg_logit.shape).cuda())
+            l = self.delta * l_pos + l_neg
 
-            l = self.delta * torch.mean((1-pos_logit).pow(2)) + torch.mean((1+hard_neg_logit).pow(2))
+            # l = self.delta * torch.mean((1-pos_logit).pow(2)) + torch.mean((1+hard_neg_logit).pow(2))
             loss.append(l)
 
         loss = torch.mean(torch.stack(loss))

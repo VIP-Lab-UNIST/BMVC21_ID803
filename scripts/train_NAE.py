@@ -52,19 +52,19 @@ def main(args, get_model_fn):
     lr_scheduler = get_lr_scheduler(args, optimizer)
     
     ## Load the existing models if possible
-    if (args.train.resume_name is not None) :
-        if os.path.exists(args.train.resume_name):
-            checkpoint = torch.load(args.train.resume_name)
-            args.train.start_epoch = checkpoint['epoch']
-            model.load_state_dict(checkpoint['model'])
+    # if (args.train.resume_name is not None) :
+    #     if os.path.exists(args.train.resume_name):
+    #         checkpoint = torch.load(args.train.resume_name)
+    #         args.train.start_epoch = checkpoint['epoch']
+    #         model.load_state_dict(checkpoint['model'])
                     
-            if optimizer is not None:
-                optimizer.load_state_dict(checkpoint['optimizer'])
-            if lr_scheduler is not None:
-                lr_scheduler.load_state_dict(checkpoint['lr_scheduler'])
+    #         if optimizer is not None:
+    #             optimizer.load_state_dict(checkpoint['optimizer'])
+    #         if lr_scheduler is not None:
+    #             lr_scheduler.load_state_dict(checkpoint['lr_scheduler'])
 
-            print(hue.good('loaded checkpoint %s' % (args.train.resume_name)))
-            print(hue.info('model was trained for %s epochs' % (args.train.start_epoch)))
+    #         print(hue.good('loaded checkpoint %s' % (args.train.resume_name)))
+    #         print(hue.info('model was trained for %s epochs' % (args.train.start_epoch)))
             
     ## Define and run trainer
     trainer = get_trainer(args, model, train_loader, optimizer,

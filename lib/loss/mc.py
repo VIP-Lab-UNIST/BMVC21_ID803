@@ -46,27 +46,29 @@ class MCLoss(nn.Module):
         scene_nums=torch.cat(scene_nums).cuda()
         scene_names= np.concatenate(scene_names)
         label = targets - 1  # background label = -1
-        
         scene_nums = scene_nums -1
-        inputs = inputs * cls_scores
 
-        inputs=inputs[label>0]
-        proposals=proposals[label>0]
-        scene_nums=scene_nums[label>0]
-        scene_names=scene_names[(label>0).clone().detach().cpu().numpy()]
-        label=label[label>0]
+        mask = (label>0)
+        # mask = (label>=0)
+
+        inputs=inputs[mask]
+        cls_scores=cls_scores[mask]
+        proposals=proposals[mask]
+        scene_nums=scene_nums[mask]
+        scene_names=scene_names[mask.clone().detach().cpu().numpy()]
+        label=label[mask]
 
         logits = self.memory(inputs, label, epoch)
+        logits *= cls_scores
         
         # MC
         # if epoch > -1:
-        if epoch > 4:
-            multilabel = self.labelpred.predict(self.memory.mem.detach().clone(), label.detach().clone())
-            loss = self.criterion(logits, multilabel, True)
+        if epoch > 12:
+        # if epoch > 100:
+            multilabels = self.labelpred.predict(self.memory.mem.detach().clone(), label.detach().clone())
+            loss = self.criterion(logits, multilabels, True)
         else:
             loss = self.criterion(logits, label)
-
-        # draw_proposal(scene_names, proposals, label)
 
         return loss
 
@@ -101,15 +103,7 @@ class Memory(nn.Module):
         self.mem = nn.Parameter(torch.zeros(num_classes, num_features), requires_grad=False)
     
     def forward(self, inputs, targets, epoch=None):
-        alpha = 0.5 * epoch / 60
-        logits = MemoryLayer(self.mem, alpha=alpha)(inputs, targets)
+        # alpha = 0.5 * epoch / 60
+        logits = MemoryLayer(self.mem, alpha=0.5)(inputs, targets)
 
         return logits
-
-
-def draw_proposal(scene_names, proposals, labels):
-    for i, (scene_name, proposal, label) in enumerate(zip(scene_names, proposals, labels)):
-        scene=Image.open('/root/workspace/Personsearch/datasets/PRW-v16.04.20/frames/'+scene_name)
-        x,y,x2,y2 =proposal
-        roi=scene.crop((x, y, x2, y2))
-        roi.save('./roi_%d.jpg'%i)

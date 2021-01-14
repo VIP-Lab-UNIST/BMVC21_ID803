@@ -4,13 +4,15 @@ import re
 import os.path as osp
 import numpy as np
 import torch
+import cv2
+
 from scipy.io import loadmat
 from sklearn.metrics import average_precision_score
 # from numba import jit
 
 from .ps_dataset import PersonSearchDataset
 from ..utils.evaluator import _compute_iou
-
+from tqdm import tqdm
 
 class PRW(PersonSearchDataset):
 
@@ -70,7 +72,13 @@ class PRW(PersonSearchDataset):
             total_pid.extend(ids.astype(np.int32))
             total_imid.extend([str(im_name) for i in range(num_objs)])
             total_imcnt.extend(list(im_cnt for _ in range(num_objs)))
-            
+
+            ## draw 
+            # for i, bbox in enumerate(rois):
+            #     x1, y1, x2, y2 = bbox
+            #     scene = cv2.imread(osp.join('../datasets/PRW-v16.04.20/frames/',im_name))
+            #     cv2.imwrite('./logs/outputs/all/{:03d}_{:s}'.format(cnt+i-1, str(im_name)), scene[int(y1):int(y2), int(x1):int(x2), :])
+
             cnt += num_objs
             im_cnt += 1
 
