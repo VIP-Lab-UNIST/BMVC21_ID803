@@ -23,18 +23,20 @@ class MPLP(object):
 
             ## COAPEARANCE
             # calculate co-appearance similarity
-            co_vec = memory[self.cnt2snum==self.cnt2snum[target]]
-            co_sims = co_vec.mm(memory.t())
-            co_sim = torch.max(co_sims, dim=0)[0]
-            co_sim[co_sim < self.t_c] = 0
-            co_sim *= self.s_c
-            # sum by scene
-            co_sim_sum = torch.zeros((len(self.cnt2snum.unique()), )).cuda().index_add(dim=0, index=self.cnt2snum, source=co_sim)
-            co_sim_sum = torch.gather(input=co_sim_sum, dim=0, index=self.cnt2snum).clamp(max=self.s_c*len(co_vec))
-            co_sim_sum[self.cnt2snum==self.cnt2snum[target]] = 0.
-            co_sim_sum[target] = 1.
-
-            sim = (sim+co_sim_sum).clamp(max=1.)
+            mask = (self.cnt2snum==self.cnt2snum[target]) & (torch.tensor(range(len(self.cnt2snum))).cuda()!=target)
+            co_vec = memory[mask]
+            if len(co_vec)==0: pass
+            else:
+                co_sims = co_vec.mm(memory.t())
+                co_sim = torch.max(co_sims, dim=0)[0]
+                co_sim[co_sim < self.t_c] = 0
+                co_sim *= self.s_c
+                # sum by scene
+                co_sim_sum = torch.zeros((len(self.cnt2snum.unique()), )).cuda().index_add(dim=0, index=self.cnt2snum, source=co_sim)
+                co_sim_sum = torch.gather(input=co_sim_sum, dim=0, index=self.cnt2snum).clamp(max=self.s_c*len(co_vec))
+                sim = (sim+co_sim_sum).clamp(max=1.)
+            
+            sim[target] = 1. 
             simsorted, idxsorted = torch.sort(sim ,dim=0, descending=True)
             
             ## UNIQUENESS: Select candidate(top k)

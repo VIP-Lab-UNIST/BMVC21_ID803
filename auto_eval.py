@@ -9,10 +9,10 @@ os.chdir(dname)
 
 search_dirs = [ 
                 ### bs 4
-# './logs/prw/mc/Jan14_21-53-49',
-# './logs/prw/mc/Jan14_21-53-59',
+# './logs/prw/mc/Jan14_22-35-53',
+'./logs/prw/mc/Jan14_22-35-59',
 # './logs/prw/no_mc/Jan14_21-55-10',
-'./logs/prw/no_mc/Jan14_21-55-16',
+# './logs/prw/no_mc/Jan14_21-55-16',
 ]
 
 random.shuffle(search_dirs)
