@@ -1,16 +1,19 @@
 import torch
 import shutil 
 import os
+import numpy as np
+from functools import reduce
 from glob import glob
+
 
 class MPLP(object):
 
-    def __init__(self, use_coap, use_uniq, use_cycle, total_scene, t, t_c, s_c, k):
+    def __init__(self, use_coap, use_uniq, use_cycle, total_scene, t, t_c, s_c, r):
         self.cnt2snum = total_scene
         self.t = t
         self.s_c = s_c
         self.t_c = t_c
-        self.k = k
+        self.r = r
         self.use_coap = use_coap
         self.use_uniq = use_uniq
         self.use_cycle = use_cycle
@@ -22,6 +25,7 @@ class MPLP(object):
         mem_sim = mem_vec.mm(memory.t())
         
         multilabel = torch.zeros(mem_sim.shape).cuda()
+        neg_idices = []
         for i, (target, sim) in enumerate(zip( targets_uniq, mem_sim)):
 
             ## COAPEARANCE
@@ -80,17 +84,37 @@ class MPLP(object):
                     cycle_idx = torch.tensor(cycle_idx).cuda()    
                     multilabel[i, cycle_idx] = float(1)
             else: multilabel[i, topk_idx] = float(1)
+            
+            ## SELECT HARD NEGATIVE SAMPLE: Candidate view
+            pos_vec = memory[topk_idx]
+            pos_sims = pos_vec.mm(memory.t())
+            hn_idxs_list = []
+            for j, pos_sim in enumerate(pos_sims):
+                pos_sim[topk_idx] = 0
+                neg_simsorted, neg_idxsorted = torch.sort(pos_sim, dim=0, descending=True)
+                num = int(self.r * len(pos_sim.nonzero()))
+                hn_idxs_list.append(neg_idxsorted[:num].detach().cpu().tolist())
+            hn_idxs = set(sum(hn_idxs_list, []))
+            topk_idx = set(topk_idx)
+            hn_idxs = list(hn_idxs.difference(topk_idx))
+            neg_idices.append(torch.zeros(len(sim)).scatter_(0, torch.tensor(hn_idxs), 1.).cuda())
+
+            # multilabel[i, neg_idxs] = float(-1)
 
         ## Expand multi-label
         multilabel_=torch.zeros((targets.shape[0], multilabel.shape[1])).cuda()
-        for t_uniq, mlabel in zip(targets_uniq, multilabel):
+        neg_idices_=torch.zeros((targets.shape[0], multilabel.shape[1])).cuda()
+        for t_uniq, mlabel, neg_idx in zip(targets_uniq, multilabel, neg_idices):
             midx = (t_uniq==targets).nonzero()
-            multilabel_[midx, :]=mlabel
+            multilabel_[midx, :] = mlabel
+            neg_idices_[midx, :] = neg_idx
         targets = torch.unsqueeze(targets, 1)
         multilabel_.scatter_(1, targets, float(1))
 
         # self.draw_proposal(targets_uniq, multilabel)
-        return multilabel_
+        # raise ValueError
+
+        return multilabel_, neg_idices_
 
 
     def draw_proposal(self, targets, multilabels):
@@ -98,12 +122,13 @@ class MPLP(object):
         # path = './logs/outputs/mAP6/no_t{:.2f}_sc{:.2f}_tc{:.2f}/'.format(self.t, self.s_c, self.t_c)
         # path = './logs/outputs/mAP6/co_t{:.2f}_sc{:.2f}_tc{:.2f}/'.format(self.t, self.s_c, self.t_c)
         # path = './logs/outputs/mAP6/cy_t{:.2f}_sc{:.2f}_tc{:.2f}/'.format(self.t, self.s_c, self.t_c)
-        path = './logs/outputs/tmp/'
+        path = './logs/outputs/hd/'
+        # path = './logs/outputs/tmp/'
         print('path: ', path)
         flist=glob('./logs/outputs/all/*.jpg')
         for i, (target, multilabel) in enumerate(zip(targets, multilabels)):
             fname=flist[target].split('/')[-1].split('.')[0]
             os.makedirs(path+fname)
-            for label in multilabel.nonzero():
+            for label in (multilabel==-1).nonzero():
                 shutil.copy(flist[label], path+fname)
         raise ValueError

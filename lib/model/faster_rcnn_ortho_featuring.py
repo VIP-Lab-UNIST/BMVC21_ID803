@@ -604,7 +604,7 @@ def get_model(args, training=True, pretrained_backbone=True):
     # reid_regressor = OIMLoss(
     #                     args.num_features, args.num_pids, args.num_cq_size, 
     #                     args.train.oim_momentum, args.oim_scalar)
-    reid_regressor = MCLoss(args.use_coap, args.use_uniq, args.use_cycle, args.num_neg, args.co_thrd, args.co_scale, args.num_features)
+    reid_regressor = MCLoss(args.use_coap, args.use_uniq, args.use_cycle, args.hard_neg, args.co_thrd, args.co_scale, args.num_features)
                         
     model = FasterRCNN( 
                         # Region proposal network

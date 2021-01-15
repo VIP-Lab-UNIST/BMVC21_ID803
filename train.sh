@@ -127,15 +127,15 @@ CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
                         --lr_warm_up \
                         --path ./logs/prw/tmp \
                         --resume ./logs/prw/tc06sc05num20/Jan05_14-22-54/checkpoint_epoch12.pth \
+                        --batch_size 2 \
                         --use_coap 0 \
                         --use_uniq 0 \
                         --use_cycle 0 \
-                        --batch_size 4 \
                         --lr 0.003 \
                         --lr_decay_step 15 \
                         --co_thrd 0.7 \
                         --co_scale 0.1 \
-                        --num_neg 20 
+                        --hard_neg 0.005 
                        
                         # --path ./logs/prw/no_cycle/base \
                         # --path ./logs/prw/loss/bce_noprior \

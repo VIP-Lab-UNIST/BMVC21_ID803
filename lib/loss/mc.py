@@ -18,9 +18,9 @@ from .mplp import MPLP
 class MCLoss(nn.Module):
     """docstring for MCLoss"""
 
-    def __init__(self, use_coap, use_uniq, use_cycle, num_neg, co_thrd, co_scale, num_features):
+    def __init__(self, use_coap, use_uniq, use_cycle, hard_neg, co_thrd, co_scale, num_features):
         super(MCLoss, self).__init__()
-        self.num_neg=num_neg
+        self.hard_neg=hard_neg
         self.co_thrd=co_thrd
         self.co_scale = co_scale
         self.num_features = num_features
@@ -37,8 +37,8 @@ class MCLoss(nn.Module):
         self.num_scene=torch.tensor(list(map(lambda x: x-1, num_scene))).cuda()
         self.memory=Memory(self.num_features, num_person).cuda()
         self.labelpred = MPLP(use_coap=self.use_coap, use_uniq=self.use_uniq, use_cycle=self.use_cycle, \
-                            total_scene=self.num_scene, t=self.co_thrd, t_c=self.co_thrd, s_c= self.co_scale, k=self.num_neg)
-        self.criterion = MMCL(delta=5.0, r=0.01)
+                            total_scene=self.num_scene, t=self.co_thrd, t_c=self.co_thrd, s_c= self.co_scale, r=self.hard_neg)
+        self.criterion = MMCL(delta=5.0, r=1)
 
     def forward(self, epoch, inputs, cls_scores, roi_labels, scene_nums, GT_roi_labels, scene_names, images, proposals):
 
@@ -64,10 +64,10 @@ class MCLoss(nn.Module):
         logits *= cls_scores
         
         # MC
-        # if epoch > -1:
-        if epoch > 8:
-            multilabels = self.labelpred.predict(self.memory.mem.detach().clone(), label.detach().clone())
-            loss = self.criterion(logits, multilabels, True)
+        if epoch > -1:
+        # if epoch > 8:
+            multilabels, neg_idices = self.labelpred.predict(self.memory.mem.detach().clone(), label.detach().clone())
+            loss = self.criterion(logits, multilabels, neg_idices, True)
         else:
             loss = self.criterion(logits, label)
 
