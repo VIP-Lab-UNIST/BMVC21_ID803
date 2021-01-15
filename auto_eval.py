@@ -8,11 +8,10 @@ dname = os.path.dirname(abspath)
 os.chdir(dname)
 
 search_dirs = [ 
-                ### bs 4
-# './logs/prw/mc/Jan14_22-35-53',
-'./logs/prw/mc/Jan14_22-35-59',
-# './logs/prw/no_mc/Jan14_21-55-10',
-# './logs/prw/no_mc/Jan14_21-55-16',
+    # './logs/prw/no_cycle/uniq_coap/Jan15_13-17-52',\
+    # './logs/prw/no_cycle/uniq_coap/Jan15_13-18-06', \
+    # './logs/prw/no_cycle/base/Jan15_13-39-54', \
+    './logs/prw/no_cycle/base/Jan15_13-40-03', \
 ]
 
 random.shuffle(search_dirs)

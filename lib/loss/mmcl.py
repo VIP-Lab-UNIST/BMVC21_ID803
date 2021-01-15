@@ -39,6 +39,6 @@ class MMCL(nn.Module):
 
             # l = self.delta * torch.mean((1-pos_logit).pow(2)) + torch.mean((1+hard_neg_logit).pow(2))
             loss.append(l)
-
+        
         loss = torch.mean(torch.stack(loss))
         return loss

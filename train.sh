@@ -110,7 +110,7 @@ CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
                         --fg_fraction 0.5 \
                         --clip_gradient 10.0 \
                         --w_RCNN_loss_cls 1.0 \
-                        --seed 1 \
+                        --seed 2 \
                         --nms_test 0.4 \
                         --start_epoch 0 \
                         --rcnn_batch_size 128 \
@@ -125,15 +125,20 @@ CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
                         --anchor_ratios 0.5 1.0 2.0 \
                         --min_size_test 900 \
                         --lr_warm_up \
-                        --path ./logs/prw/mc \
+                        --path ./logs/prw/tmp \
+                        --resume ./logs/prw/tc06sc05num20/Jan05_14-22-54/checkpoint_epoch12.pth \
+                        --use_coap 0 \
+                        --use_uniq 0 \
+                        --use_cycle 0 \
                         --batch_size 4 \
                         --lr 0.003 \
-                        --lr_decay_step 12 \
+                        --lr_decay_step 15 \
                         --co_thrd 0.7 \
-                        --co_scale 0.3 \
+                        --co_scale 0.1 \
                         --num_neg 20 
                        
-                        # --resume ./logs/prw/tc06sc05num20/Jan05_14-22-54/checkpoint_epoch22.pth \
+                        # --path ./logs/prw/no_cycle/base \
+                        # --path ./logs/prw/loss/bce_noprior \
                         # --path ./logs/prw/no_mc/ \
                         # --path ./logs/prw/loss/bce \
 
