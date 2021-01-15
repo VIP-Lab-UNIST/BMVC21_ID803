@@ -48,8 +48,8 @@ class MCLoss(nn.Module):
         label = targets - 1  # background label = -1
         scene_nums = scene_nums -1
 
-        mask = (label>0)
-        # mask = (label>=0)
+        # mask = (label>0)
+        mask = (label>=0)
 
         inputs=inputs[mask]
         cls_scores=cls_scores[mask]
