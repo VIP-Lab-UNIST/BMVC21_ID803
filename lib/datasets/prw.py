@@ -51,10 +51,16 @@ class PRW(PersonSearchDataset):
             ids = anno[box_key][:, 0]
             rois = np.clip(rois, 0, None)  # several coordinates are negative
 
+            ## filtering small bbox
+            rois[:, 2:] += rois[:, :2]
+            rois_area = (rois[:,2] - rois[:,0])*(rois[:,3] - rois[:,1])
+            rois = rois[rois_area >= 7000]
+            ids = ids[rois_area >= 7000]
+            num_objs = len(rois)
+            if len(rois)==0: continue
+
             assert len(rois) == len(ids)
 
-            rois[:, 2:] += rois[:, :2]
-            num_objs = len(rois)
             # overlaps = np.zeros((num_objs, self.num_classes), dtype=np.float32)
             # overlaps[:, 1] = 1.0
             # overlaps = csr_matrix(overlaps)

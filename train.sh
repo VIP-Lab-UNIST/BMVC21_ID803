@@ -110,7 +110,7 @@ CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
                         --fg_fraction 0.5 \
                         --clip_gradient 10.0 \
                         --w_RCNN_loss_cls 1.0 \
-                        --seed 2 \
+                        --seed 0 \
                         --nms_test 0.4 \
                         --start_epoch 0 \
                         --rcnn_batch_size 128 \
@@ -125,15 +125,15 @@ CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
                         --anchor_ratios 0.5 1.0 2.0 \
                         --min_size_test 900 \
                         --lr_warm_up \
-                        --path ./logs/prw/v2/no_cycle \
-                        --batch_size 4 \
+                        --path ./logs/prw/tmp \
+                        --batch_size 2 \
                         --use_coap 1 \
                         --use_uniq 1 \
                         --use_cycle 0 \
                         --lr 0.003 \
                         --lr_decay_step 15 \
                         --co_thrd 0.7 \
-                        --co_scale 0.1 \
+                        --co_scale 0.5 \
                         --hard_neg 0.005 
                        
                         # --path ./logs/prw/tmp \

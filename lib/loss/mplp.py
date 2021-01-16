@@ -10,6 +10,7 @@ class MPLP(object):
 
     def __init__(self, use_coap, use_uniq, use_cycle, total_scene, t, t_c, s_c, r):
         self.cnt2snum = total_scene
+        print('len(self.cnt2snum): ', len(self.cnt2snum))
         self.t = t
         self.s_c = s_c
         self.t_c = t_c
@@ -19,7 +20,6 @@ class MPLP(object):
         self.use_cycle = use_cycle
 
     def predict(self, memory, targets):
-
         targets_uniq=targets.unique()
         mem_vec = memory[targets_uniq]
         mem_sim = mem_vec.mm(memory.t())
@@ -97,7 +97,9 @@ class MPLP(object):
             hn_idxs = set(sum(hn_idxs_list, []))
             topk_idx = set(topk_idx)
             hn_idxs = list(hn_idxs.difference(topk_idx))
-            neg_idices.append(torch.zeros(len(sim)).scatter_(0, torch.tensor(hn_idxs), 1.).cuda())
+
+            # assert len(hn_idxs) != 0
+            neg_idices.append(torch.zeros(len(sim)).scatter_(0, torch.tensor(hn_idxs).long(), 1.).cuda())
 
             # multilabel[i, neg_idxs] = float(-1)
 
@@ -111,24 +113,23 @@ class MPLP(object):
         targets = torch.unsqueeze(targets, 1)
         multilabel_.scatter_(1, targets, float(1))
 
-        # self.draw_proposal(targets_uniq, multilabel)
+        self.draw_proposal(targets_uniq, multilabel)
         # raise ValueError
 
         return multilabel_, neg_idices_
-
 
     def draw_proposal(self, targets, multilabels):
         # path = './logs/outputs/mAP6/sc{:.2f}_th{:.2f}__/'.format(self.s_c, self.t_c)
         # path = './logs/outputs/mAP6/no_t{:.2f}_sc{:.2f}_tc{:.2f}/'.format(self.t, self.s_c, self.t_c)
         # path = './logs/outputs/mAP6/co_t{:.2f}_sc{:.2f}_tc{:.2f}/'.format(self.t, self.s_c, self.t_c)
         # path = './logs/outputs/mAP6/cy_t{:.2f}_sc{:.2f}_tc{:.2f}/'.format(self.t, self.s_c, self.t_c)
-        path = './logs/outputs/hd/'
-        # path = './logs/outputs/tmp/'
+        # path = './logs/outputs/hd/'
+        path = './logs/outputs/tmp/'
         print('path: ', path)
         flist=glob('./logs/outputs/all/*.jpg')
         for i, (target, multilabel) in enumerate(zip(targets, multilabels)):
             fname=flist[target].split('/')[-1].split('.')[0]
             os.makedirs(path+fname)
-            for label in (multilabel==-1).nonzero():
+            for label in (multilabel==1).nonzero():
                 shutil.copy(flist[label], path+fname)
         raise ValueError
