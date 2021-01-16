@@ -52,12 +52,12 @@ class MPLP(object):
                 topk_sim=[]
                 topk_idx=[]
                 topk_scn=[]
-                for j, (sim, idx) in enumerate(zip(simsorted, idxsorted)):
-                    if (self.cnt2snum[idx] in topk_scn) & (sim != 1.).item(): continue
-                    if (sim < self.t): break
-                    topk_sim.append(sim)
-                    topk_scn.append(self.cnt2snum[idx])
-                    topk_idx.append(idx)
+                for j, (sim_, idx_) in enumerate(zip(simsorted, idxsorted)):
+                    if (self.cnt2snum[idx_] in topk_scn) & (sim_ != 1.).item(): continue
+                    if (sim_ < self.t): break
+                    topk_sim.append(sim_)
+                    topk_scn.append(self.cnt2snum[idx_])
+                    topk_idx.append(idx_)
                 topk_sim = torch.tensor(topk_sim).cuda()
                 topk_idx = torch.tensor(topk_idx).cuda()
                 num_topk = len(topk_scn)
@@ -75,8 +75,8 @@ class MPLP(object):
                 cycle_idx = []
                 for j in range(num_topk):
                     pos = torch.nonzero(topk_idx_sorted[j] == target).item()
-                    # if pos > max(num_topk, self.k): break
-                    if pos > max(num_topk, self.k): continue
+                    # if pos > max(num_topk, 20): break
+                    if pos > max(num_topk, 20): continue
                     cycle_idx.append(topk_idx_sorted[j, 0])
                 
                 if len(cycle_idx) == 0: multilabel[i, target] = float(1)

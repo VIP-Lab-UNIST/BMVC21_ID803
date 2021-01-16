@@ -125,19 +125,22 @@ CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
                         --anchor_ratios 0.5 1.0 2.0 \
                         --min_size_test 900 \
                         --lr_warm_up \
-                        --path ./logs/prw/v2/no_cycle \
+                        --nw 2 \
+                        --path ./logs/prw/loss/mse \
+                        --use_coap 0 \
+                        --use_uniq 0 \
+                        --use_cycle 1 \
                         --batch_size 4 \
-                        --use_coap 1 \
-                        --use_uniq 1 \
-                        --use_cycle 0 \
                         --lr 0.003 \
                         --lr_decay_step 15 \
                         --co_thrd 0.7 \
                         --co_scale 0.1 \
-                        --hard_neg 0.005 
+                        --num_neg 20 
                        
-                        # --path ./logs/prw/tmp \
-                        # --path ./logs/prw/v2/cycle \
-                        # --resume ./logs/prw/tc06sc05num20/Jan05_14-22-54/checkpoint_epoch12.pth \
+                        # --resume ./logs/prw/no_cycle/uniq_coap/Jan15_13-17-52/checkpoint_epoch6.pth \
+                        # --path ./logs/prw/no_cycle/base \
+                        # --path ./logs/prw/loss/bce_noprior \
+                        # --path ./logs/prw/no_mc/ \
+                        # --path ./logs/prw/loss/bce \
 
                         

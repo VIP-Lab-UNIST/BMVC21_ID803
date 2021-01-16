@@ -24,13 +24,16 @@ class MMCL(nn.Module):
             logit = inputs[i]
             label = multilabel[i]
             pos_logit = logit[label > 0.5]
-            neg_logit = logit[label < 0.5] if not is_vec else logit[neg_idices[i].bool()]
+            if not is_vec: 
+                neg_logit = logit[label < 0.5]  
+                _, idx = torch.sort(neg_logit.detach().clone(), descending=True)
+                num = int(self.r * neg_logit.size(0))
+                mask = torch.zeros(neg_logit.size(), dtype=torch.bool).cuda()
+                mask[idx[0:num]] = 1
+                hard_neg_logit = torch.masked_select(neg_logit, mask)    
+                
+            else: hard_neg_logit = logit[neg_idices[i].bool()]
 
-            _, idx = torch.sort(neg_logit.detach().clone(), descending=True)
-            num = int(self.r * neg_logit.size(0))
-            mask = torch.zeros(neg_logit.size(), dtype=torch.bool).cuda()
-            mask[idx[0:num]] = 1
-            hard_neg_logit = torch.masked_select(neg_logit, mask)
             l_pos=F.binary_cross_entropy_with_logits(pos_logit, torch.ones(pos_logit.shape).cuda())
             l_neg=F.binary_cross_entropy_with_logits(hard_neg_logit, torch.zeros(hard_neg_logit.shape).cuda())
             l = self.delta * l_pos + l_neg

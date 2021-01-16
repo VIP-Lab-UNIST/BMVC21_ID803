@@ -38,7 +38,7 @@ class MCLoss(nn.Module):
         self.memory=Memory(self.num_features, num_person).cuda()
         self.labelpred = MPLP(use_coap=self.use_coap, use_uniq=self.use_uniq, use_cycle=self.use_cycle, \
                             total_scene=self.num_scene, t=self.co_thrd, t_c=self.co_thrd, s_c= self.co_scale, r=self.hard_neg)
-        self.criterion = MMCL(delta=5.0, r=1)
+        self.criterion = MMCL(delta=5.0, r=self.hard_neg)
 
     def forward(self, epoch, inputs, cls_scores, roi_labels, scene_nums, GT_roi_labels, scene_names, images, proposals):
 
@@ -61,11 +61,11 @@ class MCLoss(nn.Module):
         label=label[mask]
 
         logits = self.memory(inputs, label, epoch)
-        logits *= cls_scores
+        # logits *= cls_scores
         
         # MC
-        if epoch > -1:
-        # if epoch > 8:
+        # if epoch > -1:
+        if epoch > 4:
             multilabels, neg_idices = self.labelpred.predict(self.memory.mem.detach().clone(), label.detach().clone())
             loss = self.criterion(logits, multilabels, neg_idices, True)
         else:
