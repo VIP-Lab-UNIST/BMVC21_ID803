@@ -126,7 +126,7 @@ CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
                         --min_size_test 900 \
                         --lr_warm_up \
                         --path ./logs/prw/tmp \
-                        --batch_size 2 \
+                        --batch_size 4 \
                         --use_coap 1 \
                         --use_uniq 1 \
                         --use_cycle 0 \
@@ -138,6 +138,7 @@ CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
                        
                         # --path ./logs/prw/tmp \
                         # --path ./logs/prw/v2/cycle \
+                        # --resume ./logs/prw/v2/cycle/Jan16_12-00-46/checkpoint_epoch6.pth \
                         # --resume ./logs/prw/tc06sc05num20/Jan05_14-22-54/checkpoint_epoch12.pth \
 
                         

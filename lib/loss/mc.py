@@ -64,8 +64,8 @@ class MCLoss(nn.Module):
         # logits *= cls_scores
         
         # MC
-        if epoch > -1:
-        # if epoch > 4:
+        # if epoch > -1:
+        if epoch > 4:
             multilabels, neg_idices = self.labelpred.predict(self.memory.mem.detach().clone(), label.detach().clone())
             loss = self.criterion(logits, multilabels, neg_idices, True)
         else:

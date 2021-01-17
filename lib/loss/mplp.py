@@ -46,21 +46,20 @@ class MPLP(object):
 
             sim[target] = 1. 
             simsorted, idxsorted = torch.sort(sim ,dim=0, descending=True)
+            snumsorted = self.cnt2snum[idxsorted]
             
             ## UNIQUENESS: Select candidate(top k)
             if self.use_uniq:
-                topk_sim=[]
-                topk_idx=[]
-                topk_scn=[]
-                for j, (sim_, idx_) in enumerate(zip(simsorted, idxsorted)):
-                    if (self.cnt2snum[idx_] in topk_scn) & (sim_ != 1.).item(): continue
-                    if (sim_ < self.t): break
-                    topk_sim.append(sim_)
-                    topk_scn.append(self.cnt2snum[idx_])
-                    topk_idx.append(idx_)
-                topk_sim = torch.tensor(topk_sim).cuda()
-                topk_idx = torch.tensor(topk_idx).cuda()
-                num_topk = len(topk_scn)
+                topk_snum = snumsorted[simsorted>=self.t].detach().cpu().numpy()
+                snums, snums_cnt = np.unique(topk_snum, return_counts=True)
+                mask = np.in1d(topk_snum, snums[snums_cnt==1])
+                if len(snums[snums_cnt>=2])!=0:
+                    for j, snum in enumerate(snums[snums_cnt>=2]):
+                        mask[np.min((topk_snum==snum).nonzero())] = True
+                topk_sim = simsorted[simsorted>=self.t][mask]
+                topk_idx = idxsorted[simsorted>=self.t][mask]
+                num_topk = len(topk_sim)
+
             else:
                 topk_sim = simsorted[simsorted>=self.t]
                 topk_idx = idxsorted[simsorted>=self.t]
@@ -113,7 +112,7 @@ class MPLP(object):
         targets = torch.unsqueeze(targets, 1)
         multilabel_.scatter_(1, targets, float(1))
 
-        self.draw_proposal(targets_uniq, multilabel)
+        # self.draw_proposal(targets_uniq, multilabel)
         # raise ValueError
 
         return multilabel_, neg_idices_

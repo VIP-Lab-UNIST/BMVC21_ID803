@@ -54,8 +54,8 @@ class PRW(PersonSearchDataset):
             ## filtering small bbox
             rois[:, 2:] += rois[:, :2]
             rois_area = (rois[:,2] - rois[:,0])*(rois[:,3] - rois[:,1])
-            rois = rois[rois_area >= 7000]
-            ids = ids[rois_area >= 7000]
+            # rois = rois[rois_area >= 7000]
+            # ids = ids[rois_area >= 7000]
             num_objs = len(rois)
             if len(rois)==0: continue
 
