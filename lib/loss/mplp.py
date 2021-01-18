@@ -50,12 +50,12 @@ class MPLP(object):
             
             ## UNIQUENESS: Select candidate(top k)
             if self.use_uniq:
-                topk_snum = snumsorted[simsorted>=self.t].detach().cpu().numpy()
-                snums, snums_cnt = np.unique(topk_snum, return_counts=True)
-                mask = np.in1d(topk_snum, snums[snums_cnt==1])
+                topk_snum = snumsorted[simsorted>=self.t]
+                snums, snums_cnt = torch.unique(topk_snum, return_counts=True)
+                mask = (topk_snum[..., None]==snums[snums_cnt==1]).any(-1)
                 if len(snums[snums_cnt>=2])!=0:
                     for j, snum in enumerate(snums[snums_cnt>=2]):
-                        mask[np.min((topk_snum==snum).nonzero())] = True
+                        mask[min((topk_snum==snum).nonzero())] = True
                 topk_sim = simsorted[simsorted>=self.t][mask]
                 topk_idx = idxsorted[simsorted>=self.t][mask]
                 num_topk = len(topk_sim)
@@ -97,7 +97,6 @@ class MPLP(object):
             topk_idx = set(topk_idx)
             hn_idxs = list(hn_idxs.difference(topk_idx))
 
-            # assert len(hn_idxs) != 0
             neg_idices.append(torch.zeros(len(sim)).scatter_(0, torch.tensor(hn_idxs).long(), 1.).cuda())
 
             # multilabel[i, neg_idxs] = float(-1)

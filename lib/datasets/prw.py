@@ -53,12 +53,13 @@ class PRW(PersonSearchDataset):
 
             ## filtering small bbox
             rois[:, 2:] += rois[:, :2]
-            rois_area = (rois[:,2] - rois[:,0])*(rois[:,3] - rois[:,1])
-            # rois = rois[rois_area >= 7000]
-            # ids = ids[rois_area >= 7000]
-            num_objs = len(rois)
-            if len(rois)==0: continue
+            if self.mode == 'train':
+                rois_area = (rois[:,2] - rois[:,0])*(rois[:,3] - rois[:,1])
+                # rois = rois[rois_area >= 7000]
+                # ids = ids[rois_area >= 7000]
+                if len(rois)==0: continue
 
+            num_objs = len(rois)
             assert len(rois) == len(ids)
 
             # overlaps = np.zeros((num_objs, self.num_classes), dtype=np.float32)
