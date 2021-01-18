@@ -2,15 +2,18 @@ import torch
 import shutil 
 import os
 import numpy as np
+import json
+
+from tqdm import tqdm
 from functools import reduce
 from glob import glob
-
 
 class MPLP(object):
 
     def __init__(self, use_coap, use_uniq, use_cycle, total_scene, t, t_c, s_c, r):
         self.cnt2snum = total_scene
-        print('len(self.cnt2snum): ', len(self.cnt2snum))
+        with open('./dist_dict.json', 'r') as fp:
+            self.dist_mat = json.load(fp)
         self.t = t
         self.s_c = s_c
         self.t_c = t_c
@@ -30,12 +33,20 @@ class MPLP(object):
 
             ## COAPEARANCE
             if self.use_coap:
+
                 # calculate co-appearance similarity
                 mask = (self.cnt2snum==self.cnt2snum[target]) & (torch.tensor(range(len(self.cnt2snum))).cuda()!=target)
                 co_vec = memory[mask]
+
+                # advantage for distance
+                start = min((self.cnt2snum==self.cnt2snum[target]).nonzero())
+                co_dist = torch.tensor(self.dist_mat[str(self.cnt2snum[target].item())]).cuda()[target - start].squeeze().cuda()
+                co_dist = co_dist[co_dist!=0].unsqueeze(1)
+
                 if len(co_vec)==0: pass
                 else:
                     co_sims = co_vec.mm(memory.t())
+                    co_sims = co_sims * (1000/co_dist).clamp(min=0., max=1.)
                     co_sim = torch.max(co_sims, dim=0)[0]
                     co_sim[co_sim < self.t_c] = 0
                     co_sim *= self.s_c
@@ -43,7 +54,6 @@ class MPLP(object):
                     co_sim_sum = torch.zeros((len(self.cnt2snum.unique()), )).cuda().index_add(dim=0, index=self.cnt2snum, source=co_sim)
                     co_sim_sum = torch.gather(input=co_sim_sum, dim=0, index=self.cnt2snum).clamp(max=self.s_c*len(co_vec))
                     sim = (sim+co_sim_sum).clamp(max=1.)
-
             sim[target] = 1. 
             simsorted, idxsorted = torch.sort(sim ,dim=0, descending=True)
             snumsorted = self.cnt2snum[idxsorted]

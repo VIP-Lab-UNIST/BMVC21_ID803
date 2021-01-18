@@ -125,10 +125,11 @@ CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
                         --anchor_ratios 0.5 1.0 2.0 \
                         --min_size_test 900 \
                         --lr_warm_up \
-                        --path ./logs/prw/v3/ce/no_prior \
-                        --batch_size 4 \
-                        --use_coap 0 \
-                        --use_uniq 0 \
+                        --path ./logs/prw/tmp \
+                        --resume ./logs/prw/v3/base/Jan17_20-17-32/checkpoint_epoch10.pth \
+                        --batch_size 2 \
+                        --use_coap 1 \
+                        --use_uniq 1 \
                         --use_cycle 0 \
                         --lr 0.003 \
                         --lr_decay_step 15 \
@@ -136,6 +137,7 @@ CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
                         --co_scale 0.1 \
                         --hard_neg 0.005 
                        
+                        # --path ./logs/prw/v3/ce/no_prior \
                         # --path ./logs/prw/v3/base6000 \
                         # --path ./logs/prw/tmp \
                         # --path ./logs/prw/v2/cycle \

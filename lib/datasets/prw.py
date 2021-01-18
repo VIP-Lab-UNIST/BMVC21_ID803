@@ -5,9 +5,11 @@ import os.path as osp
 import numpy as np
 import torch
 import cv2
+import json
 
 from scipy.io import loadmat
 from sklearn.metrics import average_precision_score
+from scipy.spatial import distance_matrix
 # from numba import jit
 
 from .ps_dataset import PersonSearchDataset
@@ -38,6 +40,7 @@ class PRW(PersonSearchDataset):
         total_pid=[]
         total_imid=[]
         total_imcnt=[]
+        dist_dict={}
         for im_name in self.imgs:
             anno_path = osp.join(self.root, 'annotations', im_name)
             anno = loadmat(anno_path)
@@ -50,9 +53,9 @@ class PRW(PersonSearchDataset):
             rois = anno[box_key][:, 1:]
             ids = anno[box_key][:, 0]
             rois = np.clip(rois, 0, None)  # several coordinates are negative
+            rois[:, 2:] += rois[:, :2]
 
             ## filtering small bbox
-            rois[:, 2:] += rois[:, :2]
             if self.mode == 'train':
                 rois_area = (rois[:,2] - rois[:,0])*(rois[:,3] - rois[:,1])
                 # rois = rois[rois_area >= 7000]
@@ -80,14 +83,33 @@ class PRW(PersonSearchDataset):
             total_imid.extend([str(im_name) for i in range(num_objs)])
             total_imcnt.extend(list(im_cnt for _ in range(num_objs)))
 
-            ## draw 
+            ## distance
+            # dist_mat = np.zeros((len(rois), len(rois)))
             # for i, bbox in enumerate(rois):
             #     x1, y1, x2, y2 = bbox
-            #     scene = cv2.imread(osp.join('../datasets/PRW-v16.04.20/frames/',im_name))
-            #     cv2.imwrite('./logs/outputs/all/{:03d}_{:s}'.format(cnt+i-1, str(im_name)), scene[int(y1):int(y2), int(x1):int(x2), :])
+            #     dist_mat[i,:] = distance_matrix(bbox[np.newaxis], rois) 
+            # dist_dict[im_cnt-1] = dist_mat.tolist()
+
+            ## draw 
+            # if cnt >= 200:
+            #     dist_list = []
+            #     for i, bbox in enumerate(rois):
+            #         x1, y1, x2, y2 = bbox
+            #         scene = cv2.imread(osp.join('../datasets/PRW-v16.04.20/frames/',im_name))
+            #         # cv2.imwrite('./logs/outputs/all/{:03d}_{:s}'.format(cnt+i-1, str(im_name)), scene[int(y1):int(y2), int(x1):int(x2), :])
+            #         cv2.imwrite('./logs/outputs/tmp/{:03d}_{:s}'.format(cnt+i-1, str(im_name)), scene[int(y1):int(y2), int(x1):int(x2), :])
+
+            #         dist_list.append(distance_matrix(bbox[np.newaxis], rois) )
+            #     print('im_name: ', im_name)
+            #     print('dist_list: ', dist_list)
+            #     if cnt >=250: raise ValueError
 
             cnt += num_objs
             im_cnt += 1
+        
+        # with open("dist_dict.json", "w") as fp:
+        #     json.dump(dist_dict, fp)
+        # raise ValueError
 
         return gt_roidb, [tuple(total_cnt),tuple(total_pid), tuple(total_imid), tuple(total_imcnt)]
         

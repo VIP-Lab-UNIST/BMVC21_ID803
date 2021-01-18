@@ -9,12 +9,12 @@ os.chdir(dname)
 
 search_dirs = [ 
     # './logs/prw/v3/base/Jan17_20-17-32', \
-    # './logs/prw/v3/base6000/Jan17_20-18-34', \
+    './logs/prw/v3/base6000/Jan17_20-18-34', \
     # './logs/prw/v3/base7000/Jan17_20-22-52', \
     # './logs/prw/v3/no_prior/Jan17_20-16-17', \
 
     # './logs/prw/v3/ce/no_prior/Jan18_10-20-56', \
-    './logs/prw/v3/ce/base/Jan18_10-20-15', \
+    # './logs/prw/v3/ce/base/Jan18_10-20-15', \
 
 ]
 
