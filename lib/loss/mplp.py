@@ -39,14 +39,14 @@ class MPLP(object):
                 co_vec = memory[mask]
 
                 # advantage for distance
-                start = min((self.cnt2snum==self.cnt2snum[target]).nonzero())
-                co_dist = torch.tensor(self.dist_mat[str(self.cnt2snum[target].item())]).cuda()[target - start].squeeze().cuda()
-                co_dist = co_dist[co_dist!=0].unsqueeze(1)
+                # start = min((self.cnt2snum==self.cnt2snum[target]).nonzero())
+                # co_dist = torch.tensor(self.dist_mat[str(self.cnt2snum[target].item())]).cuda()[target - start].squeeze().cuda()
+                # co_dist = co_dist[co_dist!=0].unsqueeze(1)
 
                 if len(co_vec)==0: pass
                 else:
                     co_sims = co_vec.mm(memory.t())
-                    co_sims = co_sims * (1000/co_dist).clamp(min=0., max=1.)
+                    # co_sims = co_sims * (1000/co_dist).clamp(min=0., max=1.)
                     co_sim = torch.max(co_sims, dim=0)[0]
                     co_sim[co_sim < self.t_c] = 0
                     co_sim *= self.s_c

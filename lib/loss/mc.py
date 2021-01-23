@@ -68,7 +68,7 @@ class MCLoss(nn.Module):
         if epoch > 4:
         # if epoch > 100:
             multilabels, neg_idices = self.labelpred.predict(self.memory.mem.detach().clone(), label.detach().clone())
-            loss = self.criterion(logits, multilabels, neg_idices, True)
+            loss = self.criterion(logits, multilabels, neg_idices)
         else:
             loss = self.criterion(logits, label)
 

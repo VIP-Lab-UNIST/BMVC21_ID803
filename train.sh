@@ -73,7 +73,7 @@ CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
                         --reid_loss oim \
                         --dataset PRW \
                         --lr_decay_gamma 0.1 \
-                        --epochs 40 \
+                        --epochs 30 \
                         --oim_scalar 30.0 \
                         --cls_scalar 1.0 \
                         --w_RCNN_loss_bbox 10.0 \
@@ -124,20 +124,24 @@ CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
                         --aspect_grouping -1 \
                         --anchor_ratios 0.5 1.0 2.0 \
                         --min_size_test 900 \
-                        --lr_warm_up \
                         --path ./logs/prw/tmp \
-                        --resume ./logs/prw/v3/base/Jan17_20-17-32/checkpoint_epoch10.pth \
-                        --batch_size 2 \
+                        --lr_warm_up \
+                        --batch_size 1 \
                         --use_coap 1 \
                         --use_uniq 1 \
                         --use_cycle 0 \
                         --lr 0.003 \
-                        --lr_decay_step 15 \
-                        --co_thrd 0.7 \
+                        --lr_decay_step 16 \
+                        --co_thrd 0.6 \
                         --co_scale 0.1 \
-                        --hard_neg 0.005 
+                        --hard_neg 0.01
                        
+                        # --path ./logs/prw/v3/bjhan/base_hn001/b8_decay14 \
+                        # --path ./logs/prw/v3/bjhan/base_hn001/decay14 \
+                        # --path ./logs/prw/v3/bjhan/base_hn001 \
+                        # --path ./logs/prw/v3/bjhan/no_prior \
                         # --path ./logs/prw/v3/ce/no_prior \
+                        # --path ./logs/prw/v3/ce/base_codist \
                         # --path ./logs/prw/v3/base6000 \
                         # --path ./logs/prw/tmp \
                         # --path ./logs/prw/v2/cycle \
