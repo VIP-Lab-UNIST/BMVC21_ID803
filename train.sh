@@ -131,7 +131,7 @@ CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
                         --use_uniq 1 \
                         --use_cycle 0 \
                         --lr 0.003 \
-                        --lr_decay_step 16 \
+                        --lr_decay_step 14 \
                         --co_thrd 0.6 \
                         --co_scale 0.1 \
                         --hard_neg 0.01
