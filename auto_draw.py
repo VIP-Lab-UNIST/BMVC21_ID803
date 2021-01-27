@@ -29,10 +29,17 @@ search_dirs = [
                 # './logs/prw/v3/bjhan/change_loss/Jan21_10-00-52',\
 
                 # './logs/prw/v3/bjhan/no_prior/Jan22_10-36-42',\
-                './logs/prw/v3/bjhan/no_prior/Jan22_10-36-53',\
+                # './logs/prw/v3/bjhan/no_prior/Jan22_10-36-53',\
                 # './logs/prw/v3/bjhan/no_prior/Jan22_10-37-01',\
-                './logs/prw/v3/bjhan/base_hn001/Jan22_10-37-22',\
+                # './logs/prw/v3/bjhan/base_hn001/Jan22_10-37-22',\
                 # './logs/prw/v3/bjhan/base_hn001/Jan22_10-37-32',\
+
+                './logs/prw/v3/ce/no_prior_hn0008/Jan26_21-19-23',\
+                './logs/prw/v3/ce/no_prior_hn0006/Jan26_21-19-38',\
+                './logs/prw/v3/ce/no_prior_hn0004/Jan26_21-19-52',\
+                './logs/prw/v3/ce/base_hn0008/Jan26_21-20-28',\
+                './logs/prw/v3/ce/base_hn0006/Jan26_21-20-50',\
+
 ]   
 
 legend=[]    

@@ -23,12 +23,13 @@ class MPLP(object):
         self.use_cycle = use_cycle
 
     def predict(self, memory, targets):
+
         targets_uniq=targets.unique()
         mem_vec = memory[targets_uniq]
         mem_sim = mem_vec.mm(memory.t())
         
         multilabel = torch.zeros(mem_sim.shape).cuda()
-        neg_idices = []
+        neg_idices = torch.zeros((targets.shape[0], mem_sim.shape[1])).cuda()
         for i, (target, sim) in enumerate(zip( targets_uniq, mem_sim)):
 
             ## COAPEARANCE
@@ -84,7 +85,6 @@ class MPLP(object):
                 cycle_idx = []
                 for j in range(num_topk):
                     pos = torch.nonzero(topk_idx_sorted[j] == target).item()
-                    # if pos > max(num_topk, 20): break
                     if pos > max(num_topk, 20): continue
                     cycle_idx.append(topk_idx_sorted[j, 0])
                 
@@ -95,19 +95,17 @@ class MPLP(object):
             else: multilabel[i, topk_idx] = float(1)
             
             ## SELECT HARD NEGATIVE SAMPLE: Candidate view
+            # intersection
             pos_vec = memory[topk_idx]
             pos_sims = pos_vec.mm(memory.t())
-            hn_idxs_list = []
-            for j, pos_sim in enumerate(pos_sims):
-                pos_sim[topk_idx] = 0
-                neg_simsorted, neg_idxsorted = torch.sort(pos_sim, dim=0, descending=True)
-                num = int(self.r * len(pos_sim.nonzero()))
-                hn_idxs_list.append(neg_idxsorted[:num].detach().cpu().tolist())
-            hn_idxs = set(sum(hn_idxs_list, []))
-            topk_idx = set(topk_idx)
-            hn_idxs = list(hn_idxs.difference(topk_idx))
+            pos_sims[:,topk_idx] = -1
+            neg_simsorted, neg_idxsorted = torch.sort(pos_sims, dim=1, descending=True)
+            num = int(self.r * len((pos_sims[0]!=-1).nonzero()))
+            hn_idxs = neg_idxsorted[:,0:num].reshape(-1)
+            hn_idxs, hn_idxs_cnt = torch.unique(hn_idxs, return_counts=True)
+            hn_idxs = hn_idxs[hn_idxs_cnt >= len(topk_idx)*0.7]
 
-            neg_idices.append(torch.zeros(len(sim)).scatter_(0, torch.tensor(hn_idxs).long(), 1.).cuda())
+            neg_idices[i] = torch.zeros(len(sim)).scatter_(0, hn_idxs.detach().cpu(), 1.).cuda()
 
             # multilabel[i, neg_idxs] = float(-1)
 

@@ -124,11 +124,11 @@ CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
                         --aspect_grouping -1 \
                         --anchor_ratios 0.5 1.0 2.0 \
                         --min_size_test 900 \
-                        --path ./logs/prw/tmp \
                         --lr_warm_up \
-                        --batch_size 1 \
-                        --use_coap 1 \
-                        --use_uniq 1 \
+                        --path ./logs/prw/v6/intersection/no_prior_hn001_cnt07 \
+                        --batch_size 4 \
+                        --use_coap 0 \
+                        --use_uniq 0 \
                         --use_cycle 0 \
                         --lr 0.003 \
                         --lr_decay_step 14 \
@@ -136,6 +136,7 @@ CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
                         --co_scale 0.1 \
                         --hard_neg 0.01
                        
+                        # --path ./logs/prw/v6/intersection/no_prior_hn007 \
                         # --path ./logs/prw/v3/bjhan/base_hn001/b8_decay14 \
                         # --path ./logs/prw/v3/bjhan/base_hn001/decay14 \
                         # --path ./logs/prw/v3/bjhan/base_hn001 \
