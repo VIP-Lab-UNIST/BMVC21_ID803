@@ -34,11 +34,30 @@ search_dirs = [
                 # './logs/prw/v3/bjhan/base_hn001/Jan22_10-37-22',\
                 # './logs/prw/v3/bjhan/base_hn001/Jan22_10-37-32',\
 
-                './logs/prw/v3/ce/no_prior_hn0008/Jan26_21-19-23',\
-                './logs/prw/v3/ce/no_prior_hn0006/Jan26_21-19-38',\
-                './logs/prw/v3/ce/no_prior_hn0004/Jan26_21-19-52',\
-                './logs/prw/v3/ce/base_hn0008/Jan26_21-20-28',\
-                './logs/prw/v3/ce/base_hn0006/Jan26_21-20-50',\
+                # './logs/prw/v3/ce/no_prior_hn001/Jan19_13-08-56',\
+                # './logs/prw/v3/ce/no_prior_hn0008/Jan26_21-19-23',\
+                # './logs/prw/v3/ce/no_prior_hn0006/Jan26_21-19-38',\
+                # './logs/prw/v3/ce/no_prior_hn0004/Jan26_21-19-52',\
+                # './logs/prw/v3/ce/base_hn0008/Jan26_21-20-28',\
+                # './logs/prw/v3/ce/base_hn0006/Jan26_21-20-50',\
+
+                # './logs/prw/v6/intersection/no_prior_hn001_cnt03/Jan27_11-59-59',\
+                # './logs/prw/v6/intersection/no_prior_hn001_cnt05/Jan27_12-00-38',\
+                # './logs/prw/v6/intersection/no_prior_hn001_cnt07/Jan27_12-01-08',\
+
+                # './logs/prw/v6/intersection/no_prior_hn005/Jan28_10-58-38',\
+                # './logs/prw/v6/intersection/no_prior_hn01_ld8/Jan28_10-58-11',\
+                # './logs/prw/v6/intersection/no_prior_hn03/Jan28_10-57-50',\
+                # './logs/prw/v6/intersection/no_prior_hn001/Jan28_10-59-08',\
+                # './logs/prw/v6/intersection/no_prior_hn05/Jan28_10-57-35',\
+                # './logs/prw/v6/intersection/no_prior_hn01/Jan27_10-54-01',\
+
+                './logs/prw/v3/bjhan/no_prior_negonly/Jan29_09-30-59', \
+                './logs/prw/v3/bjhan/no_prior_no_multilabel/Jan29_11-40-31', \
+
+                # './logs/prw/v3/bjhan/no_prior_posall/Jan28_22-14-45', \
+                # './logs/prw/v3/bjhan/no_prior_hnall/Jan28_22-21-40',\
+                # './logs/prw/v3/bjhan/no_prior_posall_hnall/Jan28_22-36-58',\
 
 ]   
 

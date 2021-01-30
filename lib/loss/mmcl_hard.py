@@ -18,7 +18,7 @@ class MMCL(nn.Module):
             multilabels = torch.zeros_like(logits, dtype=torch.bool).scatter_(1, targets, True)
         else: 
             raise ValueError('Incorrect input size')
-
+            
         loss = []
         argidices = torch.argsort(logits.detach().clone(), dim=1, descending=True)
         neg_nums = self.r * (~multilabels).sum(dim=1).float()
@@ -26,25 +26,19 @@ class MMCL(nn.Module):
 
             ## positive index, hard negative index
             pos_idx = multilabel.nonzero().squeeze(1)
-            hn_idx = argidx[~multilabel[argidx]][:int(neg_num)]
-            num_pos = len(pos_idx)
+            # hn_idx = argidx[~multilabel[argidx]][:int(neg_num)]
 
             pos_logits = logit[pos_idx]
             pos_logits_sort, pos_logits_sort_idx = torch.sort(pos_logits, descending=True)
 
-            # hard_neg_logits = logit[torch.cat((pos_idx[pos_logits_sort_idx], hn_idx))]
-            hard_neg_logit = logit[hn_idx]
+            for j, pos_logit_sort in enumerate(pos_logits_sort):
 
-            pos_logits_sort_mat = pos_logits_sort.repeat(num_pos, 1)
-            pos_mask = torch.tril(torch.ones(num_pos, num_pos)).flip(dims=[0]).bool().detach()
-            pos_logits_sort_mat[pos_mask] = pos_logits_sort.unsqueeze(1).repeat(1, num_pos)[pos_mask].detach()
-
-            results = torch.cat([pos_logits_sort_mat, hard_neg_logit.unsqueeze(0).expand(num_pos, -1)], dim=1)
-            # results = torch.cat([pos_logits_sort.unsqueeze(1), 
-            #                     pos_logits_sort_mat], dim=1)
-
-            l = F.cross_entropy(10*results, torch.zeros(num_pos).long().cuda())                 
-            loss.append(l)
+                hn_idx = argidx[~multilabel[argidx]][:(int(neg_num)-j)]
+                hard_neg_logits = torch.cat( (pos_logits_sort[(len(pos_logits)-j):], logit[hn_idx]))
+                
+                results = torch.cat([pos_logit_sort.unsqueeze(0), hard_neg_logits[(j+1):]]).unsqueeze(0)
+                l = F.cross_entropy(10*results, torch.zeros([1]).long().cuda())                 
+                loss.append(l)
 
         loss = torch.mean(torch.stack(loss))
         return loss

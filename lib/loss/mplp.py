@@ -34,80 +34,80 @@ class MPLP(object):
 
             ## COAPEARANCE
             if self.use_coap:
-
                 # calculate co-appearance similarity
                 mask = (self.cnt2snum==self.cnt2snum[target]) & (torch.tensor(range(len(self.cnt2snum))).cuda()!=target)
                 co_vec = memory[mask]
-
-                # advantage for distance
-                # start = min((self.cnt2snum==self.cnt2snum[target]).nonzero())
-                # co_dist = torch.tensor(self.dist_mat[str(self.cnt2snum[target].item())]).cuda()[target - start].squeeze().cuda()
-                # co_dist = co_dist[co_dist!=0].unsqueeze(1)
-
                 if len(co_vec)==0: pass
                 else:
+                    # co_sims = co_vec.mm(memory.t())
+                    # co_sim = torch.max(co_sims, dim=0)[0]
+                    # sim = torch.tanh(1.1*(sim-co_sim))
+
                     co_sims = co_vec.mm(memory.t())
                     # co_sims = co_sims * (1000/co_dist).clamp(min=0., max=1.)
                     co_sim = torch.max(co_sims, dim=0)[0]
                     co_sim[co_sim < self.t_c] = 0
-                    co_sim *= self.s_c
+                    # co_sim *= self.s_c
                     # sum by scene
                     co_sim_sum = torch.zeros((len(self.cnt2snum.unique()), )).cuda().index_add(dim=0, index=self.cnt2snum, source=co_sim)
                     co_sim_sum = torch.gather(input=co_sim_sum, dim=0, index=self.cnt2snum).clamp(max=self.s_c*len(co_vec))
                     sim = (sim+co_sim_sum).clamp(max=1.)
+                    # sim = torch.tanh(1.5*(sim+co_sim_sum))
+
             sim[target] = 1. 
             simsorted, idxsorted = torch.sort(sim ,dim=0, descending=True)
             snumsorted = self.cnt2snum[idxsorted]
             
             ## UNIQUENESS: Select candidate(top k)
             if self.use_uniq:
-                topk_snum = snumsorted[simsorted>=self.t]
-                snums, snums_cnt = torch.unique(topk_snum, return_counts=True)
-                mask = (topk_snum[..., None]==snums[snums_cnt==1]).any(-1)
+                cand_snum = snumsorted[simsorted>=self.t]
+                snums, snums_cnt = torch.unique(cand_snum, return_counts=True)
+                mask = (cand_snum[..., None]==snums[snums_cnt==1]).any(-1)
                 if len(snums[snums_cnt>=2])!=0:
                     for j, snum in enumerate(snums[snums_cnt>=2]):
-                        mask[min((topk_snum==snum).nonzero())] = True
-                topk_sim = simsorted[simsorted>=self.t][mask]
-                topk_idx = idxsorted[simsorted>=self.t][mask]
-                num_topk = len(topk_sim)
+                        mask[min((cand_snum==snum).nonzero())] = True
+                cand_sim = simsorted[simsorted>=self.t][mask]
+                cand_idx = idxsorted[simsorted>=self.t][mask]
+                num_cand = len(cand_sim)
 
             else:
-                topk_sim = simsorted[simsorted>=self.t]
-                topk_idx = idxsorted[simsorted>=self.t]
-                num_topk = len(topk_idx)
+                cand_sim = simsorted[simsorted>=self.t]
+                cand_idx = idxsorted[simsorted>=self.t]
+                num_cand = len(cand_idx)
 
-            ## CYCLE CONSISTENCY
+            ## SCENE CYCLE CONSISTENCY
             if self.use_cycle:
-                topk_vec = memory[topk_idx]
-                topk_sim = topk_vec.mm(memory.t())
-                topk_sim_sorted, topk_idx_sorted = torch.sort(topk_sim.detach().clone(), dim=1, descending=True)
+                
+                cand_vec = memory[cand_idx]
+                cand_sim = cand_vec.mm(memory.t())
+                cand_scn = self.cnt2snum[cand_idx]
+                cand_co_scn_mask = (self.cnt2snum.unsqueeze(1)==cand_scn).any(-1)
+                topk_idx = cand_co_scn_mask.nonzero().squeeze()[torch.topk(cand_sim[:, cand_co_scn_mask], k=len(cand_sim), dim=1)[1]]
 
-                cycle_idx = []
-                for j in range(num_topk):
-                    pos = torch.nonzero(topk_idx_sorted[j] == target).item()
-                    if pos > max(num_topk, 20): continue
-                    cycle_idx.append(topk_idx_sorted[j, 0])
+                # check cycle consistency
+                topk_mask = (topk_idx.sort(dim=1)[0]==cand_idx.sort(dim=0)[0]).all(dim=1)
+                cycle_idx = cand_idx[topk_mask]
                 
                 if len(cycle_idx) == 0: multilabel[i, target] = float(1)
                 else: 
-                    cycle_idx = torch.tensor(cycle_idx).cuda()    
                     multilabel[i, cycle_idx] = float(1)
-            else: multilabel[i, topk_idx] = float(1)
-            
+                    
+            else: multilabel[i, cand_idx] = float(1)
+
             ## SELECT HARD NEGATIVE SAMPLE: Candidate view
             # intersection
-            pos_vec = memory[topk_idx]
+            pos_vec = memory[cand_idx]
             pos_sims = pos_vec.mm(memory.t())
-            pos_sims[:,topk_idx] = -1
+            pos_sims[:,cand_idx] = -1
             neg_simsorted, neg_idxsorted = torch.sort(pos_sims, dim=1, descending=True)
             num = int(self.r * len((pos_sims[0]!=-1).nonzero()))
             hn_idxs = neg_idxsorted[:,0:num].reshape(-1)
             hn_idxs, hn_idxs_cnt = torch.unique(hn_idxs, return_counts=True)
-            hn_idxs = hn_idxs[hn_idxs_cnt >= len(topk_idx)*0.7]
+            hn_idxs = hn_idxs[hn_idxs_cnt == len(cand_idx)]
+            # hn_idxs = hn_idxs[hn_idxs_cnt >= len(cand_idx)*1.]
 
             neg_idices[i] = torch.zeros(len(sim)).scatter_(0, hn_idxs.detach().cpu(), 1.).cuda()
-
-            # multilabel[i, neg_idxs] = float(-1)
+            # multilabel[i, neg_idices[i]] = float(-1)
 
         ## Expand multi-label
         multilabel_=torch.zeros((targets.shape[0], multilabel.shape[1])).cuda()
@@ -125,12 +125,11 @@ class MPLP(object):
         return multilabel_, neg_idices_
 
     def draw_proposal(self, targets, multilabels):
-        # path = './logs/outputs/mAP6/sc{:.2f}_th{:.2f}__/'.format(self.s_c, self.t_c)
         # path = './logs/outputs/mAP6/no_t{:.2f}_sc{:.2f}_tc{:.2f}/'.format(self.t, self.s_c, self.t_c)
-        # path = './logs/outputs/mAP6/co_t{:.2f}_sc{:.2f}_tc{:.2f}/'.format(self.t, self.s_c, self.t_c)
-        # path = './logs/outputs/mAP6/cy_t{:.2f}_sc{:.2f}_tc{:.2f}/'.format(self.t, self.s_c, self.t_c)
-        # path = './logs/outputs/hd/'
-        path = './logs/outputs/tmp/'
+        # path = './logs/outputs/coap/no_coap/'
+        # path = './logs/outputs/coap/no_coap_epoch10/'
+        path = './logs/outputs/coap/cycle_th05/'
+        # path = './logs/outputs/coap/no_prior_th04/'
         print('path: ', path)
         flist=glob('./logs/outputs/all/*.jpg')
         for i, (target, multilabel) in enumerate(zip(targets, multilabels)):

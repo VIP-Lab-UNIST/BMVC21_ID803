@@ -8,11 +8,25 @@ dname = os.path.dirname(abspath)
 os.chdir(dname)
 
 search_dirs = [ 
-    # './logs/prw/v6/intersection/no_prior_hn01/Jan27_10-54-01',\
-    # './logs/prw/v6/intersection/no_prior_hn007/Jan27_10-54-22',\
-    # './logs/prw/v6/intersection/no_prior_hn001_cnt03/Jan27_11-59-59',\
-    # './logs/prw/v6/intersection/no_prior_hn001_cnt05/Jan27_12-00-38',\
-    './logs/prw/v6/intersection/no_prior_hn001_cnt07/Jan27_12-01-08',\
+
+    # './logs/prw/v3/bjhan/no_prior_negonly/Jan29_09-30-59', \
+
+    # './logs/prw/v3/bjhan/no_prior_hnall/Jan28_22-21-40',\
+    # './logs/prw/v3/bjhan/no_prior_posall/Jan28_22-14-45', \
+    # './logs/prw/v3/bjhan/no_prior_posall_hnall/Jan28_22-36-58',\
+    # './logs/prw/v3/bjhan/no_prior_no_multilabel/Jan29_11-40-31', \
+
+
+    # './logs/prw/v8/no_prior_keep_rate/Jan29_22-27-10',\
+    # './logs/prw/v8/base_keep_rate/Jan29_22-40-45', \
+    './logs/prw/v8/no_prior_easy/Jan30_10-24-25',\
+
+    # './logs/prw/v8/no_prior/Jan29_21-04-28', \
+    # './logs/prw/v8/base/Jan29_21-05-03', \
+    # './logs/prw/v8/base_cycle_th05/Jan29_21-15-25', \
+
+    
+
 ]
 
 random.shuffle(search_dirs)

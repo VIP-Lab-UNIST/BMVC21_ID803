@@ -3,6 +3,7 @@ logs/
 **/__pycache__
 **/*@*
 **/*.pyc*
+**/*.png
 dist_mat.json
 # **/@eaDir
 # **/@SynoResource

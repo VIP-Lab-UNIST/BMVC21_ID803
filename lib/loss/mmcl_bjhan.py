@@ -18,7 +18,6 @@ class MMCL(nn.Module):
             multilabels = torch.zeros_like(logits, dtype=torch.bool).scatter_(1, targets, True)
         else: 
             raise ValueError('Incorrect input size')
-    
         loss = []
         argidices = torch.argsort(logits.detach().clone(), dim=1, descending=True)
         neg_nums = self.r * (~multilabels).sum(dim=1).float()
@@ -26,40 +25,23 @@ class MMCL(nn.Module):
             # 1. Sampling postivie pairs
             pos_logit = logit[multilabel]
             num_pos = len(pos_logit)
+
             # 2. Sampling hard negative pairs
-            hard_neg_logit = logit[argidx[~multilabel][:int(neg_num)]]
-            # print(argidx[~multilabel][:int(neg_num)].sort(descending=False)[0])
-            # print(argidx[~multilabel][:int(neg_num)].shape)
-            # print(multilabel.nonzero().squeeze().sort(descending=False)[0])
-            # print(multilabel.nonzero().squeeze().shape)
-            # print(np.intersect1d(argidx[~multilabel][:int(neg_num)].detach().cpu().numpy(), multilabel.nonzero().squeeze().detach().cpu().numpy()).shape) 
-            # print('---------')
+            # rand_idx = argidx[~multilabel][:int(neg_num)]
+            hn_idx = argidx[~multilabel[argidx]][:int(neg_num)]
+            pos_idx = multilabel.nonzero().squeeze(1)
+            # neg_idx = rand_idx[~(rand_idx.unsqueeze(1)==pos_idx).any(-1)]
 
-
-            # neg_logit = logit[~multilabel]  
-            # _, idx = torch.sort(neg_logit.detach().clone(), descending=True)
-            # num = int(self.r * neg_logit.size(0))
-            # mask = torch.zeros(neg_logit.size(), dtype=torch.bool).cuda()
-            # mask[idx[0:num]] = 1
-            # hard_neg_logit = torch.masked_select(neg_logit, mask)
-            # print(mask.nonzero().squeeze().shape)
-            # print(torch.sort(mask.nonzero().squeeze(), descending=False)[0])
-            # print(torch.sort(hard_neg_logit, descending=False)[0])
-            # print(neg_logit.sort(descending=True)[0])
-            # print(np.intersect1d(argidx[~multilabel][:int(neg_num)].detach().cpu().numpy(), mask.nonzero().squeeze().detach().cpu().numpy()).shape) 
-            # raise ValueError
-
-            # if type(neg_idices) == type(None):
-            #     hard_neg_logit = logit[argidx[~multilabel][:int(neg_num)]]
-            # else:
-            #     hard_neg_logit = logit[neg_idices[i].bool()]
-            
+            # hard_neg_logit = logit[hn_idx]
+            # hard_neg_logit = logit[torch.unique(torch.cat((pos_idx, rand_idx)))]
+            hard_neg_logit = logit[torch.cat((pos_idx, hn_idx))]
+            # hard_neg_logit = logit[argidx][~multilabel[argidx]][:int(neg_num)]] 
             
             results = torch.cat([pos_logit.unsqueeze(1), 
                                 hard_neg_logit.unsqueeze(0).expand(num_pos, -1)], dim=1)
 
             l = F.cross_entropy(10*results, torch.zeros(num_pos).long().cuda())                 
-
+            # l += torch.log(torch.tensor(1.+num_pos))
             # # 3. Compute classification loss 
             # l = self.delta * torch.mean((1-pos_logit).pow(2)) \
             #                 + torch.mean((1+hard_neg_logit).pow(2))

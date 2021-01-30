@@ -110,7 +110,6 @@ CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
                         --fg_fraction 0.5 \
                         --clip_gradient 10.0 \
                         --w_RCNN_loss_cls 1.0 \
-                        --seed 0 \
                         --nms_test 0.4 \
                         --start_epoch 0 \
                         --rcnn_batch_size 128 \
@@ -125,7 +124,8 @@ CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
                         --anchor_ratios 0.5 1.0 2.0 \
                         --min_size_test 900 \
                         --lr_warm_up \
-                        --path ./logs/prw/v6/intersection/no_prior_hn001_cnt07 \
+                        --path ./logs/prw/v8/no_prior_easy \
+                        --seed 0 \
                         --batch_size 4 \
                         --use_coap 0 \
                         --use_uniq 0 \
@@ -136,16 +136,16 @@ CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
                         --co_scale 0.1 \
                         --hard_neg 0.01
                        
+                        # --path ./logs/prw/v8/base_cycle_th05 \
+                        # --path ./logs/prw/v8/no_prior_easy \
+                        # --path ./logs/prw/v8/base \
+                        # --path ./logs/prw/v3/bjhan/no_prior_negonly/ \
                         # --path ./logs/prw/v6/intersection/no_prior_hn007 \
-                        # --path ./logs/prw/v3/bjhan/base_hn001/b8_decay14 \
                         # --path ./logs/prw/v3/bjhan/base_hn001/decay14 \
-                        # --path ./logs/prw/v3/bjhan/base_hn001 \
-                        # --path ./logs/prw/v3/bjhan/no_prior \
-                        # --path ./logs/prw/v3/ce/no_prior \
-                        # --path ./logs/prw/v3/ce/base_codist \
-                        # --path ./logs/prw/v3/base6000 \
-                        # --path ./logs/prw/tmp \
+                        # --path ./logs/prw/v3/bjhan/no_prior_posall \
                         # --path ./logs/prw/v2/cycle \
+                        # --path ./logs/prw/tmp \
+                        # --resume ./logs/prw/v6/intersection/no_prior_hn01/Jan27_10-54-01/checkpoint_epoch10.pth \
                         # --resume ./logs/prw/v3/base/Jan17_20-17-32/checkpoint_epoch10.pth \
                         # --resume ./logs/prw/tc06sc05num20/Jan05_14-22-54/checkpoint_epoch12.pth \
 
