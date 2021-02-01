@@ -39,20 +39,25 @@ class MPLP(object):
                 co_vec = memory[mask]
                 if len(co_vec)==0: pass
                 else:
-                    # co_sims = co_vec.mm(memory.t())
-                    # co_sim = torch.max(co_sims, dim=0)[0]
-                    # sim = torch.tanh(1.1*(sim-co_sim))
-
+                    
                     co_sims = co_vec.mm(memory.t())
-                    # co_sims = co_sims * (1000/co_dist).clamp(min=0., max=1.)
+                    co_sims[(co_sims < self.t_c) | mask] = 0
+
+                    # cycle filtering
+                    for j, co_sim in enumerate(co_sims):
+                        if len((co_sim!=0).nonzero())==0: continue
+                        co_target_idx = mask.nonzero()[j] - min((self.cnt2snum==self.cnt2snum[target]).nonzero())
+                        co_cycle_sim = memory[co_sim!=0].mm(memory[(self.cnt2snum==self.cnt2snum[target])].t())
+                        co_cycle_idx = co_cycle_sim.max(dim=1)[1]
+                        co_sims[j, co_sim!=0][co_cycle_idx!=co_target_idx] = 0
+                        
                     co_sim = torch.max(co_sims, dim=0)[0]
-                    co_sim[co_sim < self.t_c] = 0
-                    # co_sim *= self.s_c
+                    co_sim *= self.s_c
+                    
                     # sum by scene
                     co_sim_sum = torch.zeros((len(self.cnt2snum.unique()), )).cuda().index_add(dim=0, index=self.cnt2snum, source=co_sim)
                     co_sim_sum = torch.gather(input=co_sim_sum, dim=0, index=self.cnt2snum).clamp(max=self.s_c*len(co_vec))
                     sim = (sim+co_sim_sum).clamp(max=1.)
-                    # sim = torch.tanh(1.5*(sim+co_sim_sum))
 
             sim[target] = 1. 
             simsorted, idxsorted = torch.sort(sim ,dim=0, descending=True)

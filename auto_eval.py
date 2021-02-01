@@ -35,7 +35,14 @@ search_dirs = [
     # './logs/prw/v9/base_nocycle/Jan31_11-55-07', \
     # './logs/prw/v9/base/Jan31_11-56-09', \
     # './logs/prw/v9/no_prior_hn0008/Jan31_11-57-35', \
-    './logs/prw/v9/no_prior_hn0005/Jan31_11-58-22', \
+    # './logs/prw/v9/no_prior_hn0005/Jan31_11-58-22', \
+
+    # './logs/prw/v10/base/Feb01_11-37-16', \
+    # './logs/prw/v9/no_prior/Feb01_09-58-41', \
+    # './logs/prw/v9/base_nocycle/Feb01_09-59-48', \
+    # './logs/prw/v9/base/Feb01_10-00-14', \
+    './logs/prw/v10/base_nocycle/Feb01_11-36-44',\
+
 ]
 
 random.shuffle(search_dirs)

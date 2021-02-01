@@ -60,8 +60,8 @@ search_dirs = [
                 # './logs/prw/v3/bjhan/no_prior_posall_hnall/Jan28_22-36-58',\
 
                 './logs/prw/v9/no_prior/Jan31_11-54-06', \
-                './logs/prw/v9/base_nocycle/Jan31_11-55-07', \
-                './logs/prw/v9/base/Jan31_11-56-09', \
+                # './logs/prw/v9/base_nocycle/Jan31_11-55-07', \
+                # './logs/prw/v9/base/Jan31_11-56-09', \
                 './logs/prw/v9/no_prior_hn0008/Jan31_11-57-35', \
                 './logs/prw/v9/no_prior_hn0005/Jan31_11-58-22', \
 

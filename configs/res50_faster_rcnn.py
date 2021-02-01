@@ -76,7 +76,7 @@ def args_faster_rcnn():
                         help='step to do learning rate decay, unit is epoch',
                         default=8, type=int)
     parser.add_argument('--lr_decay_milestones', type=int, dest='train.lr_decay_milestones',
-                        nargs='+', default=None)
+                        nargs='+', default=[14, 24])
     parser.add_argument('--lr_warm_up', dest='train.lr_warm_up',
                         action='store_true')
     parser.add_argument('--clip_gradient', dest='train.clip_gradient',
