@@ -82,7 +82,7 @@ class MPLP(object):
                 cand_sim = cand_vec.mm(memory.t())
                 cand_scn = self.cnt2snum[cand_idx]
                 cand_co_scn_mask = (self.cnt2snum.unsqueeze(1)==cand_scn).any(-1)
-                topk_idx = cand_co_scn_mask.nonzero().squeeze()[torch.topk(cand_sim[:, cand_co_scn_mask], k=len(cand_sim), dim=1)[1]]
+                topk_idx = cand_co_scn_mask.nonzero().squeeze(1)[torch.topk(cand_sim[:, cand_co_scn_mask], k=len(cand_sim), dim=1)[1]]
 
                 # check cycle consistency
                 topk_mask = (topk_idx.sort(dim=1)[0]==cand_idx.sort(dim=0)[0]).all(dim=1)

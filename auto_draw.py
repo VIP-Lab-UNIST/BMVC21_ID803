@@ -52,12 +52,19 @@ search_dirs = [
                 # './logs/prw/v6/intersection/no_prior_hn05/Jan28_10-57-35',\
                 # './logs/prw/v6/intersection/no_prior_hn01/Jan27_10-54-01',\
 
-                './logs/prw/v3/bjhan/no_prior_negonly/Jan29_09-30-59', \
-                './logs/prw/v3/bjhan/no_prior_no_multilabel/Jan29_11-40-31', \
+                # './logs/prw/v3/bjhan/no_prior_negonly/Jan29_09-30-59', \
+                # './logs/prw/v3/bjhan/no_prior_no_multilabel/Jan29_11-40-31', \
 
                 # './logs/prw/v3/bjhan/no_prior_posall/Jan28_22-14-45', \
                 # './logs/prw/v3/bjhan/no_prior_hnall/Jan28_22-21-40',\
                 # './logs/prw/v3/bjhan/no_prior_posall_hnall/Jan28_22-36-58',\
+
+                './logs/prw/v9/no_prior/Jan31_11-54-06', \
+                './logs/prw/v9/base_nocycle/Jan31_11-55-07', \
+                './logs/prw/v9/base/Jan31_11-56-09', \
+                './logs/prw/v9/no_prior_hn0008/Jan31_11-57-35', \
+                './logs/prw/v9/no_prior_hn0005/Jan31_11-58-22', \
+
 
 ]   
 

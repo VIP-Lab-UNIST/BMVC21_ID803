@@ -18,33 +18,32 @@ class MMCL(nn.Module):
             multilabels = torch.zeros_like(logits, dtype=torch.bool).scatter_(1, targets, True)
         else: 
             raise ValueError('Incorrect input size')
+
         loss = []
         argidices = torch.argsort(logits.detach().clone(), dim=1, descending=True)
         neg_nums = self.r * (~multilabels).sum(dim=1).float()
         for i, (logit, multilabel, argidx, neg_num) in enumerate(zip(logits, multilabels, argidices, neg_nums)):
-            # 1. Sampling postivie pairs
-            pos_logit = logit[multilabel]
-            num_pos = len(pos_logit)
 
-            # 2. Sampling hard negative pairs
-            # rand_idx = argidx[~multilabel][:int(neg_num)]
-            hn_idx = argidx[~multilabel[argidx]][:int(neg_num)]
+            ## positive index, hard negative index
             pos_idx = multilabel.nonzero().squeeze(1)
-            # neg_idx = rand_idx[~(rand_idx.unsqueeze(1)==pos_idx).any(-1)]
+            hn_idx = argidx[~multilabel[argidx]][:int(neg_num)]
+            num_pos = len(pos_idx)
 
-            # hard_neg_logit = logit[hn_idx]
-            # hard_neg_logit = logit[torch.unique(torch.cat((pos_idx, rand_idx)))]
-            hard_neg_logit = logit[torch.cat((pos_idx, hn_idx))]
-            # hard_neg_logit = logit[argidx][~multilabel[argidx]][:int(neg_num)]] 
-            
-            results = torch.cat([pos_logit.unsqueeze(1), 
-                                hard_neg_logit.unsqueeze(0).expand(num_pos, -1)], dim=1)
+            pos_logits = logit[pos_idx]
+            pos_logits_sort, pos_logits_sort_idx = torch.sort(pos_logits, descending=True)
+
+            # hard_neg_logits = logit[torch.cat((pos_idx[pos_logits_sort_idx], hn_idx))]
+            hard_neg_logit = logit[hn_idx]
+
+            pos_logits_sort_mat = pos_logits_sort.repeat(num_pos, 1)
+            pos_mask = torch.tril(torch.ones(num_pos, num_pos)).flip(dims=[0]).bool().detach()
+            pos_logits_sort_mat[pos_mask] = pos_logits_sort.unsqueeze(1).repeat(1, num_pos)[pos_mask].detach()
+
+            results = torch.cat([pos_logits_sort_mat, hard_neg_logit.unsqueeze(0).expand(num_pos, -1)], dim=1)
+            # results = torch.cat([pos_logits_sort.unsqueeze(1), 
+            #                     pos_logits_sort_mat], dim=1)
 
             l = F.cross_entropy(10*results, torch.zeros(num_pos).long().cuda())                 
-            # l += torch.log(torch.tensor(1.+num_pos))
-            # # 3. Compute classification loss 
-            # l = self.delta * torch.mean((1-pos_logit).pow(2)) \
-            #                 + torch.mean((1+hard_neg_logit).pow(2))
             loss.append(l)
 
         loss = torch.mean(torch.stack(loss))

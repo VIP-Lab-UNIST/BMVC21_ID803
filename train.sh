@@ -124,18 +124,19 @@ CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
                         --anchor_ratios 0.5 1.0 2.0 \
                         --min_size_test 900 \
                         --lr_warm_up \
-                        --path ./logs/prw/v8/no_prior_easy \
+                        --path ./logs/prw/v9/no_prior_hn0005 \
                         --seed 0 \
                         --batch_size 4 \
-                        --use_coap 0 \
-                        --use_uniq 0 \
-                        --use_cycle 0 \
+                        --use_coap 1 \
+                        --use_uniq 1 \
+                        --use_cycle 1 \
                         --lr 0.003 \
                         --lr_decay_step 14 \
                         --co_thrd 0.6 \
                         --co_scale 0.1 \
-                        --hard_neg 0.01
+                        --hard_neg 0.05
                        
+                        # --path ./logs/prw/v9/no_prior \
                         # --path ./logs/prw/v8/base_cycle_th05 \
                         # --path ./logs/prw/v8/no_prior_easy \
                         # --path ./logs/prw/v8/base \

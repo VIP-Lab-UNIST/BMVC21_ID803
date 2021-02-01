@@ -4,6 +4,7 @@ logs/
 **/*@*
 **/*.pyc*
 **/*.png
+**.png
 dist_mat.json
 # **/@eaDir
 # **/@SynoResource
