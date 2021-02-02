@@ -34,9 +34,11 @@ class MPLP(object):
 
             ## COAPEARANCE
             if self.use_coap:
+
                 # calculate co-appearance similarity
                 mask = (self.cnt2snum==self.cnt2snum[target]) & (torch.tensor(range(len(self.cnt2snum))).cuda()!=target)
                 co_vec = memory[mask]
+                
                 if len(co_vec)==0: pass
                 else:
                     
@@ -44,12 +46,13 @@ class MPLP(object):
                     co_sims[(co_sims < self.t_c) | mask] = 0
 
                     # cycle filtering
-                    for j, co_sim in enumerate(co_sims):
-                        if len((co_sim!=0).nonzero())==0: continue
-                        co_target_idx = mask.nonzero()[j] - min((self.cnt2snum==self.cnt2snum[target]).nonzero())
-                        co_cycle_sim = memory[co_sim!=0].mm(memory[(self.cnt2snum==self.cnt2snum[target])].t())
-                        co_cycle_idx = co_cycle_sim.max(dim=1)[1]
-                        co_sims[j, co_sim!=0][co_cycle_idx!=co_target_idx] = 0
+                    if self.use_cycle:
+                        for j, co_sim in enumerate(co_sims):
+                            if len((co_sim!=0).nonzero())==0: continue
+                            co_target_idx = mask.nonzero()[j] - min((self.cnt2snum==self.cnt2snum[target]).nonzero())
+                            co_cycle_sim = memory[co_sim!=0].mm(memory[(self.cnt2snum==self.cnt2snum[target])].t())
+                            co_cycle_idx = co_cycle_sim.max(dim=1)[1]
+                            co_sims[j, co_sim!=0][co_cycle_idx!=co_target_idx] = 0
                         
                     co_sim = torch.max(co_sims, dim=0)[0]
                     co_sim *= self.s_c
@@ -63,7 +66,7 @@ class MPLP(object):
             simsorted, idxsorted = torch.sort(sim ,dim=0, descending=True)
             snumsorted = self.cnt2snum[idxsorted]
             
-            ## UNIQUENESS: Select candidate(top k)
+            ## UNIQUENESS: Select candidate
             if self.use_uniq:
                 cand_snum = snumsorted[simsorted>=self.t]
                 snums, snums_cnt = torch.unique(cand_snum, return_counts=True)
