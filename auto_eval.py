@@ -41,7 +41,7 @@ search_dirs = [
     # './logs/prw/v9/no_prior/Feb01_09-58-41', \
     # './logs/prw/v9/base_nocycle/Feb01_09-59-48', \
     # './logs/prw/v9/base/Feb01_10-00-14', \
-    './logs/prw/v10/base_nocycle/Feb01_11-36-44',\
+    # './logs/prw/v10/base_nocycle/Feb01_11-36-44',\
 
 ]
 

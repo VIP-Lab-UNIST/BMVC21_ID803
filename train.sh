@@ -125,6 +125,7 @@ CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
                         --min_size_test 900 \
                         --lr_warm_up \
                         --path ./logs/prw/v10/base \
+                        --lr_decay_step 14 \
                         --seed 0 \
                         --batch_size 4 \
                         --use_coap 1 \
