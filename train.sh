@@ -124,7 +124,6 @@ CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
                         --anchor_ratios 0.5 1.0 2.0 \
                         --min_size_test 900 \
                         --lr_warm_up \
-                        --path ./logs/prw/v10/base \
                         --lr_decay_step 14 \
                         --seed 0 \
                         --batch_size 4 \
@@ -134,7 +133,8 @@ CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
                         --lr 0.003 \
                         --co_thrd 0.6 \
                         --co_scale 0.1 \
-                        --hard_neg 0.01
+                        --hard_neg 0.01 \
+                        --path ./logs/prw/v1/lambda01
                        
                         # --lr_decay_step 14 \
                         # --path ./logs/prw/v10/base_nocycle \

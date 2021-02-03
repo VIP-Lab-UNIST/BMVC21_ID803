@@ -15,6 +15,7 @@ class MPLP(object):
         with open('./dist_dict.json', 'r') as fp:
             self.dist_mat = json.load(fp)
         self.t = t
+        # self.t = 0.2
         self.s_c = s_c
         self.t_c = t_c
         self.r = r
@@ -30,20 +31,21 @@ class MPLP(object):
         
         multilabel = torch.zeros(mem_sim.shape).cuda()
         neg_idices = torch.zeros((targets.shape[0], mem_sim.shape[1])).cuda()
+     
         for i, (target, sim) in enumerate(zip( targets_uniq, mem_sim)):
 
             ## COAPEARANCE
             if self.use_coap:
-
                 # calculate co-appearance similarity
-                mask = (self.cnt2snum==self.cnt2snum[target]) & (torch.tensor(range(len(self.cnt2snum))).cuda()!=target)
+                mask = (self.cnt2snum==self.cnt2snum[target])
+                mask[target] = False
                 co_vec = memory[mask]
                 
                 if len(co_vec)==0: pass
                 else:
                     
                     co_sims = co_vec.mm(memory.t())
-                    co_sims[(co_sims < self.t_c) | mask] = 0
+                    co_sims[(co_sims < self.t_c) | mask.view(1,-1)] = 0
 
                     # cycle filtering
                     if self.use_cycle:
