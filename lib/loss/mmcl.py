@@ -29,22 +29,15 @@ class MMCL(nn.Module):
             ## positive, hard negative index
             pos_idx = multilabel.nonzero().squeeze(1)
             hn_idx = argidx[~multilabel[argidx]][:int(neg_num)]
-            
-
-            hard_neg_logit = logit[torch.cat((pos_idx, hn_idx))]
-
-            results = hard_neg_logit.unsqueeze(0).expand(len(pos_idx), -1)
+            pos_logit = logit[pos_idx]
+            neg_logit = logit[hn_idx]
+            pos_logit = torch.mean(pos_logit, dim=0, keepdim=True)
+            neg_logit = torch.mean(neg_logit, dim=0, keepdim=True)
+            results_logit = torch.cat((pos_logit, neg_logit), dim=0)
+            results_logit = results_logit.unsqueeze(0)
             
             ## calculate the loss
-            if results.shape[0] == 1:
-                l = F.cross_entropy(10*results, torch.arange(len(pos_idx)).cuda())                 
-            else:
-                lambda_ = 0.1
-                l = F.cross_entropy(10*results, torch.arange(len(pos_idx)).cuda(), reduction='none') 
-                weight = torch.zeros(len(results)).cuda().fill_((1 - lambda_)  / (len(results)-1))
-                weight[indices[pos_idx] == y] = lambda_
-                l = (l * weight).sum()
-
+            l = F.cross_entropy(10*results_logit, torch.zeros(1).long().cuda())  
             loss.append(l)
 
         loss = torch.mean(torch.stack(loss))

@@ -103,7 +103,6 @@ class Memory(nn.Module):
         self.alpha = alpha
 
         self.mem = nn.Parameter(torch.zeros(num_classes, num_features), requires_grad=False)
-
         # self.mem = nn.Parameter(torch.randn(num_classes, num_features)/16, requires_grad=False)
 
     def forward(self, inputs, targets, epoch=None):
