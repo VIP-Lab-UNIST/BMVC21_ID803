@@ -36,6 +36,5 @@ class MMCL(nn.Module):
             l = F.cross_entropy(10*results, torch.arange(len(pos_idx)).cuda())     
             loss.append(l)
 
-
         loss = torch.mean(torch.stack(loss))
         return loss

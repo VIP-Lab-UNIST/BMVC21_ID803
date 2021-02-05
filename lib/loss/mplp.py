@@ -108,45 +108,41 @@ class MPLP(object):
         mem_vec = memory[targets_uniq]
         mem_sim = mem_vec.mm(memory.t())
 
-        easy_positive = self.SACC(mem_sim, targets_uniq, memory, self.t)
+        easy_positive = self.SACC(mem_sim.clone(), targets_uniq, memory, self.t)
         easy_positive.scatter_(1, targets_uniq.unsqueeze(1), float(1))
-
-        print('easy_positive')
+        
+        ## Predict hard positive samples
         if self.use_coap:
             ## CO-APPEARANCE
-            for i, target in enumerate(targets_uniq):
+            for i, (target) in enumerate(targets_uniq):
                 scene_mask = self.cnt2snum[targets_uniq] == self.cnt2snum[target]
                 scene_mask[i] = False
                 neighbors = scene_mask.nonzero().squeeze(1)
+                
+                ## Compute scene priority
+                priority = -1000*easy_positive[i] # to avoid scene occlusion
                 if len(neighbors) > 0: 
-                    ## Compute scene priority
-                    advantage = torch.max(easy_positive[neighbors,:],dim=0)[0]
-                    penalty = -100*easy_positive[i] # to avoid scene occlusion
-                    priority = advantage + penalty
-                    ## Expand the co-appearance advantage to scene level
-                    scene_priority = torch.zeros((len(self.cnt2snum.unique()),)).cuda().index_add(dim=0, index=self.cnt2snum, source=priority)
-                    scene_priority = torch.gather(input=scene_priority, dim=0, index=self.cnt2snum)
-                    mem_sim[i] = mem_sim[i] + self.s_c * scene_priority
-        print('coapp')
-        # Ignore similairties below threshold
-        hard_positive = self.SACC(mem_sim, targets_uniq, memory, self.t_c)
-        print('hard_positive')
-        # Debug
-        
-        _, cnt = torch.unique(self.cnt2snum[(easy_positive[0] )>0], return_counts=True)
-        assert (cnt>1).sum()==0, "easy_positive Scene occlusion"
-        _, cnt = torch.unique(self.cnt2snum[( hard_positive[0])>0], return_counts=True)
-        assert (cnt>1).sum()==0, "hard_positive Scene occlusion"
-        _, cnt = torch.unique(self.cnt2snum[(easy_positive[0] + hard_positive[0])>0], return_counts=True)
-        assert (cnt>1).sum()==0, "all_positive Scene occlusion"
-        print('predict')
-        ## Expand multi-label
-        multilabel = (easy_positive + hard_positive)>0
+                    advantage = torch.max(easy_positive[neighbors,:], dim=0)[0]
+                    priority += advantage 
+            
+                ## Expand the priority to scene level
+                scene_priority = torch.zeros((len(self.cnt2snum.unique()),)).cuda().index_add(dim=0, index=self.cnt2snum, source=priority)
+                scene_priority = torch.gather(input=scene_priority, dim=0, index=self.cnt2snum)
+                mem_sim[i,:] = mem_sim[i,:] + self.s_c * scene_priority
+            
+            hard_positive = self.SACC(mem_sim.clone(), targets_uniq, memory, self.t_c)
+            
+            ## Expand multi-label
+            multilabel = (easy_positive + hard_positive)>0
+
+        else:
+            multilabel = easy_positive > 0
+
         multilabel_ = torch.zeros(len(targets), mem_sim.shape[1]).bool().cuda()
         for t_uniq, mlabel in zip(targets_uniq, multilabel):
             midx = (t_uniq==targets).nonzero().squeeze(1)
             multilabel_[midx, :] = mlabel.repeat(len(midx), 1)
-       
+    
         return multilabel_
 
     def draw_proposal(self, targets, multilabels):
