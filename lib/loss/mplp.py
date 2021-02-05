@@ -22,7 +22,7 @@ class MPLP(object):
         self.use_coap = use_coap
         self.use_uniq = use_uniq
         self.use_cycle = use_cycle
-
+        
     def forward_matching(self, sim_forward):
         # Input argument
         #  sim_forward (1D float tensor) : 1-dimensional vector with size of N
@@ -50,8 +50,8 @@ class MPLP(object):
         
         return cand_sim, cand_idx 
 
-    def SACC(self, sim_forward, memory, query_pid):
-        # Scene-Aware Cycle Consistency
+    def sacc(self, sim_forward, query_pid, memory):
+        # Scene-Aware Cycle Consistency for "a single query"
         co_persons = (self.cnt2snum==self.cnt2snum[query_pid]).nonzero().squeeze(1)
         co_persons, _ = torch.sort(co_persons, dim=0, descending=False)
         offset = co_persons[0]
@@ -65,83 +65,88 @@ class MPLP(object):
         else:
             return forward_matched_sim, forward_matched_idx # empty index tensor
 
+    # def squeeze_scene(self, mem_sim):
+    #     simsorted, idxsorted = torch.sort(mem_sim ,dim=1, descending=True)
+    #     scene_num = max(self.cnt2snum)
+    #     mem_sim_squeeze = []
+    #     mem_idx_squeeze = []
+    #     for simsorted_, idxsorted_ in zip(simsorted, idxsorted):
+    #         snumsorted_ = self.cnt2snum[idxsorted_]
+    #         print(simsorted_.shape)
+    #         ## Select Top-1 per each scene
+    #         mask =  torch.zeros_like(simsorted_).bool()
+    #         for snum in range(scene_num.item()):
+    #             mask[min((snumsorted_==snum).nonzero())] = True
+
+    #         mem_sim_squeeze.append(simsorted_[mask])
+    #         mem_idx_squeeze.append(idxsorted_[mask])
+
+    #     mem_sim_squeeze = torch.stack(mem_sim_squeeze)
+    #     mem_idx_squeeze = torch.stack(mem_idx_squeeze)
+    #     return mem_sim_squeeze, mem_idx_squeeze
+
+
+    def SACC(self, sims_forward, pids, memory, threshold):
+        # Scene-Aware Cycle Consistency for  "multiple queries" 
+        sims_forward[sims_forward<threshold] = 0
+        sims_forward_rev = torch.zeros_like(sims_forward)
+        if self.use_cycle:
+            for  j, (pid, co_sim) in enumerate(zip(pids, sims_forward)):
+                matched_sim, matched_idx = self.sacc(co_sim, pid, memory)
+                sims_forward_rev[j, matched_idx] = matched_sim
+                # print(5)
+        else:
+            for  j, (pid, co_sim) in enumerate(zip(pids, sims_forward)):
+                matched_idx = (co_sim > 0).nonzero().squeeze(1)
+                sims_forward_rev[j, matched_idx] = co_sim[matched_idx]
+                # print(6)
+        return sims_forward_rev
+
     def predict(self, memory, targets):
 
         targets_uniq=targets.unique()
         mem_vec = memory[targets_uniq]
         mem_sim = mem_vec.mm(memory.t())
-        multilabel = torch.zeros(mem_sim.shape).cuda()
-        
-        for i, (target, sim) in enumerate(zip( targets_uniq, mem_sim)):
-            # print(1)
-            ## COAPEARANCE
-            if self.use_coap:
-                # Calculate co-appearance similarity
-                persons_in_query_image = (self.cnt2snum==self.cnt2snum[target])
-                persons_in_query_image[target] = False
-                neighbors = persons_in_query_image.nonzero().squeeze(1)
-                # print(2)
+
+        easy_positive = self.SACC(mem_sim, targets_uniq, memory, self.t)
+        easy_positive.scatter_(1, targets_uniq.unsqueeze(1), float(1))
+
+        print('easy_positive')
+        if self.use_coap:
+            ## CO-APPEARANCE
+            for i, target in enumerate(targets_uniq):
+                scene_mask = self.cnt2snum[targets_uniq] == self.cnt2snum[target]
+                scene_mask[i] = False
+                neighbors = scene_mask.nonzero().squeeze(1)
                 if len(neighbors) > 0: 
-                    ## Compute similairties of co-persons to the other objects
-                    co_vec = memory[neighbors]
-                    co_persons = torch.cat([neighbors.view(-1), target.view(-1)], dim=0)
-                    co_persons, _ = torch.sort(co_persons, dim=0, descending=False)
-                    co_sims_forward = co_vec.mm(memory.t())
-                    # print(3)
-
-                    ## Remove similarities of query and co-persons itself
-                    ## and ignore similarities lower than a threshold
-                    co_sims_forward[:, co_persons] = 0
-                    co_sims_forward[co_sims_forward < self.t_c] = 0
-                    # print(4)
-                    ## Apply Scene-aware cycle consistency (SACC)
-                    advantage = torch.zeros_like(co_sims_forward)
-                    if self.use_cycle:
-                        for  j, (pid, co_sim) in enumerate(zip(neighbors, co_sims_forward)):
-                            matched_sim, matched_idx = self.SACC(co_sim, memory, pid)
-                            advantage[j, matched_idx] = matched_sim
-                            # print(5)
-                    else:
-                        for  j, (pid, co_sim) in enumerate(zip(neighbors, co_sims_forward)):
-                            matched_idx = (co_sim > 0).nonzero().squeeze(1)
-                            advantage[j, matched_idx] = co_sim[matched_idx]
-                            # print(6)
-                    advantage = torch.max(advantage, dim=0)[0]
-                    # print(7)
+                    ## Compute scene priority
+                    advantage = torch.max(easy_positive[neighbors,:],dim=0)[0]
+                    penalty = -100*easy_positive[i] # to avoid scene occlusion
+                    priority = advantage + penalty
                     ## Expand the co-appearance advantage to scene level
-                    # Debuging: 
-                    assert max(advantage)<=1, "Debug: mlplp.py: advantage is lager than 1"
-                    co_sim_sum = torch.zeros((len(self.cnt2snum.unique()), )).cuda().index_add(dim=0, index=self.cnt2snum, source=advantage)
-                    # print(8)
-                    # Debuging: 
-                    assert max(co_sim_sum.view(-1))<=1, "Debug: mlplp.py: co_sim_sum is lager than 1"
-                    co_sim_sum = torch.gather(input=co_sim_sum, dim=0, index=self.cnt2snum)
-                    # print(9)
-                    # Debuging: 
-                    assert max(co_sim_sum.view(-1))<=1, "Debug: mlplp.py: co_sim_sum is lager than 1"
-                    sim = sim + self.s_c * co_sim_sum
-                    # print(10)
-            # Ignore similairties below threshold
-            sim[sim < self.t] = 0
-
-            ## Apply Scene-aware cycle consistency (SACC)
-            if self.use_cycle:
-                _, matched_idx = self.SACC(sim, memory, target)
-                # print(11)
-                multilabel[i, matched_idx] = float(1)
-                multilabel[i, target] = float(1)
-                # print(12)
-            else: 
-                matched_idx = (sim > 0).nonzero().squeeze(1)
-                multilabel[i, matched_idx] = float(1)
-                multilabel[i, target] = float(1)
-
+                    scene_priority = torch.zeros((len(self.cnt2snum.unique()),)).cuda().index_add(dim=0, index=self.cnt2snum, source=priority)
+                    scene_priority = torch.gather(input=scene_priority, dim=0, index=self.cnt2snum)
+                    mem_sim[i] = mem_sim[i] + self.s_c * scene_priority
+        print('coapp')
+        # Ignore similairties below threshold
+        hard_positive = self.SACC(mem_sim, targets_uniq, memory, self.t_c)
+        print('hard_positive')
+        # Debug
+        
+        _, cnt = torch.unique(self.cnt2snum[(easy_positive[0] )>0], return_counts=True)
+        assert (cnt>1).sum()==0, "easy_positive Scene occlusion"
+        _, cnt = torch.unique(self.cnt2snum[( hard_positive[0])>0], return_counts=True)
+        assert (cnt>1).sum()==0, "hard_positive Scene occlusion"
+        _, cnt = torch.unique(self.cnt2snum[(easy_positive[0] + hard_positive[0])>0], return_counts=True)
+        assert (cnt>1).sum()==0, "all_positive Scene occlusion"
+        print('predict')
         ## Expand multi-label
-        multilabel_= torch.zeros((targets.shape[0], multilabel.shape[1])).cuda()
+        multilabel = (easy_positive + hard_positive)>0
+        multilabel_ = torch.zeros(len(targets), mem_sim.shape[1]).bool().cuda()
         for t_uniq, mlabel in zip(targets_uniq, multilabel):
             midx = (t_uniq==targets).nonzero().squeeze(1)
             multilabel_[midx, :] = mlabel.repeat(len(midx), 1)
-        # print(13)
+       
         return multilabel_
 
     def draw_proposal(self, targets, multilabels):

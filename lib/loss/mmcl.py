@@ -22,23 +22,20 @@ class MMCL(nn.Module):
         argidices = torch.argsort(logits.detach().clone(), dim=1, descending=True)
         neg_nums = self.r * (~multilabels).sum(dim=1).float()
         
-        indices = torch.arange(logits.shape[1]).cuda()
+        # indices = torch.arange(logits.shape[1]).cuda()
 
         for i, (logit, y, multilabel, argidx, neg_num) in enumerate(zip(logits, targets, multilabels, argidices, neg_nums)):
             
             ## positive, hard negative index
             pos_idx = multilabel.nonzero().squeeze(1)
             hn_idx = argidx[~multilabel[argidx]][:int(neg_num)]
-            pos_logit = logit[pos_idx]
-            neg_logit = logit[hn_idx]
-            pos_logit = torch.mean(pos_logit, dim=0, keepdim=True)
-            # neg_logit = torch.mean(neg_logit, dim=0, keepdim=True)
-            results_logit = torch.cat((pos_logit, neg_logit), dim=0)
-            results_logit = results_logit.unsqueeze(0)
+            hard_neg_logit = logit[torch.cat((pos_idx, hn_idx))]
+            results = hard_neg_logit.unsqueeze(0).expand(len(pos_idx), -1)
             
             ## calculate the loss
-            l = F.cross_entropy(5*results_logit, torch.zeros(1).long().cuda())  
+            l = F.cross_entropy(10*results, torch.arange(len(pos_idx)).cuda())     
             loss.append(l)
+
 
         loss = torch.mean(torch.stack(loss))
         return loss
