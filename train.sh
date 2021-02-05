@@ -126,7 +126,7 @@ CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
                         --lr_warm_up \
                         --lr_decay_step 14 \
                         --seed 0 \
-                        --batch_size 4 \
+                        --batch_size 2 \
                         --use_coap 1 \
                         --use_uniq 1 \
                         --use_cycle 1 \
@@ -134,7 +134,7 @@ CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
                         --co_thrd 0.6 \
                         --co_scale 0.1 \
                         --hard_neg 0.01 \
-                        --path ./logs/prw/v3/
+                        --path ./logs/prw/tmp
                        
                         # --lr_decay_step 14 \
                         # --path ./logs/prw/v10/base_nocycle \

@@ -32,12 +32,12 @@ class MMCL(nn.Module):
             pos_logit = logit[pos_idx]
             neg_logit = logit[hn_idx]
             pos_logit = torch.mean(pos_logit, dim=0, keepdim=True)
-            neg_logit = torch.mean(neg_logit, dim=0, keepdim=True)
+            # neg_logit = torch.mean(neg_logit, dim=0, keepdim=True)
             results_logit = torch.cat((pos_logit, neg_logit), dim=0)
             results_logit = results_logit.unsqueeze(0)
             
             ## calculate the loss
-            l = F.cross_entropy(10*results_logit, torch.zeros(1).long().cuda())  
+            l = F.cross_entropy(5*results_logit, torch.zeros(1).long().cuda())  
             loss.append(l)
 
         loss = torch.mean(torch.stack(loss))

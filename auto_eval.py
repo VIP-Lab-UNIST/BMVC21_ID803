@@ -12,6 +12,8 @@ search_dirs = [
     # 'logs/prw/v1/lambda05/Feb02_20-37-50',
     'logs/prw/v2/Feb03_15-15-45',
     'logs/prw/v3/Feb03_15-36-27',
+    'logs/prw/v4/temp5/Feb04_11-48-10',
+    'logs/prw/v4/temp10/Feb04_11-47-26',
 ]
 
 random.shuffle(search_dirs)
