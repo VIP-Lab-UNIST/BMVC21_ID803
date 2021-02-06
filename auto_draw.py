@@ -20,8 +20,11 @@ search_dirs = [
     
     'logs/prw/v5/Feb06_02-30-35',
     'logs/prw/v5/coscale0.15/Feb06_11-17-22',
+    'logs/prw/v7/coscale0.1/Feb06_14-51-21',
+    'logs/prw/v7/coscale0.15/Feb06_20-08-03',
+    'logs/prw/v5/coscale0.2/Feb06_20-10-49',
     
-    ]   
+        ]   
 
 legend=[]    
 fig = plt.figure(num=None, figsize=(15, 15), dpi=80, facecolor='w', edgecolor='k')        
