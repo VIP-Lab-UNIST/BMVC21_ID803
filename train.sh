@@ -132,9 +132,9 @@ CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
                         --use_cycle 1 \
                         --lr 0.003 \
                         --co_thrd 0.6 \
-                        --co_scale 0.2 \
+                        --co_scale 0.25 \
                         --hard_neg 0.01 \
-                        --path ./logs/prw/v5/coscale0.2
+                        --path ./logs/prw/v5/coscale0.25
                        
                         # --lr_decay_step 14 \
                         # --path ./logs/prw/v10/base_nocycle \
