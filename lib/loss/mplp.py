@@ -50,12 +50,16 @@ class MPLP(object):
         
         return cand_sim, cand_idx 
 
-    def sacc(self, sim_forward, query_pid, memory):
+    def sacc(self, sim_forward, query_pid, memory, uniqueness=True):
         # Scene-Aware Cycle Consistency for "a single query"
         co_persons = (self.cnt2snum==self.cnt2snum[query_pid]).nonzero().squeeze(1)
         co_persons, _ = torch.sort(co_persons, dim=0, descending=False)
         offset = co_persons[0]
-        forward_matched_sim, forward_matched_idx  = self.forward_matching(sim_forward)
+        if uniqueness:
+            forward_matched_sim, forward_matched_idx  = self.forward_matching(sim_forward)
+        else:
+            forward_matched_idx = (sim_forward > 0).nonzero().squeeze(1)
+            forward_matched_sim = sim_forward[forward_matched_idx]
         if len(forward_matched_idx) > 0:
             sim_backward = memory[forward_matched_idx].mm(memory[co_persons].t())
             backward_matched_idx = sim_backward.max(dim=1)[1]
@@ -65,34 +69,13 @@ class MPLP(object):
         else:
             return forward_matched_sim, forward_matched_idx # empty index tensor
 
-    # def squeeze_scene(self, mem_sim):
-    #     simsorted, idxsorted = torch.sort(mem_sim ,dim=1, descending=True)
-    #     scene_num = max(self.cnt2snum)
-    #     mem_sim_squeeze = []
-    #     mem_idx_squeeze = []
-    #     for simsorted_, idxsorted_ in zip(simsorted, idxsorted):
-    #         snumsorted_ = self.cnt2snum[idxsorted_]
-    #         print(simsorted_.shape)
-    #         ## Select Top-1 per each scene
-    #         mask =  torch.zeros_like(simsorted_).bool()
-    #         for snum in range(scene_num.item()):
-    #             mask[min((snumsorted_==snum).nonzero())] = True
-
-    #         mem_sim_squeeze.append(simsorted_[mask])
-    #         mem_idx_squeeze.append(idxsorted_[mask])
-
-    #     mem_sim_squeeze = torch.stack(mem_sim_squeeze)
-    #     mem_idx_squeeze = torch.stack(mem_idx_squeeze)
-    #     return mem_sim_squeeze, mem_idx_squeeze
-
-
-    def SACC(self, sims_forward, pids, memory, threshold):
+    def SACC(self, sims_forward, pids, memory, threshold, uniqueness=True):
         # Scene-Aware Cycle Consistency for  "multiple queries" 
         sims_forward[sims_forward<threshold] = 0
         sims_forward_rev = torch.zeros_like(sims_forward)
         if self.use_cycle:
             for  j, (pid, co_sim) in enumerate(zip(pids, sims_forward)):
-                matched_sim, matched_idx = self.sacc(co_sim, pid, memory)
+                matched_sim, matched_idx = self.sacc(co_sim, pid, memory, uniqueness)
                 sims_forward_rev[j, matched_idx] = matched_sim
                 # print(5)
         else:
@@ -114,6 +97,7 @@ class MPLP(object):
         ## Predict hard positive samples
         if self.use_coap:
             ## CO-APPEARANCE
+            # backward_positive = self.SACC(mem_sim.clone(), targets_uniq, memory, self.t_c, uniqueness=False)
             for i, (target) in enumerate(targets_uniq):
                 scene_mask = self.cnt2snum[targets_uniq] == self.cnt2snum[target]
                 scene_mask[i] = False
@@ -130,7 +114,7 @@ class MPLP(object):
                 scene_priority = torch.gather(input=scene_priority, dim=0, index=self.cnt2snum)
                 mem_sim[i,:] = mem_sim[i,:] + self.s_c * scene_priority
             
-            hard_positive = self.SACC(mem_sim.clone(), targets_uniq, memory, self.t_c)
+            hard_positive = self.SACC(mem_sim.clone(), targets_uniq, memory, self.t)
             
             ## Expand multi-label
             multilabel = (easy_positive + hard_positive)>0

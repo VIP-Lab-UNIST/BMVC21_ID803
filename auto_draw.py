@@ -11,22 +11,29 @@ import time
 from matplotlib.pyplot import figure
 
 search_dirs = [
-    'logs/prw/v1/lambda01/Feb02_20-39-04',
-    'logs/prw/v1/lambda05/Feb02_20-37-50',
-    'logs/prw/v2/Feb03_15-15-45',
-    'logs/prw/v3/Feb03_15-36-27',
-    'logs/prw/v4/temp5/Feb04_11-48-10',
-    'logs/prw/v4/temp10/Feb04_11-47-26',
+    # 'logs/prw/v1/lambda01/Feb02_20-39-04',
+    # 'logs/prw/v1/lambda05/Feb02_20-37-50',
+    # 'logs/prw/v2/Feb03_15-15-45',
+    # 'logs/prw/v3/Feb03_15-36-27',
+    # 'logs/prw/v4/temp5/Feb04_11-48-10',
+    # 'logs/prw/v4/temp10/Feb04_11-47-26',
     
-    'logs/prw/v5/Feb06_02-30-35',
-    'logs/prw/v5/coscale0.15/Feb06_11-17-22',
-    'logs/prw/v5/coscale0.2/Feb06_20-10-49',
-    'logs/prw/v5/coscale0.25/Feb06_22-39-37',
-    'logs/prw/v7/coscale0.1/Feb06_14-51-21',
-    'logs/prw/v7/coscale0.15/Feb06_20-08-03',
-    'logs/prw/v8/coscale0.1/Feb06_20-52-19',
-    'logs/prw/v8/coscale0.2/Feb06_20-56-47',
+    # 'logs/prw/v5/Feb06_02-30-35',
+    # 'logs/prw/v5/coscale0.15/Feb06_11-17-22',
+    # 'logs/prw/v5/coscale0.2/Feb06_20-10-49',
+    # 'logs/prw/v5/coscale0.25/Feb06_22-39-37',
+    # # 'logs/prw/v7/coscale0.1/Feb06_14-51-21',
+    # # 'logs/prw/v7/coscale0.15/Feb06_20-08-03',
+    # 'logs/prw/v8/coscale0.1/Feb06_20-52-19',
+    # 'logs/prw/v8/coscale0.15/Feb07_01-42-40',
+    # 'logs/prw/v8/coscale0.2/Feb06_20-56-47',
+    
+    # 'logs/prw/v9/coscale0.1/Feb07_13-38-08',
+    # 'logs/prw/v9/coscale0.15/Feb07_13-39-28',
 
+    'logs/prw/v5/coscale0.1/Feb07_14-00-10',
+    'logs/prw/v5/coscale0.15/Feb07_14-00-44',
+    'logs/prw/v5/coscale0.2/Feb07_14-01-02',
 ]   
 
 legend=[]    
