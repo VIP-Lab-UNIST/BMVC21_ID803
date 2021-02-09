@@ -117,12 +117,13 @@ class MPLP(object):
             hard_positive = self.SACC(mem_sim.clone(), targets_uniq, memory, self.t)
             
             ## Expand multi-label
-            multilabel = (easy_positive + hard_positive)>0
+            multilabel = (easy_positive>0).float() 
+            multilabel[hard_positive>0] = 0.5
 
         else:
-            multilabel = easy_positive > 0
+            multilabel = (easy_positive > 0).float()
 
-        multilabel_ = torch.zeros(len(targets), mem_sim.shape[1]).bool().cuda()
+        multilabel_ = torch.zeros(len(targets), mem_sim.shape[1]).cuda()
         for t_uniq, mlabel in zip(targets_uniq, multilabel):
             midx = (t_uniq==targets).nonzero().squeeze(1)
             multilabel_[midx, :] = mlabel.repeat(len(midx), 1)

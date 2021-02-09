@@ -16,7 +16,7 @@ class MMCL(nn.Module):
             targets = targets.unsqueeze(1)
             multilabels = torch.zeros_like(logits, dtype=torch.bool).scatter_(1, targets, True)
         else: 
-            multilabels = multi_targets.bool()
+            multilabels = multi_targets>0
 
         loss = []
         argidices = torch.argsort(logits.detach().clone(), dim=1, descending=True)
@@ -31,10 +31,15 @@ class MMCL(nn.Module):
             hn_idx = argidx[~multilabel[argidx]][:int(neg_num)]
             hard_neg_logit = logit[torch.cat((pos_idx, hn_idx))]
             results = hard_neg_logit.unsqueeze(0).expand(len(pos_idx), -1)
+            if multi_targets is not None:
+                weight = multi_targets[i][pos_idx]
+                weight /= (weight.sum(dim=0, keepdim=True) + 1e-12)
+                ## calculate the loss
+                l = F.cross_entropy(10*results, torch.arange(len(pos_idx)).cuda(), reduction='none')   
+                l = (weight * l).sum()  
+            else:
+                l = F.cross_entropy(10*results, torch.arange(len(pos_idx)).cuda(),)   
             
-            ## calculate the loss
-            l = F.cross_entropy(10*results, torch.arange(len(pos_idx)).cuda())     
             loss.append(l)
-
         loss = torch.mean(torch.stack(loss))
         return loss
