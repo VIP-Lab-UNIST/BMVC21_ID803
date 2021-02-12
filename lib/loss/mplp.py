@@ -50,8 +50,8 @@ class MPLP(object):
         
         return cand_sim, cand_idx 
 
-    def sacc(self, sim_forward, query_pid, memory, uniqueness=True):
-        # Scene-Aware Cycle Consistency for "a single query"
+    def contextual_threshold(self, sim_forward, query_pid, memory, uniqueness=True):
+        
         co_persons = (self.cnt2snum==self.cnt2snum[query_pid]).nonzero().squeeze(1)
         co_persons, _ = torch.sort(co_persons, dim=0, descending=False)
         offset = co_persons[0]
@@ -69,13 +69,13 @@ class MPLP(object):
         else:
             return forward_matched_sim, forward_matched_idx # empty index tensor
 
-    def SACC(self, sims_forward, pids, memory, threshold, uniqueness=True):
-        # Scene-Aware Cycle Consistency for  "multiple queries" 
+    def compute_matching_scores(self, sims_forward, pids, memory, threshold, uniqueness=True):
+        
         sims_forward[sims_forward<threshold] = 0
         sims_forward_rev = torch.zeros_like(sims_forward)
         if self.use_cycle:
             for  j, (pid, co_sim) in enumerate(zip(pids, sims_forward)):
-                matched_sim, matched_idx = self.sacc(co_sim, pid, memory, uniqueness)
+                matched_sim, matched_idx = self.contextual_threshold(co_sim, pid, memory, uniqueness)
                 sims_forward_rev[j, matched_idx] = matched_sim
                 # print(5)
         else:
@@ -91,13 +91,13 @@ class MPLP(object):
         mem_vec = memory[targets_uniq]
         mem_sim = mem_vec.mm(memory.t())
 
-        easy_positive = self.SACC(mem_sim.clone(), targets_uniq, memory, self.t)
+        easy_positive = self.compute_matching_scores(mem_sim.clone(), targets_uniq, memory, self.t)
         easy_positive.scatter_(1, targets_uniq.unsqueeze(1), float(1))
         
         ## Predict hard positive samples
         if self.use_coap:
             ## CO-APPEARANCE
-            # backward_positive = self.SACC(mem_sim.clone(), targets_uniq, memory, self.t_c, uniqueness=False)
+            # backward_positive = self.compute_matching_scores(mem_sim.clone(), targets_uniq, memory, self.t_c, uniqueness=False)
             for i, (target) in enumerate(targets_uniq):
                 scene_mask = self.cnt2snum[targets_uniq] == self.cnt2snum[target]
                 scene_mask[i] = False
@@ -114,11 +114,11 @@ class MPLP(object):
                 scene_priority = torch.gather(input=scene_priority, dim=0, index=self.cnt2snum)
                 mem_sim[i,:] = mem_sim[i,:] + self.s_c * scene_priority
             
-            hard_positive = self.SACC(mem_sim.clone(), targets_uniq, memory, self.t)
+            hard_positive = self.compute_matching_scores(mem_sim.clone(), targets_uniq, memory, self.t)
             
             ## Expand multi-label
             multilabel = (easy_positive>0).float() 
-            multilabel[hard_positive>0] = 8.0
+            multilabel[hard_positive>0] = 5.0
 
         else:
             multilabel = (easy_positive > 0).float()
