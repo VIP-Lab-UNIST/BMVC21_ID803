@@ -118,7 +118,7 @@ class MPLP(object):
             
             ## Expand multi-label
             multilabel = (easy_positive>0).float() 
-            multilabel[hard_positive>0] = 0.5
+            multilabel[hard_positive>0] = 8.0
 
         else:
             multilabel = (easy_positive > 0).float()

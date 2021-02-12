@@ -13,9 +13,9 @@ from matplotlib.pyplot import figure
 search_dirs = [
     
 
-    'logs/prw/v5/coscale0.1/Feb07_14-00-10',
-    'logs/prw/v5/coscale0.15/Feb07_14-00-44',
-    'logs/prw/v5/coscale0.2/Feb07_14-01-02',
+    # 'logs/prw/v5/coscale0.1/Feb07_14-00-10',
+    # 'logs/prw/v5/coscale0.15/Feb07_14-00-44',
+    # 'logs/prw/v5/coscale0.2/Feb07_14-01-02',
 
     # 'logs/prw/v9/coscale0.1/Feb07_14-11-32',
     # 'logs/prw/v9/coscale0.15/Feb07_14-12-13',
@@ -28,15 +28,38 @@ search_dirs = [
 
     # 'logs/prw/v11/coscale0.1-temp0.1/Feb08_18-37-09',
 
-    'logs/prw/v12/coscale0.1-probTemp0.1/Feb09_14-41-19',
-    'logs/prw/v12/coscale0.1-probTemp0.2/Feb09_14-42-03',
-    'logs/prw/v12/coscale0.1-probTemp0.5/Feb09_14-42-26',
+    # 'logs/prw/v12/coscale0.1-probTemp0.1/Feb09_14-41-19',
+    # 'logs/prw/v12/coscale0.1-probTemp0.2/Feb09_14-42-03',
+    # 'logs/prw/v12/coscale0.1-probTemp0.5/Feb09_14-42-26',
 
-    'logs/prw/v14/coscale0.1/Feb09_15-22-08',
-    'logs/prw/v14/coscale0.2/Feb09_15-22-26',
+    # 'logs/prw/v14/coscale0.1/Feb09_15-30-53',
+    # 'logs/prw/v14/coscale0.2/Feb09_15-29-56',
 
+    # 'logs/prw/v14/coscale0.3/Feb10_13-19-19',
+    # # 'logs/prw/v14/coscale0.3-weight0.1/Feb10_13-23-34',
+
+    # 'logs/prw/v14/coscale0.4/Feb10_13-19-45',
+    # 'logs/prw/v14/coscale0.4-weight0.3/Feb10_13-22-13',
+    # 'logs/prw/v14/coscale0.4-weight0.1/Feb10_13-23-00',
+
+    'logs/prw/v14/coscale0.1-weight0.1/Feb11_11-33-16',
+    'logs/prw/v14/coscale0.1-weight0.5/Feb11_11-33-34',
+    'logs/prw/v14/coscale0.1-weight1.0/Feb11_11-34-03',
+    'logs/prw/v14/coscale0.1-weight2.0/Feb11_11-34-28',
+    'logs/prw/v14/coscale0.1-weight3.0/Feb11_11-34-50',
+
+    'logs/prw/v14/coscale0.1-weight4.0/Feb12_02-22-08',
+    'logs/prw/v14/coscale0.1-weight5.0/Feb12_02-22-29',
+    'logs/prw/v14/coscale0.1-weight6.0/Feb12_02-22-55',
+    'logs/prw/v14/coscale0.1-weight7.0/Feb12_02-23-15',
+    'logs/prw/v14/coscale0.1-weight8.0/Feb12_02-23-33',
 ]   
 
+# search_dirs = [ 
+#     'logs/prw/v14/coscale0.4-weight0.1/Feb10_13-23-00',
+#     'logs/prw/v14/coscale0.4-weight0.3/Feb10_13-22-13',
+#     'logs/prw/v14/coscale0.4/Feb10_13-19-45',
+# ]
 legend=[]    
 fig = plt.figure(num=None, figsize=(15, 15), dpi=80, facecolor='w', edgecolor='k')        
 ax = plt.subplot(111)
