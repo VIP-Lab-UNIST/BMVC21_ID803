@@ -22,7 +22,8 @@ class MPLP(object):
         self.use_coap = use_coap
         self.use_uniq = use_uniq
         self.use_cycle = use_cycle
-        
+        self.use_coap_weight = True
+
     def forward_matching(self, sim_forward):
         # Input argument
         #  sim_forward (1D float tensor) : 1-dimensional vector with size of N
@@ -90,6 +91,7 @@ class MPLP(object):
         targets_uniq=targets.unique()
         mem_vec = memory[targets_uniq]
         mem_sim = mem_vec.mm(memory.t())
+        mem_sim_copy = mem_sim.clone()
 
         easy_positive = self.compute_matching_scores(mem_sim.clone(), targets_uniq, memory, self.t)
         easy_positive.scatter_(1, targets_uniq.unsqueeze(1), float(1))
@@ -118,17 +120,37 @@ class MPLP(object):
             
             ## Expand multi-label
             multilabel = (easy_positive>0).float() 
-            multilabel[hard_positive>0] = 5.0
-
+            multilabel[hard_positive>0] = 7.0
+            
         else:
             multilabel = (easy_positive > 0).float()
 
+        if self.use_coap_weight:
+            # print('use coap weight')
+            mem_sim_copy = mem_sim_copy * (multilabel > 0).float()
+            coap_weights = []
+            for i, (target) in enumerate(targets_uniq):
+                scene_mask = self.cnt2snum[targets_uniq] == self.cnt2snum[target]
+                co_pids = scene_mask.nonzero().squeeze(1)
+                coap_score = torch.sum(mem_sim_copy[co_pids,:], dim=0)
+            
+                ## Expand the priority to scene level
+                coap_weight = torch.zeros((len(self.cnt2snum.unique()),)).cuda().index_add(dim=0, index=self.cnt2snum, source=coap_score)
+                coap_weight = torch.gather(input=coap_weight, dim=0, index=self.cnt2snum)
+                coap_weights.append(coap_weight)
+            coap_weights = torch.stack(coap_weights, dim=0) * 0.3 + 1
+            # print('end')
+        else:
+            coap_weights = torch.ones_like(mem_sim_copy)
+
         multilabel_ = torch.zeros(len(targets), mem_sim.shape[1]).cuda()
-        for t_uniq, mlabel in zip(targets_uniq, multilabel):
+        coap_weights_ = torch.zeros(len(targets), mem_sim.shape[1]).cuda()
+        for t_uniq, mlabel, mweight in zip(targets_uniq, multilabel, coap_weights):
             midx = (t_uniq==targets).nonzero().squeeze(1)
             multilabel_[midx, :] = mlabel.repeat(len(midx), 1)
+            coap_weights_[midx, :] = mweight.repeat(len(midx), 1)
     
-        return multilabel_
+        return multilabel_, coap_weights_
 
     def draw_proposal(self, targets, multilabels):
         # path = './logs/outputs/mAP6/no_t{:.2f}_sc{:.2f}_tc{:.2f}/'.format(self.t, self.s_c, self.t_c)

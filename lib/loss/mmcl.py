@@ -10,7 +10,7 @@ class MMCL(nn.Module):
         self.delta = delta # coefficient for mmcl
         self.r = r         # hard negative mining ratio
       
-    def forward(self, logits, targets, multi_targets=None, neg_idices=None):
+    def forward(self, logits, targets, multi_targets=None, coap_weights=None):
         
         if multi_targets is None:
             targets = targets.unsqueeze(1)
@@ -32,8 +32,9 @@ class MMCL(nn.Module):
             hard_neg_logit = logit[torch.cat((pos_idx, hn_idx))]
             results = hard_neg_logit.unsqueeze(0).expand(len(pos_idx), -1)
             if multi_targets is not None:
-                weight = multi_targets[i][pos_idx]
+                weight = multi_targets[i][pos_idx] * coap_weights[i][pos_idx]
                 weight /= (weight.sum(dim=0, keepdim=True) + 1e-12)
+                
                 ## calculate the loss
                 l = F.cross_entropy(10*results, torch.arange(len(pos_idx)).cuda(), reduction='none')   
                 l = (weight * l).sum()  
