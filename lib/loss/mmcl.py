@@ -34,7 +34,7 @@ class MMCL(nn.Module):
             if multi_targets is not None:
                 weight = multi_targets[i][pos_idx] * coap_weights[i][pos_idx]
                 # weight /= (weight.sum(dim=0, keepdim=True) + 1e-12)
-                weight /= len(weight)
+                # weight /= len(weight)
                 
                 ## calculate the loss
                 l = F.cross_entropy(10*results, torch.arange(len(pos_idx)).cuda(), reduction='none')   

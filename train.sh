@@ -134,7 +134,7 @@ CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
                         --co_thrd 0.6 \
                         --co_scale 0.1 \
                         --hard_neg 0.01 \
-                        --path ./logs/prw/v18/coscale0.1-weight0.1
+                        --path ./logs/prw/v19/coscale0.1-weight5.0
                        
                         # --lr_decay_step 14 \
                         # --path ./logs/prw/v10/base_nocycle \
