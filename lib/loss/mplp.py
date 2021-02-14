@@ -86,6 +86,26 @@ class MPLP(object):
                 # print(6)
         return sims_forward_rev
 
+    def hard_positive_mining(self, mem_sim, targets_uniq, pre_positive, memory):
+        for i, (target) in enumerate(targets_uniq):
+            scene_mask = self.cnt2snum[targets_uniq] == self.cnt2snum[target]
+            scene_mask[i] = False
+            neighbors = scene_mask.nonzero().squeeze(1)
+            
+            ## Compute scene priority
+            priority = -1000*pre_positive[i] # to avoid scene occlusion
+            if len(neighbors) > 0: 
+                advantage = torch.max(pre_positive[neighbors,:], dim=0)[0]
+                priority += advantage 
+        
+            ## Expand the priority to scene level
+            scene_priority = torch.zeros((len(self.cnt2snum.unique()),)).cuda().index_add(dim=0, index=self.cnt2snum, source=priority)
+            scene_priority = torch.gather(input=scene_priority, dim=0, index=self.cnt2snum)
+            mem_sim[i,:] = mem_sim[i,:] + self.s_c * scene_priority
+        
+        hard_positive = self.compute_matching_scores(mem_sim, targets_uniq, memory, self.t)
+        return hard_positive 
+
     def predict(self, memory, targets):
 
         targets_uniq=targets.unique()
@@ -99,28 +119,18 @@ class MPLP(object):
         ## Predict hard positive samples
         if self.use_coap:
             ## CO-APPEARANCE
-            # backward_positive = self.compute_matching_scores(mem_sim.clone(), targets_uniq, memory, self.t_c, uniqueness=False)
-            for i, (target) in enumerate(targets_uniq):
-                scene_mask = self.cnt2snum[targets_uniq] == self.cnt2snum[target]
-                scene_mask[i] = False
-                neighbors = scene_mask.nonzero().squeeze(1)
-                
-                ## Compute scene priority
-                priority = -1000*easy_positive[i] # to avoid scene occlusion
-                if len(neighbors) > 0: 
-                    advantage = torch.max(easy_positive[neighbors,:], dim=0)[0]
-                    priority += advantage 
-            
-                ## Expand the priority to scene level
-                scene_priority = torch.zeros((len(self.cnt2snum.unique()),)).cuda().index_add(dim=0, index=self.cnt2snum, source=priority)
-                scene_priority = torch.gather(input=scene_priority, dim=0, index=self.cnt2snum)
-                mem_sim[i,:] = mem_sim[i,:] + self.s_c * scene_priority
-            
-            hard_positive = self.compute_matching_scores(mem_sim.clone(), targets_uniq, memory, self.t)
+            pre_positive = easy_positive.clone()
+            hard_positive_all = torch.zeros_like(pre_positive)
+            for p in range(3):
+                hard_positive = self.hard_positive_mining(mem_sim.clone(), targets_uniq, pre_positive, memory)
+                hard_positive_all[hard_positive>0] = 1
+                pre_positive[hard_positive>0] = 1
+            #     print((hard_positive>0).sum())
+            # print('')
             
             ## Expand multi-label
             multilabel = (easy_positive>0).float() 
-            multilabel[hard_positive>0] = 5.0
+            multilabel[hard_positive_all>0] = 4.0
             
         else:
             multilabel = (easy_positive > 0).float()

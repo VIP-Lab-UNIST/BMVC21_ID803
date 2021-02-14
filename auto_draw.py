@@ -70,12 +70,21 @@ search_dirs = [
     # 'logs/prw/v18/coscale0.1-weight5.0/Feb13_13-32-23',
     # 'logs/prw/v18/coscale0.1-weight0.1/Feb13_13-33-03',
     
-    'logs/prw/v19/coscale0.1-weight0.1/Feb13_23-32-45',
-    'logs/prw/v19/coscale0.1-weight1.0/Feb13_23-33-42',
-    'logs/prw/v19/coscale0.1-weight2.0/Feb13_23-34-02',
-    'logs/prw/v19/coscale0.1-weight3.0/Feb13_23-34-23',
-    'logs/prw/v19/coscale0.1-weight4.0/Feb13_23-34-41',
-    'logs/prw/v19/coscale0.1-weight5.0/Feb13_23-35-03',
+    # 'logs/prw/v19/coscale0.1-weight0.1/Feb13_23-32-45',
+    # 'logs/prw/v19/coscale0.1-weight1.0/Feb13_23-33-42',
+    # 'logs/prw/v19/coscale0.1-weight2.0/Feb13_23-34-02',
+    # 'logs/prw/v19/coscale0.1-weight3.0/Feb13_23-34-23',
+    # 'logs/prw/v19/coscale0.1-weight4.0/Feb13_23-34-41',
+    # 'logs/prw/v19/coscale0.1-weight5.0/Feb13_23-35-03',
+
+    'logs/prw/v20/coscale0.1-weight0.1/Feb14_13-15-45',
+    'logs/prw/v20/coscale0.1-weight0.5/Feb14_13-16-15',
+    'logs/prw/v20/coscale0.1-weight1.0/Feb14_13-16-38',
+    'logs/prw/v20/coscale0.1-weight2.0/Feb14_13-16-55',
+    'logs/prw/v20/coscale0.1-weight3.0/Feb14_13-17-20',
+    'logs/prw/v20/coscale0.1-weight4.0/Feb14_13-17-39',
+    'logs/prw/v20/coscale0.1-weight5.0/Feb13_23-55-07',
+
 ]   
 
 # search_dirs = [ 
