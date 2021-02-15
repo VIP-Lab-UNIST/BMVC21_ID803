@@ -27,28 +27,27 @@ class MMCL(nn.Module):
         for i, (logit, y, multilabel, argidx, neg_num) in enumerate(zip(logits, targets, multilabels, argidices, neg_nums)):
             
             ## positive, hard negative index
-            
+            pos_idx = multilabel.nonzero().squeeze(1)
+            hn_idx = argidx[~multilabel[argidx]][:int(neg_num)]
+            hard_neg_logit = logit[torch.cat((pos_idx, hn_idx))]
+            results = hard_neg_logit.unsqueeze(0).expand(len(pos_idx), -1)
             if multi_targets is not None:
-                multitarget = multi_targets[i]
-                ep_idx = (multitarget==1).nonzero().squeeze(1)
-                hp_idx = (multitarget==2).nonzero().squeeze(1)
-                hn_idx = argidx[~multilabel[argidx]][:int(neg_num)]
-                hard_neg_logit1 = logit[torch.cat((ep_idx, hn_idx))]
-                results1 = hard_neg_logit1.unsqueeze(0).expand(len(ep_idx), -1)
-            
-                if len(hp_idx) >0 :
-                    hard_neg_logit2 = logit[torch.cat((hp_idx, hn_idx))]
-                    results2 = hard_neg_logit2.unsqueeze(0).expand(len(hp_idx), -1)
-                    l_easy = F.cross_entropy(10*results1, torch.arange(len(ep_idx)).cuda())   
-                    l_hard = F.cross_entropy(10*results2, torch.arange(len(hp_idx)).cuda())  
-                    l = (l_easy + 3.0 * l_hard).sum()  
-                else:
-                    l = F.cross_entropy(10*results1, torch.arange(len(ep_idx)).cuda())
+                ## normbysum
+                weight = coap_weights[i][pos_idx] 
+                weight /= (weight.sum(dim=0, keepdim=True) + 1e-12) 
+                l = F.cross_entropy(10*results, torch.arange(len(pos_idx)).cuda(), reduction='none')   
+                l = (l * weight).sum()
+
+                ## normbyProbweight
+                # weight = coap_weights[i][torch.cat((pos_idx, hn_idx))] 
+                # weight /= (weight.sum(dim=0, keepdim=True) + 1e-12) * float(len(weight))
+                # weight = torch.log(weight).unsqueeze(0).expand(len(pos_idx), -1)
+                # results = 10 * results + weight.detach()
+                # l = F.cross_entropy(results, torch.arange(len(pos_idx)).cuda())   
+                
+                ## normby
+
             else:
-                pos_idx = multilabel.nonzero().squeeze(1)
-                hn_idx = argidx[~multilabel[argidx]][:int(neg_num)]
-                hard_neg_logit = logit[torch.cat((pos_idx, hn_idx))]
-                results = hard_neg_logit.unsqueeze(0).expand(len(pos_idx), -1)
                 l = F.cross_entropy(10*results, torch.arange(len(pos_idx)).cuda(),)   
             
             loss.append(l)

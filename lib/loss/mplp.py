@@ -24,6 +24,11 @@ class MPLP(object):
         self.use_cycle = use_cycle
         self.use_coap_weight = True
 
+        self.cnt2stotalnum = torch.zeros_like(self.cnt2snum).float()
+        for i in self.cnt2snum.unique():
+            mask =  self.cnt2snum == i
+            self.cnt2stotalnum[mask] = mask.sum().item()
+
     def forward_matching(self, sim_forward):
         # Input argument
         #  sim_forward (1D float tensor) : 1-dimensional vector with size of N
@@ -139,18 +144,9 @@ class MPLP(object):
 
         if self.use_coap_weight:
             # print('use coap weight')
-            mem_sim_copy = mem_sim_copy * (multilabel > 0).float()
-            coap_weights = []
-            for i, (target) in enumerate(targets_uniq):
-                scene_mask = self.cnt2snum[targets_uniq] == self.cnt2snum[target]
-                co_pids = scene_mask.nonzero().squeeze(1)
-                coap_score = torch.sum(mem_sim_copy[co_pids,:], dim=0)
-            
-                ## Expand the priority to scene level
-                coap_weight = torch.zeros((len(self.cnt2snum.unique()),)).cuda().index_add(dim=0, index=self.cnt2snum, source=coap_score)
-                coap_weight = torch.gather(input=coap_weight, dim=0, index=self.cnt2snum)
-                coap_weights.append(coap_weight)
-            coap_weights = torch.stack(coap_weights, dim=0) * 0.3 + 1
+            co_weights_row = self.cnt2stotalnum[targets_uniq].unsqueeze(1)
+            co_weights_col = self.cnt2stotalnum.unsqueeze(0)
+            coap_weights = torch.sqrt(co_weights_row * co_weights_col + 1e-12)
             # print('end')
         else:
             coap_weights = torch.ones_like(mem_sim_copy)

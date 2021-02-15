@@ -89,11 +89,16 @@ search_dirs = [
     # 'logs/prw/v22/coscale0.1-weight1.0-normalized/Feb15_05-57-53',
     # 'logs/prw/v22/coscale0.1-weight1.0-scale0.3/Feb15_05-58-48',
     
-    'logs/prw/v23/coscale0.1-weight5.0/Feb15_15-04-52',
-    'logs/prw/v23/coscale0.1-weight3.0/Feb15_16-00-32',
-    'logs/prw/v23/coscale0.1-weight1.0/Feb15_15-03-37',
-    'logs/prw/v23/coscale0.1-weight0.5/Feb15_15-07-10',
-    'logs/prw/v23/coscale0.1-weight0.1/Feb15_15-07-46',
+    # 'logs/prw/v23/coscale0.1-weight5.0/Feb15_15-04-52',
+    # 'logs/prw/v23/coscale0.1-weight3.0/Feb15_16-00-32',
+    # 'logs/prw/v23/coscale0.1-weight1.0/Feb15_15-03-37',
+    # 'logs/prw/v23/coscale0.1-weight0.5/Feb15_15-07-10',
+    # 'logs/prw/v23/coscale0.1-weight0.1/Feb15_15-07-46',
+
+    'logs/prw/v24/coscale0.1-normbyProbweight/Feb16_03-24-27',
+    'logs/prw/v24/coscale0.1-normbyProbweight/Feb16_03-28-55',
+    'logs/prw/v24/coscale0.1-normbysum/Feb16_03-08-42',
+    'logs/prw/v24/coscale0.1-normbysum/Feb16_03-31-08',
 ]
 
 
