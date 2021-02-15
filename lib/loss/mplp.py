@@ -121,16 +121,18 @@ class MPLP(object):
             ## CO-APPEARANCE
             pre_positive = easy_positive.clone()
             hard_positive_all = torch.zeros_like(pre_positive)
-            for p in range(3):
+            for p in range(10):
                 hard_positive = self.hard_positive_mining(mem_sim.clone(), targets_uniq, pre_positive, memory)
-                hard_positive_all[hard_positive>0] = 1
-                pre_positive[hard_positive>0] = 1
-            #     print((hard_positive>0).sum())
-            # print('')
+                hard = hard_positive > 0 
+                hard_positive_all[hard] = 1
+                pre_positive[hard] = 1
+                # print(hard.sum())
+                if (hard.sum()==0):
+                    break
             
             ## Expand multi-label
             multilabel = (easy_positive>0).float() 
-            multilabel[hard_positive_all>0] = 4.0
+            multilabel[hard_positive_all>0] = 2.0
             
         else:
             multilabel = (easy_positive > 0).float()
