@@ -91,16 +91,16 @@ class MPLP(object):
                 # print(6)
         return sims_forward_rev
 
-    def hard_positive_mining(self, mem_sim, targets_uniq, pre_positive, memory):
+    def hard_positive_mining(self, mem_sim, targets_uniq, all_positive, memory):
         for i, (target) in enumerate(targets_uniq):
             scene_mask = self.cnt2snum[targets_uniq] == self.cnt2snum[target]
             scene_mask[i] = False
             neighbors = scene_mask.nonzero().squeeze(1)
             
             ## Compute scene priority
-            priority = -1000*pre_positive[i] # to avoid scene occlusion
+            priority = -1000*all_positive[i] # to avoid scene occlusion
             if len(neighbors) > 0: 
-                advantage = torch.max(pre_positive[neighbors,:], dim=0)[0]
+                advantage = torch.max(all_positive[neighbors,:], dim=0)[0]
                 priority += advantage 
         
             ## Expand the priority to scene level
@@ -124,41 +124,30 @@ class MPLP(object):
         ## Predict hard positive samples
         if self.use_coap:
             ## CO-APPEARANCE
-            pre_positive = easy_positive.clone()
-            hard_positive_all = torch.zeros_like(pre_positive)
-            for p in range(10):
-                hard_positive = self.hard_positive_mining(mem_sim.clone(), targets_uniq, pre_positive, memory)
+            all_positive = easy_positive.clone()
+            hard_positive_all = torch.zeros_like(all_positive)
+            for p in range(3):
+                hard_positive = self.hard_positive_mining(mem_sim.clone(), targets_uniq, all_positive, memory)
                 hard = hard_positive > 0 
                 hard_positive_all[hard] = 1
-                pre_positive[hard] = 1
+                all_positive[hard] = 1
                 # print(hard.sum())
                 if (hard.sum()==0):
                     break
-            
+                
             ## Expand multi-label
             multilabel = (easy_positive>0).float() 
-            multilabel[hard_positive_all>0] = 2.0
+            multilabel[hard_positive_all>0] = 1.0
             
         else:
             multilabel = (easy_positive > 0).float()
 
-        if self.use_coap_weight:
-            # print('use coap weight')
-            co_weights_row = self.cnt2stotalnum[targets_uniq].unsqueeze(1)
-            co_weights_col = self.cnt2stotalnum.unsqueeze(0)
-            coap_weights = torch.sqrt(co_weights_row * co_weights_col + 1e-12)
-            # print('end')
-        else:
-            coap_weights = torch.ones_like(mem_sim_copy)
-
         multilabel_ = torch.zeros(len(targets), mem_sim.shape[1]).cuda()
-        coap_weights_ = torch.zeros(len(targets), mem_sim.shape[1]).cuda()
-        for t_uniq, mlabel, mweight in zip(targets_uniq, multilabel, coap_weights):
+        for t_uniq, mlabel in zip(targets_uniq, multilabel):
             midx = (t_uniq==targets).nonzero().squeeze(1)
             multilabel_[midx, :] = mlabel.repeat(len(midx), 1)
-            coap_weights_[midx, :] = mweight.repeat(len(midx), 1)
-    
-        return multilabel_, coap_weights_
+            
+        return multilabel_
 
     def draw_proposal(self, targets, multilabels):
         # path = './logs/outputs/mAP6/no_t{:.2f}_sc{:.2f}_tc{:.2f}/'.format(self.t, self.s_c, self.t_c)
