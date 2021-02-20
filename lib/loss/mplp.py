@@ -126,7 +126,7 @@ class MPLP(object):
             ## CO-APPEARANCE
             all_positive = easy_positive.clone()
             hard_positive_all = torch.zeros_like(all_positive)
-            for p in range(3):
+            for p in range(10):
                 hard_positive = self.hard_positive_mining(mem_sim.clone(), targets_uniq, all_positive, memory)
                 hard = hard_positive > 0 
                 hard_positive_all[hard] = 1
