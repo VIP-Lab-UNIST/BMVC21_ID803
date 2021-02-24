@@ -162,7 +162,9 @@ class PRW(PersonSearchDataset):
     # @jit(forceobj=True)
     def search_performance_calc(gallery_set, probe_set,
                                 gallery_det, gallery_feat, probe_feat,
-                                det_thresh=0.5, gallery_size=-1, ignore_cam_id=False):
+                                det_thresh=0.5, gallery_size=-1, 
+                                ignore_cam_id=False,
+                                remove_unlabel=False):
         """
         gallery_det (list of ndarray): n_det x [x1, x2, y1, y2, score] per image
         gallery_feat (list of ndarray): n_det x D features per image
@@ -185,8 +187,34 @@ class PRW(PersonSearchDataset):
             cam_id = gt['cam_id']
             scores = det[:, 4].ravel()
             inds = np.where(scores >= det_thresh)[0]
-            if len(inds) > 0:
-                name_to_det_feat[name] = (det[inds], feat[inds], pids, cam_id)
+            
+            if remove_unlabel:
+                ## Remove unlabeled data from gallery
+                # calculate IOU between proposals, GT
+                bbox=gt['boxes']
+                num_gt=gt['boxes'].shape[0]
+                num_det=det.shape[0]
+
+                ious = np.zeros((num_gt, num_det), dtype=np.float32)
+                for i in range(num_gt):
+                    for j in range(num_det):
+                        ious[i, j] = _compute_iou(bbox[i], det[j, :4])
+                
+                # Assign label to remove the proposals with identity label -2
+                det_label=np.argmax(ious, axis=0)
+                det_label=pids[det_label]
+                for i in range(ious.shape[1]): 
+                    if all(ious[:,i]<0.5): # IoU threshold of 0.5
+                        det_label[i]=-2
+
+                if len(inds) > 0:
+                    name_to_det_feat[name] = (det[inds][det_label[inds]!=-2,:], 
+                                            feat[inds][det_label[inds]!=-2,:], 
+                                            pids, cam_id)
+            else:
+                if len(inds) > 0:
+                    name_to_det_feat[name] = (det[inds], feat[inds], 
+                                                pids, cam_id)
 
         aps = []
         accs = []

@@ -35,4 +35,5 @@ class MMCL(nn.Module):
             loss.append(l)
             
         loss = torch.mean(torch.stack(loss))
+        
         return loss
