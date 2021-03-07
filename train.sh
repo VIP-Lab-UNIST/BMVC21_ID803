@@ -131,10 +131,10 @@ CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
                         --use_uniq 1 \
                         --use_cycle 1 \
                         --lr 0.003 \
-                        --co_thrd 0.6 \
+                        --co_thrd 0.55 \
                         --co_scale 0.1 \
-                        --hard_neg 0.10 \
-                        --path ./logs/prw/v25/coscale0.1-cothrd0.6-neg10
+                        --hard_neg 0.01 \
+                        --path ./logs/prw/v25/ablation/coscale0.1-cothrd0.55-neg01
                        
 
 # CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \

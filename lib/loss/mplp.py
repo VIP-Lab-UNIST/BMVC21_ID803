@@ -83,12 +83,12 @@ class MPLP(object):
             for  j, (pid, co_sim) in enumerate(zip(pids, sims_forward)):
                 matched_sim, matched_idx = self.contextual_threshold(co_sim, pid, memory, uniqueness)
                 sims_forward_rev[j, matched_idx] = matched_sim
-                # print(5)
+                
         else:
             for  j, (pid, co_sim) in enumerate(zip(pids, sims_forward)):
                 matched_idx = (co_sim > 0).nonzero().squeeze(1)
                 sims_forward_rev[j, matched_idx] = co_sim[matched_idx]
-                # print(6)
+                
         return sims_forward_rev
 
     def hard_positive_mining(self, mem_sim, targets_uniq, all_positive, memory):

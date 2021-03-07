@@ -89,10 +89,10 @@ search_dirs = [
     # 'logs/prw/v37/pathTemp50/Feb28_15-22-32',
     # 'logs/prw/v37/pathTemp60/Feb28_15-22-56',
 
-    'logs/prw/v25/coscale0.1-cothrd0.7/Mar01_05-07-39',
-    'logs/prw/v25/coscale0.1-cothrd0.8/Mar01_05-07-54',
-    'logs/prw/v25/coscale0.1-cothrd0.9/Mar01_05-08-14',
-    'logs/prw/v25/coscale0.1-cothrd0.5/Mar01_05-08-28',
+    # 'logs/prw/v25/coscale0.1-cothrd0.7/Mar01_05-07-39',
+    # 'logs/prw/v25/coscale0.1-cothrd0.8/Mar01_05-07-54',
+    # 'logs/prw/v25/coscale0.1-cothrd0.9/Mar01_05-08-14',
+    # 'logs/prw/v25/coscale0.1-cothrd0.5/Mar01_05-08-28',
 
     # 'logs/prw/v25/coscale0.05-cothrd0.6/Mar01_05-14-06',
     # 'logs/prw/v25/coscale0.15-cothrd0.6/Mar01_05-15-21',
@@ -101,18 +101,32 @@ search_dirs = [
     # 'logs/prw/v25/coscale0.3-cothrd0.6/Mar01_05-14-45',
 
     
-    'logs/prw/v25/coscale0.1-cothrd0.6-neg02/Mar01_21-41-28',
-    'logs/prw/v25/coscale0.1-cothrd0.6-neg03/Mar01_21-41-51',
-    'logs/prw/v25/coscale0.1-cothrd0.6-neg04/Mar01_21-42-10',
-    'logs/prw/v25/coscale0.1-cothrd0.6-neg05/Mar01_21-42-27',
-    'logs/prw/v25/coscale0.1-cothrd0.6-neg10/Mar01_21-42-50',
+    # 'logs/prw/v25/coscale0.1-cothrd0.6-neg02/Mar01_21-41-28',
+    # 'logs/prw/v25/coscale0.1-cothrd0.6-neg03/Mar01_21-41-51',
+    # 'logs/prw/v25/coscale0.1-cothrd0.6-neg04/Mar01_21-42-10',
+    # 'logs/prw/v25/coscale0.1-cothrd0.6-neg05/Mar01_21-42-27',
+    # 'logs/prw/v25/coscale0.1-cothrd0.6-neg10/Mar01_21-42-50',
+
+    # 'logs/prw/v25/ablation/coscale0.1-cothrd0.3-neg01/Mar04_21-45-20',
+    # 'logs/prw/v25/ablation/coscale0.1-cothrd0.4-neg01/Mar04_19-40-53',
+
+    # 'logs/prw/v25/ablation/coscale0.1-cothrd0.6-neg005/Mar05_14-37-26',
+    # 'logs/prw/v25/ablation/coscale0.1-cothrd0.6-neg001/Mar05_14-37-45',
+
+    # 'logs/prw/v25/ablation/coscale0.1-cothrd0.55-neg01/Mar05_14-48-09',
+    # 'logs/prw/v25/ablation/coscale0.1-cothrd0.65-neg01/Mar05_10-17-19',
+    # 'logs/prw/v25/ablation/coscale0.1-cothrd0.75-neg01/Mar05_10-17-32',
+
+    ## Ablation study for lambda
+    '../multi_class-master/logs/prw/v25-coAPPieter3/ablation/coscale0.1-cothrd0.55-neg01/Mar05_14-48-09',
+    '../multi_class-master/logs/prw/v25-coAPPieter3/ablation/coscale0.1-cothrd0.6-neg01/Feb23_09-16-42',
+    '../multi_class-master/logs/prw/v25-coAPPieter3/ablation/coscale0.1-cothrd0.65-neg01/Mar05_10-17-19',
+    '../multi_class-master/logs/prw/v25-coAPPieter3/ablation/coscale0.1-cothrd0.7-neg01/Mar01_05-07-39',
+    '../multi_class-master/logs/prw/v25-coAPPieter3/ablation/coscale0.1-cothrd0.75-neg01/Mar05_10-17-32',
+    '../multi_class-master/logs/prw/v25-coAPPieter3/ablation/coscale0.1-cothrd0.8-neg01/Mar01_05-07-54',
+    
 ]
 
-# search_dirs = [ 
-#     'logs/prw/v14/coscale0.4-weight0.1/Feb10_13-23-00',
-#     'logs/prw/v14/coscale0.4-weight0.3/Feb10_13-22-13',
-#     'logs/prw/v14/coscale0.4/Feb10_13-19-45',
-# ]
 legend=[]    
 fig = plt.figure(num=None, figsize=(15, 15), dpi=80, facecolor='w', edgecolor='k')        
 ax = plt.subplot(111)
