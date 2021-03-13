@@ -14,9 +14,12 @@ from matplotlib.pyplot import figure
 
 search_dirs = [
     
-
-    'logs/cuhk/v25/coscale0.1/Feb20_21-27-00',
-    'logs/cuhk/v25/coscale0.1-decay18/Feb20_21-28-33',
+    'logs/cuhk/v25/coscale0.1-decay18-coapIter3/Mar08_05-49-09',
+    # 'logs/cuhk/v25/coscale0.1-decay20-coapIter3/Mar08_05-48-54',
+    # 'logs/cuhk/v25/coscale0.1-decay22-coapIter3/Mar08_05-49-22',
+    
+    'logs/cuhk/v25/coscale0.1-decay20-coapIter3/Mar08_12-03-51',
+    'logs/cuhk/v25/coscale0.1-decay22-coapIter3/Mar08_12-04-12',
 
 ]   
 

@@ -6,6 +6,7 @@ logs/
 **/*.png
 **.png
 dist_mat.json
+*.pth
 # **/@eaDir
 # **/@SynoResource
 # lib/__pycache__

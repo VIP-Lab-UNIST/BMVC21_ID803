@@ -8,7 +8,6 @@ dname = os.path.dirname(abspath)
 os.chdir(dname)
 
 search_dirs = [
-    
     'logs/cuhk/v25/coscale0.1/Feb20_21-27-00',
     'logs/cuhk/v25/coscale0.1-decay18/Feb20_21-28-33',
 ]   

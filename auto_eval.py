@@ -19,7 +19,7 @@ search_dirs = [
 
     # 'logs/prw/v25-coAPPieter3/coscale0.1/Feb23_09-16-28',
     # 'logs/prw/v25-coAPPieter3/coscale0.1/Feb23_09-16-36',
-    'logs/prw/v25-coAPPieter3/coscale0.1/Feb23_09-16-42',
+    # 'logs/prw/v25-coAPPieter3/coscale0.1/Feb23_09-16-42',
     # 'logs/prw/v25-coAPPieter3/coscale0.1/Feb23_09-16-46',
     # 'logs/prw/v25-coAPPieter3/coscale0.1/Feb23_09-16-50',
 
@@ -105,20 +105,24 @@ search_dirs = [
 
     # 'logs/prw/v25/ablation/coscale0.1-cothrd0.3-neg01/Mar04_21-45-20',
     # 'logs/prw/v25/ablation/coscale0.1-cothrd0.4-neg01/Mar04_19-40-53',
-    'logs/prw/v25/ablation/coscale0.1-cothrd0.6-neg005/Mar05_14-37-26',
-    'logs/prw/v25/ablation/coscale0.1-cothrd0.6-neg001/Mar05_14-37-45',
+    # 'logs/prw/v25/ablation/coscale0.1-cothrd0.6-neg005/Mar05_14-37-26',
+    # 'logs/prw/v25/ablation/coscale0.1-cothrd0.6-neg001/Mar05_14-37-45',
 
 
-    'logs/prw/v25/ablation/coscale0.1-cothrd0.55-neg01/Mar05_14-48-09',
-    'logs/prw/v25/ablation/coscale0.1-cothrd0.65-neg01/Mar05_10-17-19',
-    'logs/prw/v25/ablation/coscale0.1-cothrd0.75-neg01/Mar05_10-17-32',
+    # 'logs/prw/v25/ablation/coscale0.1-cothrd0.55-neg01/Mar05_14-48-09',
+    # 'logs/prw/v25/ablation/coscale0.1-cothrd0.65-neg01/Mar05_10-17-19',
+    # 'logs/prw/v25/ablation/coscale0.1-cothrd0.75-neg01/Mar05_10-17-32',
+
+    # 'logs/cuhk/v25/coscale0.1-decay18-coapIter3/Mar08_05-49-09',
+    # # 'logs/cuhk/v25/coscale0.1-decay20-coapIter3/Mar08_05-48-54',
+    # # 'logs/cuhk/v25/coscale0.1-decay22-coapIter3/Mar08_05-49-22',
+    
+    
+    # 'logs/cuhk/v25/coscale0.1-decay20-coapIter3/Mar08_12-03-51',
+    # 'logs/cuhk/v25/coscale0.1-decay22-coapIter3/Mar08_12-04-12',
+
+    'logs/prw/v25-coAPPieter3/coscale0.1/Feb23_09-16-42'
 ]
-
-
-
-
-
-
 
 
 random.shuffle(search_dirs)
@@ -141,7 +145,7 @@ while True:
                             with open(tmp, 'w') as f:
                                 f.write('tmp')
 
-                            command = " python -B scripts/test_NAE.py \
+                            command = " python -B scripts/test_multiview_gallery_qualitative.py \
                                         -p %s \
                                         --reid_loss %s \
                                         --dataset %s \

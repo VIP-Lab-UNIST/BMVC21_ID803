@@ -124,7 +124,7 @@ search_dirs = [
     '../multi_class-master/logs/prw/v25-coAPPieter3/ablation/coscale0.1-cothrd0.7-neg01/Mar01_05-07-39',
     '../multi_class-master/logs/prw/v25-coAPPieter3/ablation/coscale0.1-cothrd0.75-neg01/Mar05_10-17-32',
     '../multi_class-master/logs/prw/v25-coAPPieter3/ablation/coscale0.1-cothrd0.8-neg01/Mar01_05-07-54',
-    
+
 ]
 
 legend=[]    

@@ -131,7 +131,6 @@ class MPLP(object):
                 hard = hard_positive > 0 
                 hard_positive_all[hard] = 1
                 all_positive[hard] = 1
-                # print(hard.sum())
                 if (hard.sum()==0):
                     break
                 
