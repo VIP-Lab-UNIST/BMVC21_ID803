@@ -217,12 +217,11 @@ def args_faster_rcnn_ortho_featuring(meta_parser=args_faster_rcnn):
     parser.add_argument('--embedding_feat_fuse', action='store_true',
                         help='Weather to fuse feat_res4 and feat_res5')
 
-    parser.add_argument('--co_thrd', type=float, default=0.6, help='Co appearance threshold')
+    parser.add_argument('--sim_thrd', type=float, default=0.6, help='Similarity threshold')
     parser.add_argument('--co_scale', type=float, default=0.5, help='Co appearance scaling')
     parser.add_argument('--hard_neg',type=float, default=0.01)
-    parser.add_argument('--use_coap', type=int, default=1)
-    parser.add_argument('--use_uniq', type=int, default=1)
-    parser.add_argument('--use_cycle', type=int, default=1)
+    parser.add_argument('--use_hnm', type=int, default=1)
+    parser.add_argument('--use_hpm', type=int, default=1)
 
     # sizes
     parser.add_argument('--num_features', type=int, default=256,

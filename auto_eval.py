@@ -145,7 +145,7 @@ while True:
                             with open(tmp, 'w') as f:
                                 f.write('tmp')
 
-                            command = " python -B scripts/test_multiview_gallery_qualitative.py \
+                            command = " python -B scripts/test_NAE.py \
                                         -p %s \
                                         --reid_loss %s \
                                         --dataset %s \

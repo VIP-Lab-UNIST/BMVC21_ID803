@@ -282,24 +282,6 @@ class OrthogonalRoiHeads(RoIHeads):
             embeddings_, class_logits = self.embedding_head(rcnn_features, det_labels)
             cls_scores = F.softmax(class_logits, dim=1)[:,[1]]
             
-            # #######################################
-            # ## ------ Part classification ------ ##
-            # #######################################
-            # outputs = []
-            # for k, v in rcnn_features.items():
-            #     outputs.append(self.part_projectors[k](v))
-            # predicted = sum(outputs) * cls_scores * self.part_cls_scalar 
-            # N, _, d1, d2 = predicted.shape
-            # part_labels = torch.zeros([N,d1,d2]).to(predicted.device)
-            # fg_labels = torch.cat(det_labels)
-            # for part, y in zip(part_labels, fg_labels):
-            #     if y > 0:
-            #         for k in range(self.num_parts):
-            #             part[k].fill_(k+1)
-            # loss_parts = F.cross_entropy(predicted, part_labels.long().detach())
-
-            # ########################################
-
             loss_detection, loss_box_reg = \
                 rcnn_loss(class_logits.squeeze(3).squeeze(2), box_regression,
                                      det_labels, regression_targets)
@@ -604,7 +586,8 @@ def get_model(args, training=True, pretrained_backbone=True):
     # reid_regressor = OIMLoss(
     #                     args.num_features, args.num_pids, args.num_cq_size, 
     #                     args.train.oim_momentum, args.oim_scalar)
-    reid_regressor = MCLoss(args.use_coap, args.use_uniq, args.use_cycle, args.hard_neg, args.co_thrd, args.co_scale, args.num_features)
+    
+    reid_regressor = MCLoss(args.use_hnm, args.use_hpm, args.hard_neg, args.sim_thrd, args.co_scale, args.num_features)
                         
     model = FasterRCNN( 
                         # Region proposal network

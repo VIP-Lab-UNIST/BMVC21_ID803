@@ -18,15 +18,14 @@ from .mplp import MPLP
 class MCLoss(nn.Module):
     """docstring for MCLoss"""
 
-    def __init__(self, use_coap, use_uniq, use_cycle, hard_neg, co_thrd, co_scale, num_features):
+    def __init__(self, use_hnm, use_hpm, hard_neg, sim_thrd, co_scale, num_features):
         super(MCLoss, self).__init__()
-        self.hard_neg=hard_neg
-        self.co_thrd=co_thrd
+        self.use_hnm = use_hnm
+        self.use_hpm = use_hpm
+        self.hard_neg = hard_neg
+        self.sim_thrd = sim_thrd
         self.co_scale = co_scale
         self.num_features = num_features
-        self.use_coap = use_coap
-        self.use_uniq = use_uniq
-        self.use_cycle = use_cycle
         
     def set_scene_vector(self, train_info):
         num_person=len(train_info[3])
@@ -36,8 +35,10 @@ class MCLoss(nn.Module):
         self.name_scene=np.array(name_scene)
         self.num_scene=torch.tensor(list(map(lambda x: x-1, num_scene))).cuda()
         self.memory=Memory(self.num_features, num_person).cuda()
-        self.labelpred = MPLP(use_coap=self.use_coap, use_uniq=self.use_uniq, use_cycle=self.use_cycle, \
-                            total_scene=self.num_scene, t=self.co_thrd, t_c=self.co_thrd, s_c= self.co_scale, r=self.hard_neg)
+        
+        self.labelpred = MPLP(use_hnm=self.use_hnm, use_hpm=self.use_hpm, \
+                                total_scene=self.num_scene, threshold=self.sim_thrd, coapp_scale= self.co_scale)
+
         self.criterion = MMCL(delta=5.0, r=self.hard_neg)
 
     def forward(self, epoch, inputs, cls_scores, roi_labels, scene_nums, GT_roi_labels, scene_names, images, proposals):
@@ -63,10 +64,11 @@ class MCLoss(nn.Module):
         logits = self.memory(inputs, label, epoch)
 
         # MC
-        # if epoch > -1:
-        if epoch > 4:
+        if epoch > -1:
+        # if epoch > 4:
             multilabels = self.labelpred.predict(self.memory.mem.detach().clone(), label.detach().clone())
             loss = self.criterion(logits, label, multilabels)
+            
         else:
             loss = self.criterion(logits, label)
 
@@ -101,12 +103,12 @@ class Memory(nn.Module):
         self.alpha = alpha
 
         ## For training
-        self.mem = nn.Parameter(torch.zeros(num_classes, num_features), requires_grad=False)
+        # self.mem = nn.Parameter(torch.zeros(num_classes, num_features), requires_grad=False)
 
         ## For debuging
-        # tmp = torch.randn(num_classes, num_features)/256 + 1.0/16.0
-        # tmp /= tmp.norm(dim=1, keepdim=True)
-        # self.mem = nn.Parameter(tmp, requires_grad=False)
+        tmp = torch.randn(num_classes, num_features)/256 + 1.0/16.0
+        tmp /= tmp.norm(dim=1, keepdim=True)
+        self.mem = nn.Parameter(tmp, requires_grad=False)
 
     def forward(self, inputs, targets, epoch=None):
         # alpha = 0.5 * epoch / 60
