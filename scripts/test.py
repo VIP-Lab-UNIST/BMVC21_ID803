@@ -7,10 +7,10 @@ from torch.backends import cudnn
 
 import sys
 sys.path.append('./')
-from configs import args_faster_rcnn_ortho_featuring
+from configs import args_faster_rcnn
 
 from lib.datasets import get_data_loader
-from lib.model.faster_rcnn_ortho_featuring import get_model
+from lib.model.faster_rcnn import get_model
 from lib.utils.misc import lazy_arg_parse, Nestedspace, \
     resume_from_checkpoint
 from lib.utils.evaluator import inference, detection_performance_calc
@@ -73,6 +73,6 @@ def main(new_args, get_model_fn):
             return ret['mAP']
 
 if __name__ == '__main__':
-    arg_parser = args_faster_rcnn_ortho_featuring()
+    arg_parser = args_faster_rcnn()
     new_args = lazy_arg_parse(arg_parser)
     main(new_args, get_model)

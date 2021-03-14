@@ -9,30 +9,6 @@ os.chdir(dname)
 
 search_dirs = [
     
-    # 'logs/cuhk/v25/coscale0.1/Feb20_21-27-00',
-    # 'logs/cuhk/v25/coscale0.1-decay18/Feb20_21-28-33',
-
-    # 'logs/prw/v25/coscale0.1/Feb22_15-14-32',
-    # 'logs/prw/v25/coscale0.1/Feb22_15-14-45',
-    # 'logs/prw/v25/coscale0.1/Feb22_15-14-53',
-    # 'logs/prw/v25/coscale0.1/Feb22_15-15-11',
-    # 'logs/prw/v25/coscale0.1/Feb22_15-15-19',
-
-
-    # 'logs/prw/v25-coAPPieter3/coscale0.1/Feb23_09-16-28',
-    # 'logs/prw/v25-coAPPieter3/coscale0.1/Feb23_09-16-36',
-    'logs/prw/v25-coAPPieter3/coscale0.1/Feb23_09-16-42',
-    # 'logs/prw/v25-coAPPieter3/coscale0.1/Feb23_09-16-46',
-    # 'logs/prw/v25-coAPPieter3/coscale0.1/Feb23_09-16-50',
-
-    # 'logs/prw/v25-woCoapp/coscale0.1/Feb22_21-13-07',
-    # 'logs/prw/v25-woCoapp/coscale0.1/Feb22_21-13-16',
-    # 'logs/prw/v25-woCoapp/coscale0.1/Feb22_21-13-25',
-
-    # 'logs/prw/v25-noCycle/coscale0.1/Feb23_13-09-39',
-    # 'logs/prw/v25-noCycle/coscale0.1/Feb23_16-54-10',
-    # 'logs/prw/v25-noCycle/coscale0.1/Feb23_16-54-23',
-    # 'logs/prw/v25-noCycle-noCoap/coscale0.1/Feb23_16-55-04',
 
 
 ]   
@@ -59,7 +35,7 @@ while True:
                             with open(tmp, 'w') as f:
                                 f.write('tmp')
 
-                            command = " python -B scripts/test_NAE-regular.py \
+                            command = " python -B scripts/test-regular.py \
                                         -p %s \
                                         --reid_loss %s \
                                         --dataset %s \

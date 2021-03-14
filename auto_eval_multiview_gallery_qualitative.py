@@ -8,7 +8,7 @@ dname = os.path.dirname(abspath)
 os.chdir(dname)
 
 search_dirs = [
-    'logs/prw/v25-coAPPieter3/coscale0.1/Feb23_09-16-42'
+    
 ]
 random.shuffle(search_dirs)
 

@@ -205,15 +205,6 @@ def args_faster_rcnn():
                         help='Proposal height and width both need to be greater than RPN_MIN_SIZE (at\
                               orig image scale)')
 
-    return parser
-
-
-def args_faster_rcnn_ortho_featuring(meta_parser=args_faster_rcnn):
-    parser = argparse.ArgumentParser(
-        add_help=False,
-        parents=[meta_parser()],
-        description='OIM model based on Faster R-CNN')
-    
     parser.add_argument('--embedding_feat_fuse', action='store_true',
                         help='Weather to fuse feat_res4 and feat_res5')
 

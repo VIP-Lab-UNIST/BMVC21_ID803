@@ -33,7 +33,7 @@ class MMCL(nn.Module):
             results = hard_neg_logit.unsqueeze(0).expand(len(pos_idx), -1)
             l = F.cross_entropy(10*results, torch.arange(len(pos_idx)).cuda())   
             loss.append(l)
-            print(l)
+            
         loss = torch.mean(torch.stack(loss))
         
         return loss

@@ -83,6 +83,8 @@ def get_trainer(args, model, train_loader, optimizer, lr_scheduler, device):
             step = (engine.state.iteration - 1) % len(train_loader) + 1
             engine.state.metric_logger.print_log(engine.state.epoch, step,
                                                     len(train_loader))
+
+      
             
     @trainer.on(Events.EPOCH_COMPLETED)
     def _post_epoch(engine):

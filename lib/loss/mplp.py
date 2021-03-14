@@ -86,7 +86,7 @@ class MPLP(object):
         for i, target in enumerate(targets_uniq):
             image_pids = (self.cnt2snum[targets_uniq] == self.cnt2snum[target]).nonzero().squeeze(1)
             
-            # (Practical) Give panalty to avoid revisiting a scene having a person matching to a query
+            ## (Practical) Give panalty to avoid revisiting a scene having a person matching to a query
             priority = -1000*positive_mask[i] 
             if len(image_pids) > 0: 
                 # Squeeze rows
@@ -111,7 +111,7 @@ class MPLP(object):
             ## Hard negative mining
             hard_positive = self.hard_negative_mining(mem_sim, coapp_factor, targets_uniq, memory, self.threshold)
         else:
-            ## Thresholding
+            ## Naive thresholding
             hard_positive = mem_sim.clone()
             hard_positive[(mem_sim + coapp_factor) < self.threshold] = 0
             
@@ -133,19 +133,16 @@ class MPLP(object):
         easy_positive.scatter_(1, targets_uniq.unsqueeze(1), float(1))
         
         ## Predict hard positive samples
+        multilabel = (easy_positive > 0).float()
         if self.use_hpm:
-            ## CO-APPEARANCE
-            multilabel = (easy_positive > 0).float()
+            ## Iterative hard positive mining 
             for p in range(3):
                 hard_positive = self.hard_positive_mining(mem_sim.clone(), targets_uniq, multilabel, memory)
                 hard = hard_positive > 0 
                 multilabel[hard] = 1
                 if (hard.sum()==0):
                     break
-                
-        else:
-            multilabel = (easy_positive > 0).float()
-
+        
         ## Expanding multilabels
         multilabel_ = torch.zeros(len(targets), mem_sim.shape[1]).cuda()
         for t_uniq, mlabel in zip(targets_uniq, multilabel):

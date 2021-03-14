@@ -1,6 +1,6 @@
 
                         
-# CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
+# CUDA_VISIBLE_DEVICES=0 python -B scripts/train.py  \
 #                         --reid_loss oim \
 #                         --batch_size 4 \
 #                         --lr_decay_gamma 0.1 \
@@ -69,7 +69,7 @@
                         # --path ./logs/prw/tmp \
                         # --resume ./logs/prw/bs4/base/f256/Dec27_14-51-14/checkpoint_epoch22.pth \
 
-CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
+CUDA_VISIBLE_DEVICES=0 python -B scripts/train.py  \
                         --reid_loss oim \
                         --dataset PRW \
                         --lr_decay_gamma 0.1 \
@@ -136,7 +136,7 @@ CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
                         --path ./logs/prw/v41/ablation/hnmO-hpmO-coscale0.1-simthrd0.6-neg01
                        
 
-# CUDA_VISIBLE_DEVICES=0 python -B scripts/train_NAE.py  \
+# CUDA_VISIBLE_DEVICES=0 python -B scripts/train.py  \
 #                         --reid_loss oim \
 #                         --dataset CUHK-SYSU \
 #                         --lr_decay_gamma 0.1 \

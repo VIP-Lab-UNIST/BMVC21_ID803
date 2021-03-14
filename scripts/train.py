@@ -9,9 +9,9 @@ import huepy as hue
 import torch
 
 # from torch.backends import cudnn
-from configs import args_faster_rcnn_ortho_featuring
+from configs import args_faster_rcnn
 
-from lib.model.faster_rcnn_ortho_featuring import get_model
+from lib.model.faster_rcnn import get_model
 from lib.datasets import get_data_loader
 from lib.utils.misc import Nestedspace, get_optimizer, get_lr_scheduler
 from lib.utils.trainer import get_trainer
@@ -72,7 +72,7 @@ def main(args, get_model_fn):
     trainer.run(train_loader, max_epochs=args.train.epochs)
 
 if __name__ == '__main__':
-    arg_parser = args_faster_rcnn_ortho_featuring()
+    arg_parser = args_faster_rcnn()
     args = arg_parser.parse_args(namespace=Nestedspace())
     main(args, get_model)
     

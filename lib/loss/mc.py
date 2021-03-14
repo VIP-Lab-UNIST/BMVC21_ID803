@@ -64,8 +64,8 @@ class MCLoss(nn.Module):
         logits = self.memory(inputs, label, epoch)
 
         # MC
-        if epoch > -1:
-        # if epoch > 4:
+        # if epoch > -1:
+        if epoch > 4:
             multilabels = self.labelpred.predict(self.memory.mem.detach().clone(), label.detach().clone())
             loss = self.criterion(logits, label, multilabels)
             
@@ -103,12 +103,12 @@ class Memory(nn.Module):
         self.alpha = alpha
 
         ## For training
-        # self.mem = nn.Parameter(torch.zeros(num_classes, num_features), requires_grad=False)
+        self.mem = nn.Parameter(torch.zeros(num_classes, num_features), requires_grad=False)
 
         ## For debuging
-        tmp = torch.randn(num_classes, num_features)/256 + 1.0/16.0
-        tmp /= tmp.norm(dim=1, keepdim=True)
-        self.mem = nn.Parameter(tmp, requires_grad=False)
+        # tmp = torch.randn(num_classes, num_features)/256 + 1.0/16.0
+        # tmp /= tmp.norm(dim=1, keepdim=True)
+        # self.mem = nn.Parameter(tmp, requires_grad=False)
 
     def forward(self, inputs, targets, epoch=None):
         # alpha = 0.5 * epoch / 60
