@@ -55,7 +55,7 @@ def main(new_args, get_model_fn):
             print(hue.run('Evaluating search: '))
             # gallery_size = 100 
             if args.dataset == 'CUHK-SYSU' :
-                gallery_sizes = [ 200, 500, 1000, 2000, 4000, -1]
+                gallery_sizes = [ 50, 100, 500, 1000, 2000, 4000, -1]
             else:
                 gallery_sizes = [-1]
             for gallery_size in gallery_sizes:

@@ -128,12 +128,12 @@ CUDA_VISIBLE_DEVICES=0 python -B scripts/train.py  \
                         --seed 0 \
                         --batch_size 4 \
                         --use_hnm 1 \
-                        --use_hpm 1 \
+                        --use_hpm 0 \
                         --lr 0.003 \
-                        --sim_thrd 0.6 \
-                        --co_scale 0.1 \
+                        --sim_thrd 0.60 \
+                        --co_scale 0.10 \
                         --hard_neg 0.01 \
-                        --path ./logs/prw/v41/ablation/hnmO-hpmO-coscale0.1-simthrd0.6-neg01
+                        --path ./logs/prw/v41/ablation/hnmO-hpmX-coscale0.10-simthrd0.6-neg01
                        
 
 # CUDA_VISIBLE_DEVICES=0 python -B scripts/train.py  \
@@ -191,15 +191,15 @@ CUDA_VISIBLE_DEVICES=0 python -B scripts/train.py  \
 #                         --anchor_ratios 0.5 1.0 2.0 \
 #                         --min_size_test 900 \
 #                         --lr_warm_up \
-#                         --lr_decay_step 22 \
+#                         --lr_decay_step 20 \
 #                         --seed 0 \
 #                         --batch_size 4 \
-#                         --use_coap 1 \
-#                         --use_uniq 1 \
-#                         --use_cycle 1 \
+#                         --use_hnm 1 \
+#                         --use_hpm 1 \
 #                         --lr 0.003 \
-#                         --co_thrd 0.6 \
-#                         --co_scale 0.1 \
+#                         --sim_thrd 0.60 \
+#                         --co_scale 0.10 \
 #                         --hard_neg 0.01 \
-#                         --path ./logs/cuhk/v25/coscale0.1-decay22-coapIter3
+#                         --path ./logs/cuhk/v41/ablation/hnmO-hpmO-coscale0.10-simthrd0.60-neg01-decay20
+                       
                        
