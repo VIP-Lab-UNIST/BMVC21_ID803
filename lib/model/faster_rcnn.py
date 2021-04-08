@@ -47,9 +47,7 @@ class FasterRCNN(GeneralizedRCNN):
                  bbox_reg_weights=None,
                  # ReID parameters
                  embedding_head=None, 
-                 reid_regressor=None,
-                 part_cls_scalar=1.0,
-                 part_num=3):
+                 reid_regressor=None):
 
         if not hasattr(backbone, "out_channels"):
             raise ValueError(
@@ -88,7 +86,7 @@ class FasterRCNN(GeneralizedRCNN):
 
         # Construct ROI head 
         roi_heads = self._set_roi_heads(
-            embedding_head, reid_regressor, part_cls_scalar, part_num,
+            embedding_head, reid_regressor, 
             box_roi_pool, feat_head, box_predictor,
             box_fg_iou_thresh, box_bg_iou_thresh,
             box_batch_size_per_image, box_positive_fraction,
@@ -157,41 +155,12 @@ class FasterRCNN(GeneralizedRCNN):
         embeddings = embeddings.squeeze(3).squeeze(2)
         return embeddings.split(1, 0)
 
-def part_separation(proposals, num_parts=5):
-    part_proposals = []
-    
-    for k in range(num_parts):
-        props_parts = []
-        for props in proposals:
-            part_height = (props[:,[3]] - props[:,[1]]) / num_parts
-            props_part = props.clone()
-            props_part[:,[3]] = props_part[:,[3]] - (num_parts-(k+1)) * part_height
-            props_part[:,[1]] = props_part[:,[1]] + k * part_height
-            props_parts.append(props_part)
-        part_proposals.append(props_parts)
-    return part_proposals
-
-
 class OrthogonalRoiHeads(RoIHeads):
 
-    def __init__(self, embedding_head, reid_regressor, part_cls_scalar, num_parts, *args, **kwargs):
+    def __init__(self, embedding_head, reid_regressor, *args, **kwargs):
         super(OrthogonalRoiHeads, self).__init__(*args, **kwargs)
         self.embedding_head = embedding_head
         self.reid_regressor = reid_regressor
-        self.num_parts = int(num_parts)
-        part_height = int(math.ceil(24.0 / float(num_parts)))
-        self.part_pooling = MultiScaleRoIAlign(
-                                featmap_names=['feat_res4'],
-                                output_size=[part_height,8],
-                                sampling_ratio=2)
-
-        self.part_cls_scalar = float(part_cls_scalar)
-        self.part_projectors = nn.ModuleDict()
-        for ftname, in_chennel in zip(['feat_res4', 'feat_res5'], [1024, 2048]):
-            proj = nn.Conv2d(in_chennel, self.num_parts+1, 1, 1, 0)
-            init.normal_(proj.weight, std=0.01)
-            init.constant_(proj.bias, 0)
-            self.part_projectors[ftname] = proj
 
     @property
     def feat_head(self):  # re-name
@@ -204,10 +173,9 @@ class OrthogonalRoiHeads(RoIHeads):
         return x  # ndim = 2, (N, d)
 
     def select_training_samples(self,
-                                proposals,  # type: List[Tensor]
-                                targets     # type: Optional[List[Dict[str, Tensor]]]
-                                ):
-        # type: (...) -> Tuple[List[Tensor], List[Tensor], List[Tensor], List[Tensor]]
+                                proposals,  
+                                targets):
+
         self.check_targets(targets)
         assert targets is not None
         dtype = proposals[0].dtype
@@ -247,22 +215,8 @@ class OrthogonalRoiHeads(RoIHeads):
         return proposals, matched_idxs, cnts, labels, regression_targets
 
     def forward(self, epoch, features, proposals, images, targets=None):
-        """
-        Arguments:
-            features (List[Tensor])
-            proposals (List[Tensor[N, 4]])
-            image_shapes (List[Tuple[H, W]])
-            targets (List[Dict])
-        """
+        
         image_shapes=images.image_sizes
-        # cnt = 483
-        # if targets is not None:
-        #     for k in range(len(targets)):
-        #         for i in range(len(targets[k]['labels'])):
-        #             # if(targets[k]['labels'][i] == 5555):
-        #             if(targets[k]['labels'][i] == 5555):
-        #                 targets[k]['labels'][i] = cnt
-        #                 cnt += 1
         if self.training:
             proposals, matched_idxs, cnts, labels, regression_targets = \
                 self.select_training_samples(proposals, targets)
@@ -272,7 +226,6 @@ class OrthogonalRoiHeads(RoIHeads):
 
         if self.training:
             result, losses = [], {}
-            # det_labels = [(y != 0).long() for y in labels]
             det_labels = [(y != 0).long() for y in cnts]
             box_regression = self.box_predictor(rcnn_features['feat_res5'])
             embeddings_, class_logits = self.embedding_head(rcnn_features, det_labels)
@@ -288,7 +241,6 @@ class OrthogonalRoiHeads(RoIHeads):
             scene_num=[ target['imcnt'].repeat(128) for target in targets]
             scene_name=np.array(scene_name)
 
-            # loss_reid = 0 
             loss_reid = self.reid_regressor(epoch, embeddings_, cls_scores, cnts, scene_num, labels, scene_name, images, proposals) 
             losses = dict(loss_detection=loss_detection,
                           loss_box_reg=loss_box_reg,
@@ -325,7 +277,6 @@ class OrthogonalRoiHeads(RoIHeads):
 
         class_logits = F.softmax(class_logits, dim=1)
         pred_scores = class_logits[:,1]
-        # print('pred_scores.shape', pred_scores.shape)
         embeddings_ = embeddings_ * pred_scores.view(-1, 1)  # CWS
 
         # split boxes and scores per image
@@ -357,7 +308,6 @@ class OrthogonalRoiHeads(RoIHeads):
             embeddings = embeddings.reshape(-1, self.embedding_head.dim)
 
             # remove low scoring boxes
-            
             inds = torch.nonzero(scores > self.score_thresh).squeeze(1)
             boxes, scores, labels, embeddings = boxes[
                 inds], scores[inds], labels[inds], embeddings[inds]
@@ -416,9 +366,6 @@ class OrthogonalEmbeddingProj(nn.Module):
             init.constant_(proj[1].bias, 0)
             self.projectors_reid[ftname] = proj
 
-        # self.pred_class = nn.Conv2d(self.dim, 2, 1,1,0, bias=False)
-        # init.normal_(self.pred_class.weight, std=0.01)
-
     def forward(self, featmaps, targets=None):
         '''
         Arguments:
@@ -474,7 +421,6 @@ class OrthogonalEmbeddingProj(nn.Module):
                 tmp[-i] += 1
             assert sum(tmp) == self.dim
             return tmp
-
 
 class BboxRegressor(nn.Module):
     """
@@ -545,8 +491,8 @@ def get_model(args, training=True, pretrained_backbone=True):
     # Resnet50
     resnet_part1, resnet_part2 = resnet_backbone('resnet50', 
                                         pretrained_backbone, 
-                                        GAP=True, 
-                                        num_parts=args.part_num)
+                                        return_res4=True,
+                                        GAP=True)
 
     ##### Region Proposal Network ######
     # Anchor generator (Default)
@@ -612,9 +558,7 @@ def get_model(args, training=True, pretrained_backbone=True):
                         box_batch_size_per_image=args.train.rcnn_batch_size,
                         box_positive_fraction=args.train.fg_fraction,  # for proposals
                         bbox_reg_weights=args.train.box_regression_weights,
-                        reid_regressor=reid_regressor,
-                        part_cls_scalar=args.part_cls_scalar,
-                        part_num=args.part_num
+                        reid_regressor=reid_regressor
                         )
     if training:
         model.train()
