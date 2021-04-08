@@ -55,19 +55,13 @@ class PRW(PersonSearchDataset):
             rois = np.clip(rois, 0, None)  # several coordinates are negative
             rois[:, 2:] += rois[:, :2]
 
-            ## filtering small bbox
             if self.mode == 'train':
                 rois_area = (rois[:,2] - rois[:,0])*(rois[:,3] - rois[:,1])
-                # rois = rois[rois_area >= 7000]
-                # ids = ids[rois_area >= 7000]
                 if len(rois)==0: continue
 
             num_objs = len(rois)
             assert len(rois) == len(ids)
 
-            # overlaps = np.zeros((num_objs, self.num_classes), dtype=np.float32)
-            # overlaps[:, 1] = 1.0
-            # overlaps = csr_matrix(overlaps)
             gt_roidb.append({
                 'im_name': im_name,
                 'imcnt': list([im_cnt]),
@@ -76,47 +70,17 @@ class PRW(PersonSearchDataset):
                 'cnt': list(range(cnt,cnt+num_objs)),
                 'flipped': False,
                 'cam_id': self._get_cam_id(im_name)
-                # 'gt_overlaps': overlaps
             })
             total_cnt.extend(range(cnt,cnt+num_objs))
             total_pid.extend(ids.astype(np.int32))
             total_imid.extend([str(im_name) for i in range(num_objs)])
             total_imcnt.extend(list(im_cnt for _ in range(num_objs)))
 
-            ## distance
-            # dist_mat = np.zeros((len(rois), len(rois)))
-            # for i, bbox in enumerate(rois):
-            #     x1, y1, x2, y2 = bbox
-            #     dist_mat[i,:] = distance_matrix(bbox[np.newaxis], rois) 
-            # dist_dict[im_cnt-1] = dist_mat.tolist()
-
-            ## draw 
-            # if cnt >= 200:
-            #     dist_list = []
-            #     for i, bbox in enumerate(rois):
-            #         x1, y1, x2, y2 = bbox
-            #         scene = cv2.imread(osp.join('../datasets/PRW-v16.04.20/frames/',im_name))
-            #         # cv2.imwrite('./logs/outputs/all/{:03d}_{:s}'.format(cnt+i-1, str(im_name)), scene[int(y1):int(y2), int(x1):int(x2), :])
-            #         cv2.imwrite('./logs/outputs/tmp/{:03d}_{:s}'.format(cnt+i-1, str(im_name)), scene[int(y1):int(y2), int(x1):int(x2), :])
-
-            #         dist_list.append(distance_matrix(bbox[np.newaxis], rois) )
-            #     print('im_name: ', im_name)
-            #     print('dist_list: ', dist_list)
-            #     if cnt >=250: raise ValueError
-
             cnt += num_objs
             im_cnt += 1
         
-        # with open("dist_dict.json", "w") as fp:
-        #     json.dump(dist_dict, fp)
-        # raise ValueError
-
         return gt_roidb, [tuple(total_cnt),tuple(total_pid), tuple(total_imid), tuple(total_imcnt)]
         
-    # def _num_people_(self):
-    #     num_bbox=17473
-    #     return num_bbox
-
     def _adapt_pid_to_cls(self, label_pids, upid=5555):
         """
         convert pid range from (0, N-1) to (1, N), and replace -2 with unlabeled_person_identifier 5555
@@ -126,8 +90,6 @@ class PRW(PersonSearchDataset):
         
         label_pids[label_pids == 483] = upid
         label_pids[label_pids == 932] = 479
-
-        # label_pids = upid
 
         return label_pids
 
@@ -159,7 +121,6 @@ class PRW(PersonSearchDataset):
         return int(match)
 
     @staticmethod
-    # @jit(forceobj=True)
     def search_performance_calc(gallery_set, probe_set,
                                 gallery_det, gallery_feat, probe_feat,
                                 det_thresh=0.5, gallery_size=-1, 

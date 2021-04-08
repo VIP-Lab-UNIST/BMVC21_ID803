@@ -41,7 +41,6 @@ class PrefetchGenerator(threading.Thread):
     def __iter__(self):
         return self
 
-
 class PrefetchDataLoader(torch.utils.data.DataLoader):
 
     def __iter__(self):
@@ -49,15 +48,14 @@ class PrefetchDataLoader(torch.utils.data.DataLoader):
             super(PrefetchDataLoader, self).__iter__()
         )
 
-
 def collate_fn(x):
     return x
 
-
 def get_dataset(args, train=True):
+    ## Change the path
     paths = {
-        'CUHK-SYSU': ('/root/workspace/datasets/PersonSearch/CUHK-SYSU/', CUHK_SYSU),
-        'PRW': ('/root/workspace/datasets/PersonSearch/PRW-v16.04.20/', PRW)
+        'CUHK-SYSU': ('/root/workspace/Personsearch/datasets/CUHK-SYSU/', CUHK_SYSU),
+        'PRW': ('/root/workspace/Personsearch/datasets/PRW-v16.04.20/', PRW)
 
     }
     p, ds_cls = paths[args.dataset]
@@ -72,7 +70,6 @@ def get_dataset(args, train=True):
         probe_set = ds_cls(p, get_transform(False),
                            mode='probe')
         return test_set, probe_set
-
 
 def get_data_loader(args, train=True):
 

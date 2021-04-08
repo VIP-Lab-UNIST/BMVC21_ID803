@@ -1,8 +1,6 @@
-# Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
-"""
-Implements the Generalized R-CNN framework
-"""
-
+'''
+Minor modificatin from https://github.com/pytorch/vision/blob/master/torchvision/models/detection/generalized_rcnn.py
+'''
 from collections import OrderedDict
 from typing import Union
 import torch
@@ -10,7 +8,6 @@ from torch import nn
 import warnings
 from torch.jit.annotations import Tuple, List, Dict, Optional
 from torch import Tensor
-
 
 class GeneralizedRCNN(nn.Module):
     """

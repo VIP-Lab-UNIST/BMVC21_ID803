@@ -12,7 +12,6 @@ class PersonSearchDataset(object):
         self.data_path = self.get_data_path()
         self.transforms = transforms
         self.mode = mode
-        # test = gallery + probe
         assert self.mode in ('train', 'test', 'probe')
 
         self.imgs = self._load_image_set_index()

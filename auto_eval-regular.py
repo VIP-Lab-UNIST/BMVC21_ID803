@@ -8,9 +8,7 @@ dname = os.path.dirname(abspath)
 os.chdir(dname)
 
 search_dirs = [
-    
-    'logs/prw/v41/ablation/hnmO-hpmO-coscale0.10-simthrd0.6-neg01/Mar16_18-16-15',
-
+    'logs/prw/',
 ]   
 
 

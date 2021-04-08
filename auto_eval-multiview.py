@@ -8,12 +8,8 @@ dname = os.path.dirname(abspath)
 os.chdir(dname)
 
 search_dirs = [
-    'logs/cuhk/v41/ablation/hnmO-hpmO-coscale0.10-simthrd0.6-neg01/Mar16_00-08-25',
-    'logs/cuhk/v41/ablation/hnmO-hpmO-coscale0.10-simthrd0.6-neg01-decay20/Mar16_00-30-44',
-    
+    'logs/prw/',
 ]   
-
-
 
 random.shuffle(search_dirs)
 while True:
@@ -23,19 +19,19 @@ while True:
             files = files[::-1]
             for file_name in files:
                 if ('.pth' in file_name) and ('checkpoint' in file_name) and ('last' not in file_name):
-                    if (file_name.replace('.pth', '-gallery.json')) not in files:
+                    if (file_name.replace('.pth', '-multiview.json')) not in files:
                         checkpoint = os.path.join(path, file_name)
                         print(os.path.join(dname, checkpoint))
                         args_file = os.path.join(path, 'args.json')
                         with open(args_file, 'r') as f:
                             args = json.load(f)
                         
-                        tmp = checkpoint.replace('.pth', 'cache.txt')
+                        tmp = checkpoint.replace('.pth', '-multiview-cache.txt')
                         if not os.path.exists(tmp):
                             with open(tmp, 'w') as f:
                                 f.write('tmp')
 
-                            command = " python -B scripts/test-gallery.py \
+                            command = " python -B scripts/test-multiview.py \
                                         -p %s \
                                         --reid_loss %s \
                                         --dataset %s \

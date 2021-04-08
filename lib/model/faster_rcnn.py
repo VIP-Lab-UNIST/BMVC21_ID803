@@ -8,16 +8,14 @@ import numpy as np
 
 from torchvision.ops import MultiScaleRoIAlign
 from torchvision.ops import boxes as box_ops
-from .generalized_rcnn import GeneralizedRCNN
-# from .roi_heads import RoIHeads
+
 from torchvision.models.detection.roi_heads import RoIHeads
 from torchvision.models.detection.rpn import AnchorGenerator, RPNHead, RegionProposalNetwork
 from torchvision.models.detection.transform import GeneralizedRCNNTransform
 
+from .generalized_rcnn import GeneralizedRCNN
 from .resnet_backbone import resnet_backbone
-
-from ..loss import MCLoss
-# from ..loss import OIMLoss
+from .reID import Regressor
 from torch import autograd
 import math
 
@@ -58,7 +56,6 @@ class FasterRCNN(GeneralizedRCNN):
                 'backbone should contain an attribute out_channels '
                 'specifying the number of output channels (assumed to be the '
                 'same for all the levels)')
-
         
         if rpn_anchor_generator is None:
             raise ValueError('rpn_anchor_generator should be specified manually.')
@@ -199,7 +196,6 @@ class OrthogonalRoiHeads(RoIHeads):
     @property
     def feat_head(self):  # re-name
         return self.box_head
-
     
     def _flatten_fc_input(self, x):
         if x.ndimension() == 4:
@@ -582,12 +578,9 @@ def get_model(args, training=True, pretrained_backbone=True):
                     in_channels=[1024, 2048],
                     dim=args.num_features,
                     cls_scalar=args.cls_scalar)
+
     # ReID regressor
-    # reid_regressor = OIMLoss(
-    #                     args.num_features, args.num_pids, args.num_cq_size, 
-    #                     args.train.oim_momentum, args.oim_scalar)
-    
-    reid_regressor = MCLoss(args.use_hnm, args.use_hpm, args.hard_neg, args.sim_thrd, args.co_scale, args.num_features)
+    reid_regressor = Regressor(args.use_hnm, args.use_hpm, args.hard_neg, args.sim_thrd, args.co_scale, args.num_features)
                         
     model = FasterRCNN( 
                         # Region proposal network

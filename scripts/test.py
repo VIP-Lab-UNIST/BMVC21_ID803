@@ -21,6 +21,8 @@ def main(new_args, get_model_fn):
     args = Nestedspace()
     args.load_from_json(osp.join(new_args.path, 'args.json'))
     args.from_dict(new_args.to_dict())  # override previous args
+    
+    assert args.dataset == 'CUHK-SYSU', "Wrong dataset"
 
     device = torch.device(args.device)
     cudnn.benchmark = False
@@ -53,7 +55,7 @@ def main(new_args, get_model_fn):
                                                         det_thresh=0.01)
 
             print(hue.run('Evaluating search: '))
-            gallery_size = 100 if args.dataset == 'CUHK-SYSU' else -1
+            gallery_size = 100 
             ret = gallery_loader.dataset.search_performance_calc(
                 gallery_loader.dataset, probe_loader.dataset,
                 name_to_boxes.values(), all_feats, probe_feats,
