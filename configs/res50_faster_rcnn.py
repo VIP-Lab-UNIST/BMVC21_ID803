@@ -39,7 +39,7 @@ def args_faster_rcnn():
     parser.add_argument('--device', default='cuda', help='device')
     
     # Random Seed
-    parser.add_argument('--seed', type=int, default=1)
+    parser.add_argument('--seed', type=int, default=0)
 
     #
     # Training
@@ -52,7 +52,7 @@ def args_faster_rcnn():
                         default=0, type=int)
     parser.add_argument('--epochs', dest='train.epochs',
                         help='number of epochs to train',
-                        default=20, type=int)
+                        default=25, type=int)
     parser.add_argument('--disp_interval', dest='train.disp_interval',
                         help='number of iterations to display',
                         default=10, type=int)
@@ -60,7 +60,7 @@ def args_faster_rcnn():
     # Training.Optimization
     parser.add_argument('--lr', dest='train.lr',
                         help='starting learning rate',
-                        required=True, type=float)
+                        default=0.003, type=float)
     parser.add_argument('--momentum', dest='train.momentum',
                         help='Momentum',
                         default=0.9, type=float)
@@ -100,7 +100,7 @@ def args_faster_rcnn():
                         type=int, default=1500,
                         help='Max pixel size of the longest side of a scaled input image')
     parser.add_argument('--batch_size', dest='train.batch_size',
-                        required=True, type=int,
+                        default=1, type=int,
                         help='batch_size, __C.TRAIN.IMS_PER_BATCH')
     parser.add_argument('--no_flip', dest='train.use_flipped',
                         action='store_false',
@@ -112,13 +112,13 @@ def args_faster_rcnn():
                         help='Minibatch size (number of regions of interest [ROIs])\
                               __C.TRAIN.BATCH_SIZE')
     parser.add_argument('--fg_fraction', dest='train.fg_fraction',
-                        type=float, default=0.7,
+                        type=float, default=0.5,
                         help='Fraction of minibatch that is labeled foreground (i.e. class > 0)')
     parser.add_argument('--fg_thresh', dest='train.fg_thresh',
                         type=float, default=0.5,
                         help='Overlap threshold for a ROI to be considered foreground (if >= FG_THRESH)')
     parser.add_argument('--bg_thresh_hi', dest='train.bg_thresh_hi',
-                        type=float, default=0.3,
+                        type=float, default=0.5,
                         help='Overlap threshold for a ROI to be considered background')
     parser.add_argument('--bg_thresh_lo', dest='train.bg_thresh_lo',
                         type=float, default=0.1,
@@ -168,10 +168,36 @@ def args_faster_rcnn():
     parser.add_argument('--w_RPN_loss_box', dest='train.w_RPN_loss_box',
                         default=1.0, type=float)
     parser.add_argument('--w_RCNN_loss_bbox', dest='train.w_RCNN_loss_bbox',
-                        default=1.0, type=float)
+                        default=10.0, type=float)
     parser.add_argument('--w_RCNN_loss_cls', dest='train.w_RCNN_loss_cls',
                         default=1.0, type=float)
 
+    # Training reID
+    parser.add_argument('--sim_thrd', type=float, default=0.6, help='Similarity threshold')
+    parser.add_argument('--co_scale', type=float, default=0.1, help='Co appearance scaling')
+    parser.add_argument('--hard_neg',type=float, default=0.01, help='Ratio of hard negative samples')
+    parser.add_argument('--use_hnm', type=int, default=1, choices=[0,1])
+    parser.add_argument('--use_hpm', type=int, default=1, choices=[0,1])
+
+    parser.add_argument('--num_features', type=int, default=256, 
+                        help='Embedding dimension.')
+    parser.add_argument('--num_pids', type=int, required=True,
+                        choices=[5532, 482],
+                        help='Labeled person ids in each dataset.')
+    parser.add_argument('--num_cq_size', type=int, required=True, 
+                        help='Size of circular queue for unlabeled persons')
+    parser.add_argument('--oim_scalar', type=float, default=30.0, 
+                        help='1 / OIM temperature')
+    parser.add_argument('--cls_scalar', type=float, default=1.0, 
+                        help='1 / Classification temperature')
+
+    parser.add_argument('--w_OIM_loss_oim', dest='train.w_OIM_loss_oim', 
+                        default=1.0, type=float)
+    parser.add_argument('--oim_momentum', dest='train.oim_momentum', 
+                        default=0.5, type=float)
+    parser.add_argument('--reid_loss', dest='reid_loss', 
+                        default='oim', type=str)
+                        
     #
     # Test
     #
@@ -207,32 +233,5 @@ def args_faster_rcnn():
 
     parser.add_argument('--embedding_feat_fuse', action='store_true',
                         help='Weather to fuse feat_res4 and feat_res5')
-
-    parser.add_argument('--sim_thrd', type=float, default=0.6, help='Similarity threshold')
-    parser.add_argument('--co_scale', type=float, default=0.5, help='Co appearance scaling')
-    parser.add_argument('--hard_neg',type=float, default=0.01)
-    parser.add_argument('--use_hnm', type=int, default=1)
-    parser.add_argument('--use_hpm', type=int, default=1)
-
-    # sizes
-    parser.add_argument('--num_features', type=int, default=256,
-                        help='Embedding dimension.')
-    parser.add_argument('--num_pids', type=int, required=True,
-                        choices=[5532, 482],
-                        help='Labeled person ids in each dataset.')
-    parser.add_argument('--num_cq_size', type=int, required=True,
-                        help='Size of circular queue for unlabeled persons')
-    parser.add_argument('--oim_scalar', type=float, required=True,
-                        help='1 / OIM temperature')
-    parser.add_argument('--cls_scalar', type=float, required=True,
-                        help='1 / Classification temperature')
-
-    # training
-    parser.add_argument('--w_OIM_loss_oim', dest='train.w_OIM_loss_oim',
-                        default=1.0, type=float)
-    parser.add_argument('--oim_momentum', dest='train.oim_momentum',
-                        default=0.5, type=float)
-    parser.add_argument('--reid_loss', dest='reid_loss',
-                        required=True, type=str)
-                        
+    
     return parser

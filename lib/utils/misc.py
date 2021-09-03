@@ -136,7 +136,7 @@ def resume_from_checkpoint(args, model, optimizer=None, lr_scheduler=None):
         model.load_state_dict(model_dict)
         print(hue.good('loaded checkpoint %s' % (load_name)))
         print(hue.good('model was trained for %s epochs' % (args.train.start_epoch)))
-        print(hue.bad('Only part of model is loaded. But please ignore it.'))
+        print(hue.bad('Only part of model is loaded. But please ignore this.'))
     
     return args, model, optimizer, lr_scheduler
 

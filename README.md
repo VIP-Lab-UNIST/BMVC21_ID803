@@ -30,4 +30,6 @@ This code is based on Chen et al's code for [NAE4PS](https://github.com/DeanChan
    It computes mAP and Top-1 scores and records them in *checkpoint_name.json* of the checkpoint folder. The performance chart is saved in *performance.png*.
    
 2. Test PRW(regular gallery)
+
+    If you want to evaluate on the multi-view gallery, set `ignore_cam_id=False` and `remove_unlabel=False` on `runs/test.py` 
 3. Test PRW(multi-view gallery)

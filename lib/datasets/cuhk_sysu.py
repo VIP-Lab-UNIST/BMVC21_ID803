@@ -179,7 +179,9 @@ class CUHK_SYSU(PersonSearchDataset):
     # @jit(forceobj=True)
     def search_performance_calc(gallery_set, probe_set,
                                 gallery_det, gallery_feat, probe_feat,
-                                det_thresh=0.5, gallery_size=100):
+                                det_thresh=0.5, gallery_size=100,
+                                ignore_cam_id=None,
+                                remove_unlabel=None):
         """
         gallery_det (list of ndarray): n_det x [x1, x2, y1, y2, score] per image
         gallery_feat (list of ndarray): n_det x D features per image
