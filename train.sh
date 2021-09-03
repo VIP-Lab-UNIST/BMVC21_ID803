@@ -9,8 +9,6 @@ CUDA_VISIBLE_DEVICES=0 python -B runs/train.py  \
                         --anchor_scales 32 64 128 256 512 \
                         --num_cq_size 500 \
                         --w_OIM_loss_oim 1.0 \
-                        --part_num 4 \
-                        --part_cls_scalar 10 \
                         --num_features 256 \
                         --num_pids 482 \
                         --oim_momentum 0.5 \
@@ -79,8 +77,6 @@ CUDA_VISIBLE_DEVICES=0 python -B runs/train.py  \
 #                         --anchor_scales 32 64 128 256 512 \
 #                         --num_cq_size 5000 \
 #                         --w_OIM_loss_oim 1.0 \
-#                         --part_num 4 \
-#                         --part_cls_scalar 10 \
 #                         --num_features 256 \
 #                         --num_pids 5532 \
 #                         --oim_momentum 0.5 \

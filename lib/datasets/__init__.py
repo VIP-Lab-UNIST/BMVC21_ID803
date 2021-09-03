@@ -79,7 +79,7 @@ def get_data_loader(args, train=True):
     dataset = get_dataset(args, train)
 
     if train:
-        GT_MC=dataset._get_table()
+        data_info=dataset.get_data_info()
         train_sampler = torch.utils.data.RandomSampler(dataset)
 
         if args.train.aspect_grouping >= 0:
@@ -95,7 +95,7 @@ def get_data_loader(args, train=True):
             dataset, batch_sampler=train_batch_sampler, num_workers=args.num_workers,
             collate_fn=collate_fn)
         
-        return data_loader, GT_MC
+        return data_loader, data_info
 
     else:
         test_sampler = torch.utils.data.SequentialSampler(dataset[0])

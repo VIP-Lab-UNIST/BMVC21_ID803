@@ -88,20 +88,23 @@ class MetricLogger(object):
         self.meters[name] = meter
 
     def print_log(self, epoch, step, iters_per_epoch):
-        print(hue.lightgreen('[epoch %2d][iter %4d/%4d] loss: %.4f, lr: %.2e'
-                             % (epoch, step, iters_per_epoch,
-                                self.meters['loss_value'].avg, self.meters['lr'].value)))
-        if 'num_fg' in self.meters:       
-            print('\tfg/bg: %d/%d, time cost: %.4f' %
-                      (self.meters['num_fg'].avg, 
-                       self.meters['num_bg'].avg, 
-                       self.meters['batch_time'].avg))
-        else:
-            print('\ttime cost: %.4f' % (self.meters['batch_time'].avg))
-        print('\trpn_cls: %.4f, rpn_box: %.4f, rcnn_box: %.4f'
-                  % (self.meters['loss_objectness'].avg, 
-                     self.meters['loss_rpn_box_reg'].avg,
-                     self.meters['loss_box_reg'].avg))
-        print('\tdet_cls: %.4f, reid_cls: %.4f'
-                  % (self.meters['loss_detection'].avg, 
-                     self.meters['loss_reid'].avg))
+        print(hue.run('[epoch %2d][iter %4d/%4d] loss(det/reid): %7.4f(%7.4f/%7.4f, lr: %.2e, time: %.4f'
+                             % (epoch, step, iters_per_epoch, 
+                             self.meters['loss_value'].avg, self.meters['loss_detection'].avg, self.meters['loss_reid'].avg, 
+                             self.meters['lr'].value,
+                             self.meters['batch_time'].avg)))
+
+        # print('\tDetection loss: %.4f, Re-ID loss: %.4f'% (self.meters['loss_detection'].avg, self.meters['loss_reid'].avg))
+
+        # print('rpn_cls: %.4f, rpn_box: %.4f, rcnn_box: %.4f'
+        #           % (self.meters['loss_objectness'].avg, 
+        #              self.meters['loss_rpn_box_reg'].avg,
+        #              self.meters['loss_box_reg'].avg))
+
+        # if 'num_fg' in self.meters:       
+        #     print('\tfg/bg: %d/%d, time cost: %.4f' %
+        #               (self.meters['num_fg'].avg, 
+        #                self.meters['num_bg'].avg, 
+        #                self.meters['batch_time'].avg))
+        # else:
+        #     print('\ttime cost: %.4f' % (self.meters['batch_time'].avg))

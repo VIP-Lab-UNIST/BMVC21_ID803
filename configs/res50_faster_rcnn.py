@@ -226,10 +226,6 @@ def args_faster_rcnn():
                         help='1 / OIM temperature')
     parser.add_argument('--cls_scalar', type=float, required=True,
                         help='1 / Classification temperature')
-    parser.add_argument('--part_cls_scalar', type=float, required=True,
-                        help='1 / Classification temperature')
-    parser.add_argument('--part_num', type=float, required=True,
-                        help='number of parts')
 
     # training
     parser.add_argument('--w_OIM_loss_oim', dest='train.w_OIM_loss_oim',

@@ -44,8 +44,6 @@ while True:
                                         --num_cq_size %s \
                                         --oim_scalar %s \
                                         --cls_scalar %s \
-                                        --part_num %s \
-                                        --part_cls_scalar %s \
                                         --checkpoint_name %s" % (
                                             root, 
                                             args['reid_loss'],
@@ -56,8 +54,6 @@ while True:
                                             args['num_cq_size'],
                                             args['oim_scalar'],
                                             args['cls_scalar'],
-                                            args['part_num'],
-                                            args['part_cls_scalar'],
                                             file_name)
 
                             os.system(command)

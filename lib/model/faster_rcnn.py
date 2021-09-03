@@ -105,7 +105,7 @@ class FasterRCNN(GeneralizedRCNN):
         return RegionProposalNetwork(*args)
 
     def _set_roi_heads(self, *args):
-        return OrthogonalRoiHeads(*args)
+        return Roiheads(*args)
 
     def ex_feat(self, images, targets, mode='det'):
         """
@@ -156,10 +156,10 @@ class FasterRCNN(GeneralizedRCNN):
         embeddings = embeddings.squeeze(3).squeeze(2)
         return embeddings.split(1, 0)
 
-class OrthogonalRoiHeads(RoIHeads):
+class Roiheads(RoIHeads):
 
     def __init__(self, embedding_head, reid_regressor, *args, **kwargs):
-        super(OrthogonalRoiHeads, self).__init__(*args, **kwargs)
+        super(Roiheads, self).__init__(*args, **kwargs)
         self.embedding_head = embedding_head
         self.reid_regressor = reid_regressor
 
@@ -235,7 +235,12 @@ class OrthogonalRoiHeads(RoIHeads):
         if self.training:
             result, losses = [], {}
             det_labels = [(y != 0).long() for y in cnts]
+
+            # regression bbox delta
             box_regression = self.box_predictor(rcnn_features['feat_res5'])
+            
+            # embeddings: re-ID features
+            # class_logits: detection logits
             embeddings_, class_logits = self.embedding_head(rcnn_features, det_labels)
             cls_scores = F.softmax(class_logits, dim=1)[:,[1]]
             
@@ -317,7 +322,6 @@ class OrthogonalRoiHeads(RoIHeads):
             embeddings = embeddings.reshape(-1, self.embedding_head.dim)
 
             # remove low scoring boxes
-            
             inds = torch.nonzero(scores > self.score_thresh).squeeze(1)
             boxes, scores, labels, embeddings = boxes[
                 inds], scores[inds], labels[inds], embeddings[inds]
@@ -329,6 +333,7 @@ class OrthogonalRoiHeads(RoIHeads):
 
             # non-maximum suppression, independently done per class
             keep = box_ops.batched_nms(boxes, scores, labels, self.nms_thresh)
+            
             # keep only topk scoring predictions
             keep = keep[:self.detections_per_img]
             boxes, scores, labels, embeddings = boxes[keep], scores[keep], \
@@ -342,18 +347,19 @@ class OrthogonalRoiHeads(RoIHeads):
         return all_boxes, all_scores, all_embeddings, all_labels
 
 
-class OrthogonalEmbeddingProj(nn.Module):
+class EmbeddingProj(nn.Module):
 
     def __init__(self, featmap_names=['feat_res5'],
                  in_channels=[2048],
                  dim=256,
                  cls_scalar=1.0):
-        super(OrthogonalEmbeddingProj, self).__init__()
+        super(EmbeddingProj, self).__init__()
         self.featmap_names = featmap_names
         self.in_channels = list(map(int, in_channels))
         self.dim = int(dim)
         self.cls_scalar = cls_scalar
         
+        # Detection projector
         self.projectors = nn.ModuleDict()
         indv_dims = self._split_embedding_dim()
         for ftname, in_chennel, indv_dim in zip(self.featmap_names, self.in_channels, indv_dims):
@@ -363,6 +369,7 @@ class OrthogonalEmbeddingProj(nn.Module):
             init.constant_(proj.bias, 0)
             self.projectors[ftname] = proj
 
+        # Re-ID projector
         self.projectors_reid = nn.ModuleDict()
         indv_dims = self._split_embedding_dim()
         for ftname, in_chennel, indv_dim in zip(self.featmap_names, self.in_channels, indv_dims):
@@ -397,21 +404,19 @@ class OrthogonalEmbeddingProj(nn.Module):
             outputs.append(
                 self.projectors[k](v)
             )
+        # dectection logits
         projected = sum(outputs) * self.cls_scalar
-
+        # re-ID embedding
         outputs_reid = []
         for k, v in featmaps.items():
             v = F.adaptive_max_pool2d(v, 1)
             outputs_reid.append(
                 self.projectors_reid[k](v)
             )
-        
         embeddings_reid = torch.cat(outputs_reid, dim=1)
-        
         
         embeddings_reid = embeddings_reid / \
             embeddings_reid.norm(dim=1, keepdim=True).clamp(min=1e-12)
-
         return embeddings_reid, projected
 
     def _flatten_fc_input(self, x):
@@ -503,8 +508,7 @@ def get_model(args, training=True, pretrained_backbone=True):
     # Resnet50
     resnet_part1, resnet_part2 = resnet_backbone('resnet50', 
                                         pretrained_backbone, 
-                                        GAP=True, 
-                                        num_parts=args.part_num)
+                                        GAP=True)
 
     ##### Region Proposal Network ######
     # Anchor generator (Default)
@@ -531,7 +535,7 @@ def get_model(args, training=True, pretrained_backbone=True):
     # 2D embedding head
     feat_head = resnet_part2
     # 1D embedding head
-    embedding_head = OrthogonalEmbeddingProj(
+    embedding_head = EmbeddingProj(
                     featmap_names=['feat_res4', 'feat_res5'],
                     in_channels=[1024, 2048],
                     dim=args.num_features,
