@@ -8,12 +8,10 @@ from tqdm import tqdm
 from functools import reduce
 from glob import glob
 
-class MPLP(object):
-
+class CAC(object):
     def __init__(self, use_hnm, use_hpm, total_scene, threshold, coapp_scale):
+        super(CAC, self).__init__()
         self.cnt2snum = total_scene
-        with open('./dist_dict.json', 'r') as fp:
-            self.dist_mat = json.load(fp)
         self.threshold = threshold
         self.coapp_scale = coapp_scale
         self.use_hnm = use_hnm
@@ -150,5 +148,3 @@ class MPLP(object):
             multilabel_[midx, :] = mlabel.repeat(len(midx), 1)
             
         return multilabel_
-
-

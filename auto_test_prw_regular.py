@@ -8,10 +8,14 @@ dname = os.path.dirname(abspath)
 os.chdir(dname)
 
 search_dirs = [
-    
-]
-random.shuffle(search_dirs)
 
+    'logs/prw/paper/'
+
+]   
+
+
+
+random.shuffle(search_dirs)
 while True:
     cnt = 0 
     for root in search_dirs:
@@ -19,28 +23,19 @@ while True:
             files = files[::-1]
             for file_name in files:
                 if ('.pth' in file_name) and ('checkpoint' in file_name) and ('last' not in file_name):
-                    print(file_name)
-                    if '/prw/' in path:
-                        if 'epoch18' not in file_name:
-                            continue
-                    else:
-                        if 'epoch26' not in file_name:
-                            continue
-
-                    if (file_name.replace('.pth', '_multiview_gallery_qualitative.json')) not in files:
+                    if (file_name.replace('.pth', '-prw_regular.json')) not in files:
                         checkpoint = os.path.join(path, file_name)
                         print(os.path.join(dname, checkpoint))
                         args_file = os.path.join(path, 'args.json')
                         with open(args_file, 'r') as f:
                             args = json.load(f)
                         
-                        tmp = checkpoint.replace('.pth', '_cache_multiview_gallery_qualitative.txt')
-                        
+                        tmp = checkpoint.replace('.pth', '-prw_regular_cache.txt')
                         if not os.path.exists(tmp):
                             with open(tmp, 'w') as f:
                                 f.write('tmp')
-                                
-                            command = " python -B scripts/test_multiview_gallery_qualitative.py \
+
+                            command = " python -B runs/test_prw_regular.py \
                                         -p %s \
                                         --reid_loss %s \
                                         --dataset %s \
@@ -65,14 +60,14 @@ while True:
                                             args['part_num'],
                                             args['part_cls_scalar'],
                                             file_name)
-                            
+
                             os.system(command)
                             os.system('rm -rf %s' % tmp)
                             os.system('rm -rf performance.png')
-                            os.system('python auto_draw.py')
+                            os.system('python auto_draw_prw.py')
                             
-                            os.system('rm -rf performance_cuhk.png')
-                            os.system('python auto_draw_cuhk.py')
+                            # os.system('rm -rf performance_cuhk.png')
+                            # os.system('python auto_draw_cuhk.py')
 
                             cnt += 1
 

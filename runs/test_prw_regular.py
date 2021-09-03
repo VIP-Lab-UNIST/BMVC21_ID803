@@ -41,7 +41,7 @@ def main(new_args, get_model_fn):
     args.resume = osp.join(args.path, new_args.test.checkpoint_name)
     
     if osp.exists(args.resume):
-        if not osp.exists(args.resume.replace('.pth', '-regular.json')):
+        if not osp.exists(args.resume.replace('.pth', '-prw_regular.json')):
             args, model, _, _ = resume_from_checkpoint(args, model)
 
             name_to_boxes, all_feats, probe_feats = \
@@ -67,7 +67,7 @@ def main(new_args, get_model_fn):
             performance['precision'] = precision
             performance['recall'] = recall
             print(performance)
-            with open(args.resume.replace('.pth', '-regular.json'), 'w') as f:
+            with open(args.resume.replace('.pth', '-prw_regular.json'), 'w') as f:
                 json.dump(performance, f)
 
             # import IPython

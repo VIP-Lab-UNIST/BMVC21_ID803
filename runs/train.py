@@ -13,9 +13,8 @@ from configs import args_faster_rcnn
 
 from lib.model.faster_rcnn import get_model
 from lib.datasets import get_data_loader
-from lib.utils.misc import Nestedspace, get_optimizer, get_lr_scheduler
+from lib.utils.misc import Nestedspace, get_optimizer, get_lr_scheduler, resume_from_checkpoint
 from lib.utils.trainer import get_trainer
-
 
 def main(args, get_model_fn):
 
@@ -35,13 +34,12 @@ def main(args, get_model_fn):
         os.makedirs(args.path)
     except:
         pass 
-    print(hue.info(hue.bold(hue.lightgreen(
-        'Working directory: {}'.format(args.path)))))
+    print(hue.info(hue.bold(hue.lightgreen('Working directory: {}'.format(args.path)))))
     
     args.export_to_json(os.path.join(args.path, 'args.json'))
     train_loader, train_info = get_data_loader(args, train=True)
 
-    ## Load model
+    ## Load model and set the scene info.
     model = get_model_fn(args, training=True,
                          pretrained_backbone=True)
     model.to(device)
@@ -50,22 +48,12 @@ def main(args, get_model_fn):
     ## Set optimizer and scheduler
     optimizer = get_optimizer(args, model)
     lr_scheduler = get_lr_scheduler(args, optimizer)
-    
-    ## Load the existing models if possible
-    # if (args.train.resume_name is not None) :
-    #     if os.path.exists(args.train.resume_name):
-    #         checkpoint = torch.load(args.train.resume_name)
-    #         args.train.start_epoch = checkpoint['epoch']
-    #         model.load_state_dict(checkpoint['model'])
-                    
-    #         if optimizer is not None:
-    #             optimizer.load_state_dict(checkpoint['optimizer'])
-    #         if lr_scheduler is not None:
-    #             lr_scheduler.load_state_dict(checkpoint['lr_scheduler'])
 
-    #         print(hue.good('loaded checkpoint %s' % (args.train.resume_name)))
-    #         print(hue.info('model was trained for %s epochs' % (args.train.start_epoch)))
-            
+    ## Load the existing models if possible
+    if args.resume is not None:
+        args, model, optimizer, lr_scheduler = resume_from_checkpoint(
+            args, model, optimizer, lr_scheduler)
+    
     ## Define and run trainer
     trainer = get_trainer(args, model, train_loader, optimizer,
                           lr_scheduler, device)

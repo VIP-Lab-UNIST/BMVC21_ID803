@@ -41,7 +41,7 @@ def main(new_args, get_model_fn):
     args.resume = osp.join(args.path, new_args.test.checkpoint_name)
     
     if osp.exists(args.resume):
-        if not osp.exists(args.resume.replace('.pth', '-gallery.json')):
+        if not osp.exists(args.resume.replace('.pth', '-prw_multiview.json')):
             args, model, _, _ = resume_from_checkpoint(args, model)
 
             name_to_boxes, all_feats, probe_feats = \
@@ -74,7 +74,7 @@ def main(new_args, get_model_fn):
                     with open(args.resume.replace('.pth', '-gallery-%d.json'%gallery_size), 'w') as f:
                         json.dump(performance, f)
                 else:
-                    with open(args.resume.replace('.pth', '-gallery.json'), 'w') as f:
+                    with open(args.resume.replace('.pth', '-prw_multiview.json'), 'w') as f:
                         json.dump(performance, f)
 
             # import IPython

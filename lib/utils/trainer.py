@@ -7,15 +7,12 @@ from torch.nn.utils import clip_grad_norm_
 from ignite.engine.engine import Engine, Events
 
 from .logger import MetricLogger
-from .misc import ship_data_to_cuda, lucky_bunny, warmup_lr_scheduler, resume_from_checkpoint
+from .misc import ship_data_to_cuda, warmup_lr_scheduler, resume_from_checkpoint
 
 def get_trainer(args, model, train_loader, optimizer, lr_scheduler, device):
 
-    if args.resume is not None:
-        args, model, optimizer, lr_scheduler = resume_from_checkpoint(
-            args, model, optimizer, lr_scheduler)
-
     def _update_model(engine, data):
+
         # Load data
         images, targets = ship_data_to_cuda(data, device)
 
@@ -60,8 +57,8 @@ def get_trainer(args, model, train_loader, optimizer, lr_scheduler, device):
             warmup_iters = len(train_loader) - 1
             engine.state.sub_scheduler = warmup_lr_scheduler(
                 optimizer, warmup_iters, warmup_factor)
-        lucky_bunny(engine.state.epoch)
         engine.state.metric_logger = MetricLogger()
+        print(hue.info(hue.bold(hue.green("Start training from %s epoch"%str(engine.state.epoch)))))
 
     @trainer.on(Events.ITERATION_STARTED)
     def _init_iter(engine):
@@ -74,6 +71,7 @@ def get_trainer(args, model, train_loader, optimizer, lr_scheduler, device):
             engine.state.sub_scheduler.step()
 
         if engine.state.iteration % args.train.disp_interval == 0:
+            
             # Update logger
             batch_time = time.time() - engine.state.start
             engine.state.metric_logger.update(batch_time=batch_time)
@@ -84,8 +82,6 @@ def get_trainer(args, model, train_loader, optimizer, lr_scheduler, device):
             engine.state.metric_logger.print_log(engine.state.epoch, step,
                                                     len(train_loader))
 
-      
-            
     @trainer.on(Events.EPOCH_COMPLETED)
     def _post_epoch(engine):
         lr_scheduler.step()
@@ -101,7 +97,7 @@ def get_trainer(args, model, train_loader, optimizer, lr_scheduler, device):
             'optimizer': optimizer.state_dict(),
             'lr_scheduler': lr_scheduler.state_dict()
         }, save_name)
-        
+
         print(hue.good('save model: {}'.format(save_name)))
         
     return trainer

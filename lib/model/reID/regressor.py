@@ -12,14 +12,12 @@ import cv2
 import numpy as np
 import os
 
-from .mmcl import MMCL
-from .mplp import MPLP
+from .context_aware_clustering import CAC
+from .loss import ReIDloss
 
-class MCLoss(nn.Module):
-    """docstring for MCLoss"""
-
+class Regressor(nn.Module):
     def __init__(self, use_hnm, use_hpm, hard_neg, sim_thrd, co_scale, num_features):
-        super(MCLoss, self).__init__()
+        super(Regressor, self).__init__()
         self.use_hnm = use_hnm
         self.use_hpm = use_hpm
         self.hard_neg = hard_neg
@@ -36,10 +34,10 @@ class MCLoss(nn.Module):
         self.num_scene=torch.tensor(list(map(lambda x: x-1, num_scene))).cuda()
         self.memory=Memory(self.num_features, num_person).cuda()
         
-        self.labelpred = MPLP(use_hnm=self.use_hnm, use_hpm=self.use_hpm, \
+        self.clustering = CAC(use_hnm=self.use_hnm, use_hpm=self.use_hpm, \
                                 total_scene=self.num_scene, threshold=self.sim_thrd, coapp_scale= self.co_scale)
 
-        self.criterion = MMCL(delta=5.0, r=self.hard_neg)
+        self.criterion = ReIDloss(delta=5.0, r=self.hard_neg)
 
     def forward(self, epoch, inputs, cls_scores, roi_labels, scene_nums, GT_roi_labels, scene_names, images, proposals):
 
@@ -63,12 +61,10 @@ class MCLoss(nn.Module):
 
         logits = self.memory(inputs, label, epoch)
 
-        # MC
-        # if epoch > -1:
+        ## Clustering
         if epoch > 4:
-            multilabels = self.labelpred.predict(self.memory.mem.detach().clone(), label.detach().clone())
+            multilabels = self.clustering.predict(self.memory.mem.detach().clone(), label.detach().clone())
             loss = self.criterion(logits, label, multilabels)
-            
         else:
             loss = self.criterion(logits, label)
 
@@ -101,17 +97,10 @@ class Memory(nn.Module):
         self.num_features = num_features
         self.num_classes = num_classes
         self.alpha = alpha
-
-        ## For training
         self.mem = nn.Parameter(torch.zeros(num_classes, num_features), requires_grad=False)
 
-        ## For debuging
-        # tmp = torch.randn(num_classes, num_features)/256 + 1.0/16.0
-        # tmp /= tmp.norm(dim=1, keepdim=True)
-        # self.mem = nn.Parameter(tmp, requires_grad=False)
-
     def forward(self, inputs, targets, epoch=None):
-        # alpha = 0.5 * epoch / 60
+
         logits = MemoryLayer(self.mem, alpha=0.5)(inputs, targets)
 
         return logits

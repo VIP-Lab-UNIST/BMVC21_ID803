@@ -4,9 +4,9 @@ from torch import nn
 import timeit
 import torch.nn.functional as F
 
-class MMCL(nn.Module):
+class ReIDloss(nn.Module):
     def __init__(self, delta=5.0, r=0.01):
-        super(MMCL, self).__init__()
+        super(ReIDloss, self).__init__()
         self.delta = delta # coefficient for mmcl
         self.r = r         # hard negative mining ratio
       
@@ -23,7 +23,6 @@ class MMCL(nn.Module):
         neg_nums = self.r * (~multilabels).sum(dim=1).float()
         
         # indices = torch.arange(logits.shape[1]).cuda()
-
         for i, (logit, y, multilabel, argidx, neg_num) in enumerate(zip(logits, targets, multilabels, argidices, neg_nums)):
             
             ## positive, hard negative index

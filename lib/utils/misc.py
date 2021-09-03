@@ -118,20 +118,26 @@ def resume_from_checkpoint(args, model, optimizer=None, lr_scheduler=None):
     load_name = args.resume
     checkpoint = torch.load(load_name)
     args.train.start_epoch = checkpoint['epoch']
-    # model.load_state_dict(checkpoint['model'])
-    pretrained_dict = checkpoint['model']
-    model_dict = model.state_dict()
-    pretrained_dict = {k: v for k, v in pretrained_dict.items() if k in model_dict}
-    model_dict.update(pretrained_dict)
-    model.load_state_dict(model_dict)
-
-
     if optimizer is not None:
         optimizer.load_state_dict(checkpoint['optimizer'])
     if lr_scheduler is not None:
         lr_scheduler.load_state_dict(checkpoint['lr_scheduler'])
-    print(hue.good('loaded checkpoint %s' % (load_name)))
-    print(hue.info('model was trained for %s epochs' % (args.train.start_epoch)))
+
+    try :
+        model.load_state_dict(checkpoint['model'])
+        print(hue.good('loaded checkpoint %s' % (load_name)))
+        print(hue.good('model was trained for %s epochs' % (args.train.start_epoch)))
+
+    except:
+        pretrained_dict = checkpoint['model']
+        model_dict = model.state_dict()
+        pretrained_dict = {k: v for k, v in pretrained_dict.items() if k in model_dict}
+        model_dict.update(pretrained_dict)
+        model.load_state_dict(model_dict)
+        print(hue.good('loaded checkpoint %s' % (load_name)))
+        print(hue.good('model was trained for %s epochs' % (args.train.start_epoch)))
+        print(hue.bad('Only part of model is loaded. But please ignore it.'))
+    
     return args, model, optimizer, lr_scheduler
 
 
@@ -173,16 +179,3 @@ def warmup_lr_scheduler(optimizer, warmup_iters, warmup_factor):
         return warmup_factor * (1 - alpha) + alpha
 
     return torch.optim.lr_scheduler.LambdaLR(optimizer, f)
-
-
-def lucky_bunny(i):
-    print('')
-    print('|￣￣￣￣￣￣￣￣|')
-    print('|    TRAINING    |')
-    print('|     epoch      |')
-    print('|       ' + hue.bold(hue.green(str(i))) + '        |')
-    print('| ＿＿＿_＿＿＿＿|')
-    print(' (\__/) ||')
-    print(' (•ㅅ•) || ')
-    print(' / 　 づ')
-    print('')

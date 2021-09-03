@@ -240,4 +240,3 @@ def args_faster_rcnn():
                         required=True, type=str)
                         
     return parser
-

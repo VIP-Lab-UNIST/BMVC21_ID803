@@ -56,8 +56,8 @@ def collate_fn(x):
 
 def get_dataset(args, train=True):
     paths = {
-        'CUHK-SYSU': ('/root/workspace/datasets/PersonSearch/CUHK-SYSU/', CUHK_SYSU),
-        'PRW': ('/root/workspace/datasets/PersonSearch/PRW-v16.04.20/', PRW)
+        'CUHK-SYSU': ('/root/workspace/Personsearch/datasets/CUHK-SYSU/', CUHK_SYSU),
+        'PRW': ('/root/workspace/Personsearch/datasets/PRW-v16.04.20/', PRW)
 
     }
     p, ds_cls = paths[args.dataset]
