@@ -14,7 +14,7 @@ from configs import args_faster_rcnn
 from lib.model.faster_rcnn import get_model
 from lib.datasets import get_data_loader
 from lib.utils.misc import Nestedspace, get_optimizer, get_lr_scheduler, resume_from_checkpoint
-from lib.utils.trainer import get_trainer
+from lib.utils.trainer import Trainer
 
 def main(args, get_model_fn):
 
@@ -55,9 +55,8 @@ def main(args, get_model_fn):
             args, model, optimizer, lr_scheduler)
     
     ## Define and run trainer
-    trainer = get_trainer(args, model, train_loader, optimizer,
-                          lr_scheduler, device)
-    trainer.run(train_loader, max_epochs=args.train.epochs)
+    trainer = Trainer(args, model, train_loader, optimizer, lr_scheduler, device)
+    trainer.run()
 
 if __name__ == '__main__':
     arg_parser = args_faster_rcnn()

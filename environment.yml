@@ -1,4 +1,4 @@
-name: NAE
+name: CUCPS
 channels:
   - pytorch
   - defaults
@@ -164,7 +164,6 @@ dependencies:
     - pytest==4.6.7
     - pytest-benchmark==3.2.3
     - python-dateutil==2.8.0
-    - pytorch-ignite==0.2.0
     - pyzmq==18.0.2
     - qtconsole==4.5.2
     - scandir==1.10.0
@@ -187,5 +186,4 @@ dependencies:
     - widgetsnbextension==3.5.1
     - xmltodict==0.12.0
     - zipp==0.6.0
-# prefix: /root/miniconda2/envs/NAE
 

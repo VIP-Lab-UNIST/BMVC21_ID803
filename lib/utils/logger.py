@@ -93,18 +93,3 @@ class MetricLogger(object):
                              self.meters['loss_value'].avg, self.meters['loss_detection'].avg, self.meters['loss_reid'].avg, 
                              self.meters['lr'].value,
                              self.meters['batch_time'].avg)))
-
-        # print('\tDetection loss: %.4f, Re-ID loss: %.4f'% (self.meters['loss_detection'].avg, self.meters['loss_reid'].avg))
-
-        # print('rpn_cls: %.4f, rpn_box: %.4f, rcnn_box: %.4f'
-        #           % (self.meters['loss_objectness'].avg, 
-        #              self.meters['loss_rpn_box_reg'].avg,
-        #              self.meters['loss_box_reg'].avg))
-
-        # if 'num_fg' in self.meters:       
-        #     print('\tfg/bg: %d/%d, time cost: %.4f' %
-        #               (self.meters['num_fg'].avg, 
-        #                self.meters['num_bg'].avg, 
-        #                self.meters['batch_time'].avg))
-        # else:
-        #     print('\ttime cost: %.4f' % (self.meters['batch_time'].avg))
