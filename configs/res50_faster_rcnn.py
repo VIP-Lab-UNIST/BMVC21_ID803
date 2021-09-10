@@ -195,8 +195,8 @@ def args_faster_rcnn():
                         default=1.0, type=float)
     parser.add_argument('--oim_momentum', dest='train.oim_momentum', 
                         default=0.5, type=float)
-    parser.add_argument('--reid_loss', dest='reid_loss', 
-                        default='oim', type=str)
+#     parser.add_argument('--reid_loss', dest='reid_loss', 
+#                         default='oim', type=str)
                         
     #
     # Test

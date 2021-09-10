@@ -28,9 +28,7 @@ class Regressor(nn.Module):
     def set_scene_vector(self, train_info):
         num_person=len(train_info[3])
         num_scene=list(train_info[3])
-        name_scene=train_info[2]
 
-        self.name_scene=np.array(name_scene)
         self.num_scene=torch.tensor(list(map(lambda x: x-1, num_scene))).cuda()
         self.memory=Memory(self.num_features, num_person).cuda()
         
@@ -39,28 +37,17 @@ class Regressor(nn.Module):
 
         self.criterion = ReIDloss(delta=5.0, r=self.hard_neg)
 
-    def forward(self, epoch, inputs, cls_scores, roi_labels, scene_nums, GT_roi_labels, scene_names, images, proposals):
-
-        image_tensors=images.tensors
+    def forward(self, epoch, inputs, roi_labels):
 
         # merge into one batch, background label = 0
         targets = torch.cat(roi_labels)
-        proposals = torch.cat(proposals)
-        scene_nums=torch.cat(scene_nums).cuda()
-        scene_names= np.concatenate(scene_names)
         label = targets - 1  # background label = -1
-        scene_nums = scene_nums -1
 
         mask = (label>=0)
         inputs=inputs[mask]
-        cls_scores=cls_scores[mask]
-        proposals=proposals[mask]
-        scene_nums=scene_nums[mask]
-        scene_names=scene_names[mask.clone().detach().cpu().numpy()]
         label=label[mask]
 
         logits = self.memory(inputs, label, epoch)
-
         ## Clustering
         if epoch > 4:
             multilabels = self.clustering.predict(self.memory.mem.detach().clone(), label.detach().clone())

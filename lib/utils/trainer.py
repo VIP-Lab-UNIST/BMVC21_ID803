@@ -20,7 +20,8 @@ class Trainer():
         self.device = device
 
     def run(self):
-
+        print(hue.info(hue.bold(hue.green("Start training from %s epoch"%str(self.args.train.start_epoch)))))
+        
         steps = 0
         for epoch in range(self.args.train.start_epoch, self.args.train.epochs):
 
@@ -28,9 +29,8 @@ class Trainer():
             if epoch == 1 and self.args.train.lr_warm_up:
                 warmup_factor = 1. / 1000
                 warmup_iters = len(self.train_loader) - 1
-                sub_scheduler = warmup_lr_scheduler(optimizer, warmup_iters, warmup_factor)
+                sub_scheduler = warmup_lr_scheduler(self.optimizer, warmup_iters, warmup_factor)
             metric_logger = MetricLogger()
-            print(hue.info(hue.bold(hue.green("Start training from %s epoch"%str(epoch)))))
 
             for iteration, data in enumerate(self.train_loader):
                 ## Initial iterations

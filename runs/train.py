@@ -42,8 +42,8 @@ def main(args, get_model_fn):
     ## Load model and set the scene info.
     model = get_model_fn(args, training=True,
                          pretrained_backbone=True)
-    model.to(device)
     model.roi_heads.reid_regressor.set_scene_vector(train_info)
+    model.to(device)
 
     ## Set optimizer and scheduler
     optimizer = get_optimizer(args, model)

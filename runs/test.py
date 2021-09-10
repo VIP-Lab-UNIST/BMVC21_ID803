@@ -38,7 +38,7 @@ def main(new_args, get_model_fn):
     
     args.resume = new_args.test.checkpoint_name
     if osp.exists(new_args.test.checkpoint_name):
-        if not (osp.exists(new_args.test.checkpoint_name.replace('.pth', '-regular.json'))) and \
+        if (not osp.exists(new_args.test.checkpoint_name.replace('.pth', '-regular.json'))) and \
         (not osp.exists(new_args.test.checkpoint_name.replace('.pth', '-gallery-100.json'))):
 
             args, model, _, _ = resume_from_checkpoint(args, model)

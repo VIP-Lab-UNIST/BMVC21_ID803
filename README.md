@@ -22,10 +22,11 @@ This code is based on Chen et al's code for [NAE4PS](https://github.com/DeanChan
 
     Download [CUHK-SYSU](https://github.com/ShuangLI59/person_search) and [PRW](https://github.com/liangzheng06/PRW-baseline) to your location and set the dataset path in `./lib/datasets/__init__.py`.
 
+4. Download the pre-trained weights from [PRW]() and [CUHK-SYSU]()
+
 ## Train
     
 Set the save path(--path) in the .sh files.
-
 
 1. Train CUHK-SYSU
     ```bash
@@ -39,7 +40,9 @@ Set the save path(--path) in the .sh files.
    
 ## Test
 
-Add the checkpoint that you want to evaluate(--checkpoint_name) in the .sh files.
+Test 26, 18 epochs for [CUHK-SYSU](), [PRW](), respectively. 
+
+Add the checkpoint that you want to evaluate(--checkpoint_name) in the .sh files. 
 
 1. Test CUHK-SYSU
    

@@ -254,7 +254,7 @@ class Roiheads(RoIHeads):
             scene_num=[ target['imcnt'].repeat(128) for target in targets]
             scene_name=np.array(scene_name)
 
-            loss_reid = self.reid_regressor(epoch, embeddings_, cls_scores, cnts, scene_num, labels, scene_name, images, proposals) 
+            loss_reid = self.reid_regressor(epoch, embeddings_, cnts) 
             losses = dict(loss_detection=loss_detection,
                           loss_box_reg=loss_box_reg,
                           loss_reid=loss_reid)
