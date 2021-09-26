@@ -1,8 +1,15 @@
-# Person search 
+# Context-Aware Unsupervised Clustering for Person Search
 
 Official pytorch implementation for BMVC 2021 [Context-Aware Unsupervised Clustering for Person Search]().
 
 This code is based on Chen et al's code for [NAE4PS](https://github.com/DeanChan/NAE4PS).
+
+<figure align="center">
+  <img src="figures/overview.jpg" width=100%>
+  <figcaption>
+    Overall architecture
+  </figcaption>
+</figure>
 
 ## Settings
 
@@ -22,8 +29,6 @@ This code is based on Chen et al's code for [NAE4PS](https://github.com/DeanChan
 
     Download [CUHK-SYSU](https://github.com/ShuangLI59/person_search) and [PRW](https://github.com/liangzheng06/PRW-baseline) to your location and set the dataset path in `./lib/datasets/__init__.py`.
 
-4. Download the pre-trained weights from [PRW]() and [CUHK-SYSU]()
-
 ## Train
     
 Set the save path(--path) in the .sh files.
@@ -40,9 +45,9 @@ Set the save path(--path) in the .sh files.
    
 ## Test
 
-Test 26, 18 epochs for [CUHK-SYSU](), [PRW](), respectively. 
+Add the checkpoint that you want to evaluate on the `--checkpoint_name` option in test-*.sh files. 
 
-Add the checkpoint that you want to evaluate(--checkpoint_name) in the .sh files. 
+* You can also evaluate pretrained weight of test 26, 18 epochs for [CUHK-SYSU](), [PRW](), respectively.
 
 1. Test CUHK-SYSU
    
@@ -65,3 +70,22 @@ Add the checkpoint that you want to evaluate(--checkpoint_name) in the .sh files
     ```
 
 The result will be saved in same directory with checkpoint file.
+
+## Results on the pretrained models
+
+| Datasets                  |mAP(%)|Rank-1(%)|
+| :-------------------------|:----:|:----:|
+| CUHK-SYSU                 | 81.1 | 83.2 |
+| PRW(regular gallery)      | 41.7 | 86.0 |
+| PRW(multi-view gallery)   | 36.6 | 64.9 |
+
+## Citation
+
+```
+@article{cucps,
+  title={Context-Aware Unsupervised Clustering for Person Search},
+  author={Byeong-Ju Han*, Kuhyeun Ko* and Jae-Young Sim},
+  booktitle = {British Machine Vision Conference (BMVC)},
+  year={2021},
+}
+```

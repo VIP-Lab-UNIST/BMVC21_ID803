@@ -77,8 +77,10 @@ def args_faster_rcnn():
                         default=8, type=int)
     parser.add_argument('--lr_decay_milestones', type=int, dest='train.lr_decay_milestones',
                         nargs='+', default=None)
+#     parser.add_argument('--lr_warm_up', dest='train.lr_warm_up',
+#                         action='store_true')
     parser.add_argument('--lr_warm_up', dest='train.lr_warm_up',
-                        action='store_true')
+                        default=True, type=bool)
     parser.add_argument('--clip_gradient', dest='train.clip_gradient',
                         type=float, default=10.0)
 
