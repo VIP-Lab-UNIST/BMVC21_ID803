@@ -1,6 +1,8 @@
 # Context-Aware Unsupervised Clustering for Person Search
 
-Official pytorch implementation for BMVC 2021 paper #803 [Context-Aware Unsupervised Clustering for Person Search]().
+Official pytorch implementation code. 
+
+<!-- [Context-Aware Unsupervised Clustering for Person Search](). -->
 
 <!-- This code is based on Chen et al's code for [NAE4PS](https://github.com/DeanChan/NAE4PS). -->
 
