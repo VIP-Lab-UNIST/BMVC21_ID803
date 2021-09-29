@@ -6,9 +6,6 @@ Official pytorch implementation for BMVC 2021 paper #803 [Context-Aware Unsuperv
 
 <figure align="center">
   <img src="figures/overview.jpg" width=100%>
-  <figcaption>
-    Overall architecture.
-  </figcaption>
 </figure>
 
 ## Settings
@@ -71,7 +68,7 @@ Add the checkpoint that you want to evaluate on the `--checkpoint_name` option i
 
 The result will be saved in same directory with checkpoint file.
 
-## Results on the pretrained models
+## Results on the pretrained models (paper results)
 
 | Datasets                  |mAP(%)|Rank-1(%)|
 | :-------------------------|:----:|:----:|
