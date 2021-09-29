@@ -4,7 +4,5 @@ python -B runs/train.py  \
         --num_cq_size 500 \
         --lr_decay_step 14 \
         --batch_size 4 \
-        --start_epoch 0 \
-        --path ./logs/prw/release-final/
+        --path ./logs/prw/
                        
-        # --lr_warm_up \

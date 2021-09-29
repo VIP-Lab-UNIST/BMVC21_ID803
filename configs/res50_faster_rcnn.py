@@ -49,7 +49,7 @@ def args_faster_rcnn():
                         action='store_true')
     parser.add_argument('--start_epoch', dest='train.start_epoch',
                         help='starting epoch',
-                        default=0, type=int)
+                        default=1, type=int)
     parser.add_argument('--epochs', dest='train.epochs',
                         help='number of epochs to train',
                         default=25, type=int)
@@ -77,8 +77,6 @@ def args_faster_rcnn():
                         default=8, type=int)
     parser.add_argument('--lr_decay_milestones', type=int, dest='train.lr_decay_milestones',
                         nargs='+', default=None)
-#     parser.add_argument('--lr_warm_up', dest='train.lr_warm_up',
-#                         action='store_true')
     parser.add_argument('--lr_warm_up', dest='train.lr_warm_up',
                         default=True, type=bool)
     parser.add_argument('--clip_gradient', dest='train.clip_gradient',
@@ -197,9 +195,8 @@ def args_faster_rcnn():
                         default=1.0, type=float)
     parser.add_argument('--oim_momentum', dest='train.oim_momentum', 
                         default=0.5, type=float)
-#     parser.add_argument('--reid_loss', dest='reid_loss', 
-#                         default='oim', type=str)
                         
+
     #
     # Test
     #
@@ -232,7 +229,6 @@ def args_faster_rcnn():
                         type=int, default=16,
                         help='Proposal height and width both need to be greater than RPN_MIN_SIZE (at\
                               orig image scale)')
-
     parser.add_argument('--embedding_feat_fuse', action='store_true',
                         help='Weather to fuse feat_res4 and feat_res5')
     

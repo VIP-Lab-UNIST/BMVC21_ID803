@@ -88,7 +88,7 @@ class MetricLogger(object):
         self.meters[name] = meter
 
     def print_log(self, epoch, step, iters_per_epoch):
-        print(hue.run('[epoch %2d][iter %4d/%4d] loss(det/reid): %7.4f(%7.4f/%7.4f, lr: %.2e, time: %.4f'
+        print(hue.run('[epoch %2d][iter %4d/%4d] loss(det/reid): %7.4f(%7.4f/%7.4f), lr: %.2e, time: %.4f'
                              % (epoch, step, iters_per_epoch, 
                              self.meters['loss_value'].avg, self.meters['loss_detection'].avg, self.meters['loss_reid'].avg, 
                              self.meters['lr'].value,
