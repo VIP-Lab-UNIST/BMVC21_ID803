@@ -1,13 +1,13 @@
 # Context-Aware Unsupervised Clustering for Person Search
 
-Official pytorch implementation for BMVC 2021 [Context-Aware Unsupervised Clustering for Person Search]().
+Official pytorch implementation for BMVC 2021 paper #803 [Context-Aware Unsupervised Clustering for Person Search]().
 
-This code is based on Chen et al's code for [NAE4PS](https://github.com/DeanChan/NAE4PS).
+<!-- This code is based on Chen et al's code for [NAE4PS](https://github.com/DeanChan/NAE4PS). -->
 
 <figure align="center">
   <img src="figures/overview.jpg" width=100%>
   <figcaption>
-    Overall architecture
+    Overall architecture.
   </figcaption>
 </figure>
 
@@ -45,9 +45,9 @@ Set the save path(--path) in the .sh files.
    
 ## Test
 
-Add the checkpoint that you want to evaluate on the `--checkpoint_name` option in test-*.sh files. 
+Add the checkpoint that you want to evaluate on the `--checkpoint_name` option in test-*.sh files. The model shold be with `args.json` file.
 
-* You can also evaluate pretrained weight of test 26, 18 epochs for [CUHK-SYSU](), [PRW](), respectively.
+* You can also evaluate pretrained weight of test 26, 18 epochs for [CUHK-SYSU](https://drive.google.com/drive/folders/1FoI8ViYtVl0nhpbiXy-GA8e0qK5D9Qyi?usp=sharing), [PRW](https://drive.google.com/drive/folders/18QiPhj8XOrKgfrOkmy88gwNfKoIgZPX-?usp=sharing), respectively.
 
 1. Test CUHK-SYSU
    
@@ -79,7 +79,7 @@ The result will be saved in same directory with checkpoint file.
 | PRW(regular gallery)      | 41.7 | 86.0 |
 | PRW(multi-view gallery)   | 36.6 | 64.9 |
 
-## Citation
+<!-- ## Citation
 
 ```
 @article{cucps,
@@ -88,4 +88,4 @@ The result will be saved in same directory with checkpoint file.
   booktitle = {British Machine Vision Conference (BMVC)},
   year={2021},
 }
-```
+``` -->
