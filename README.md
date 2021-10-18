@@ -1,13 +1,9 @@
 # Context-Aware Unsupervised Clustering for Person Search
 
-Official pytorch implementation code. 
-
-<!-- [Context-Aware Unsupervised Clustering for Person Search](). -->
-
-<!-- This code is based on Chen et al's code for [NAE4PS](https://github.com/DeanChan/NAE4PS). -->
+Official pytorch implementation of [Context-Aware Unsupervised Clustering for Person Search](https://arxiv.org/abs/2110.01341) at BMVC 2021. 
 
 <figure align="center">
-  <img src="figures/overview.jpg" width=100%>
+  <img src="figures/overview.jpg" width=80%>
 </figure>
 
 ## Settings
@@ -78,7 +74,7 @@ The result will be saved in same directory with checkpoint file.
 | PRW(regular gallery)      | 41.7 | 86.0 |
 | PRW(multi-view gallery)   | 36.6 | 64.9 |
 
-<!-- ## Citation
+## Citation
 
 ```
 @article{cucps,
@@ -87,4 +83,4 @@ The result will be saved in same directory with checkpoint file.
   booktitle = {British Machine Vision Conference (BMVC)},
   year={2021},
 }
-``` -->
+```
